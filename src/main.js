@@ -10,10 +10,15 @@ if (started) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1080,
+    height: 720,
     webPreferences: {
+      // Point to your preload script
       preload: path.join(__dirname, "preload.js"),
+      // Security: disable nodeIntegration
+      nodeIntegration: false,
+      // Security: enable contextIsolation
+      contextIsolation: true,
     },
   })
 

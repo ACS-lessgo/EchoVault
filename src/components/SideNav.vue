@@ -38,6 +38,7 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease;
 }
 
 nav {
@@ -72,5 +73,27 @@ nav {
   width: 20px;
   height: 20px;
   filter: invert(100%) brightness(200%);
+}
+
+/* --- Responsive collapsed mode --- */
+@media (max-width: 768px) {
+  .side-nav {
+    width: 50px;
+    padding: auto;
+    align-items: center;
+  }
+
+  .nav-item {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .nav-icon {
+    margin: 0 auto;
+  }
 }
 </style>
