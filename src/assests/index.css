@@ -1,0 +1,34 @@
+:root {
+  --bg-color: #121212;
+  --side-nav-bg: #181818;
+  --topbar-bg: #1c1c1c;
+  --footer-bg: #181818;
+  --content-bg: #121212;
+
+  /* new tones */
+  --accent: #8e44ad;
+  --accent-hover: #9b59b6;
+  --hover-bg: rgba(142, 68, 173, 0.25);
+
+  --border-color: #282828;
+  --text-color: #e5e5e5;
+  --muted-text: #a0a0a0;
+
+  --search-bar-color: #2b2b2b
+}
+
+body, html, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+button, input {
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
