@@ -6,4 +6,6 @@ contextBridge.exposeInMainWorld("api", {
   removeFolder: (path) => ipcRenderer.invoke("remove-folder", path),
   rescanLibrary: () => ipcRenderer.invoke("rescan-library"),
   getTracks: () => ipcRenderer.invoke("get-tracks"),
+  getCoverDataUrl: (filePath) =>
+    ipcRenderer.invoke("get-cover-dataurl", filePath),
 })
