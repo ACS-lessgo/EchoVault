@@ -42,7 +42,8 @@ export function initDB() {
         album TEXT,
         duration REAL,
         cover TEXT,
-        FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE
+        FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
+        UNIQUE(title, artist, album)
       );
     `
   }

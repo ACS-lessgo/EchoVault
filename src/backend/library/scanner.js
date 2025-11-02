@@ -5,7 +5,7 @@ import { parseFile } from "music-metadata"
 
 export async function extractMetadata(filePath) {
   try {
-    console.log("Extracting metadata for:", filePath)
+    // console.log("Extracting metadata for:", filePath)
     const metadata = await parseFile(filePath)
     const { common, format } = metadata
 

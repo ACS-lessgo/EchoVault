@@ -1,8 +1,13 @@
 <template>
   <header class="top-bar">
     <div class="search-bar">
-      <img :src="Search" alt="Search icon" class="search-icon" />
-      <input type="text" placeholder="Search... " class="search-input" />
+      <img src="../assests/icons/search.svg" alt="Search" class="search-icon" />
+      <input
+        v-model="localQuery"
+        type="text"
+        placeholder="Search... "
+        class="search-input"
+      />
     </div>
     <div class="actions">
       <button title="Theme" @click="toggleTheme" class="icon-btn">
@@ -20,14 +25,26 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { Dark, Light, Settings, Search } from "../assests/icons/icons.js"
+import { useSearchStore } from "../store/search.js"
+import { debounce } from "../backend/utils/debounce.js"
 
 const isDarkMode = ref(true)
+const searchStore = useSearchStore()
+const localQuery = ref(searchStore.query)
+
+const updateSearch = debounce((val) => {
+  searchStore.setQuery(val.trim())
+}, 400)
+
+watch(localQuery, (val) => updateSearch(val))
 
 const toggleTheme = () => {
   isDarkMode.value = !isDarkMode.value
 }
+
+// TODO : Move search completly to sqlite
 </script>
 
 <style scoped>

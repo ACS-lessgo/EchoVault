@@ -57,7 +57,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="(track, index) in tracks"
+            v-for="(track, index) in filteredTracks"
             :key="track.id"
             class="track-row"
           >
@@ -90,7 +90,7 @@
 
     <!-- Grid View -->
     <div v-else class="grid-view">
-      <div v-for="track in tracks" :key="track.id" class="track-card">
+      <div v-for="track in filteredTracks" :key="track.id" class="track-card">
         <div class="card-cover">
           <img
             v-if="track.coverDataUrl"
@@ -125,11 +125,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { Menu } from "../assests/icons/icons.js"
+import { useSearchStore } from "../store/search.js"
 
 const tracks = ref([])
 const viewMode = ref("list")
+
+const search = useSearchStore()
 
 async function loadTracks() {
   const result = await window.api.getTracks()
@@ -167,6 +170,20 @@ function formatDuration(seconds) {
 }
 
 onMounted(loadTracks)
+
+const filteredTracks = computed(() => {
+  const q = search.query?.trim().toLowerCase()
+  if (!q) return tracks.value
+
+  return tracks.value.filter((t) => {
+    const title = t.title?.toLowerCase() || ""
+    const artist = t.artist?.toLowerCase() || ""
+    const album = t.album?.toLowerCase() || ""
+    return title.includes(q) || artist.includes(q) || album.includes(q)
+  })
+})
+
+// TODO : Add pagination OR Virtual scroll list
 </script>
 
 <style scoped>
