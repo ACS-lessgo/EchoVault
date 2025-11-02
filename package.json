@@ -33,7 +33,9 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
+    "better-sqlite3": "^12.4.1",
     "chokidar": "^4.0.3",
+    "electron-forge-maker-appimage": "^26.0.12",
     "electron-squirrel-startup": "^1.0.1",
     "lowdb": "^7.0.1",
     "lucide-vue-next": "^0.552.0",

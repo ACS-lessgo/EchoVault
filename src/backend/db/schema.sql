@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS folders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  path TEXT UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS tracks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  folder_id INTEGER,
+  file_path TEXT UNIQUE,
+  title TEXT,
+  artist TEXT,
+  album TEXT,
+  duration REAL,
+  cover TEXT,
+  FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE
+);

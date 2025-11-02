@@ -5,22 +5,29 @@
       <input type="text" placeholder="Search... " class="search-input" />
     </div>
     <div class="actions">
-      <button title="Theme">
-        <img class="topbar-icon-class icon-btn" :src="Light" alt="Light" />
-      </button>
-      <button title="Settings">
+      <button title="Theme" @click="toggleTheme" class="icon-btn">
         <img
-          class="topbar-icon-class icon-btn"
-          :src="Settings"
-          alt="Settings"
+          class="topbar-icon-class"
+          :src="isDarkMode ? Light : Dark"
+          alt="Light"
         />
+      </button>
+      <button title="Settings" class="icon-btn">
+        <img class="topbar-icon-class" :src="Settings" alt="Settings" />
       </button>
     </div>
   </header>
 </template>
 
 <script setup>
-import { Light, Settings, Search } from "../assests/icons/icons.js"
+import { ref } from "vue"
+import { Dark, Light, Settings, Search } from "../assests/icons/icons.js"
+
+const isDarkMode = ref(true)
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value
+}
 </script>
 
 <style scoped>
@@ -81,8 +88,20 @@ import { Light, Settings, Search } from "../assests/icons/icons.js"
   color: var(--muted-text);
 }
 
+.icon-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+  justify-content: center;
+}
+
 .icon-btn:hover {
-  transform: scale(1.3);
-  transition: transform 0.2s ease-in-out;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 </style>
