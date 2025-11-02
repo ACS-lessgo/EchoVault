@@ -75,7 +75,7 @@ export async function scanFolder(db, folderPath) {
       const duration = metadata.format.duration || 0
 
       db.prepare(
-        `INSERT INTO tracks (folder_id, file_path, title, artist, album, duration)
+        `INSERT OR IGNORE INTO tracks (folder_id, file_path, title, artist, album, duration)
          VALUES (?, ?, ?, ?, ?, ?)`
       ).run(
         folderId,
