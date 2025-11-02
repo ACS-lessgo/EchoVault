@@ -20,7 +20,7 @@ export async function extractMetadata(filePath) {
       fs.writeFileSync(coverPath, img.data)
     }
 
-    console.log("coverPath:", coverPath)
+    // console.log("coverPath:", coverPath)
 
     return {
       title: common.title || path.basename(filePath),
