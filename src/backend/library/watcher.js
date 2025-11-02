@@ -22,9 +22,9 @@ export function watchFolders(db) {
         .get(folderPath)?.id
       if (!folderId) return
 
-      console.log("Calling extractMetadata for:", filePath)
+      // console.log("Calling extractMetadata for:", filePath)
       const meta = await extractMetadata(filePath)
-      console.log("Extracted metadata:", meta)
+      // console.log("Extracted metadata:", meta)
       if (meta) {
         db.prepare(
           `INSERT OR REPLACE INTO tracks 

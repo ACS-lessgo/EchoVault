@@ -5,7 +5,7 @@ import { parseFile } from "music-metadata"
 
 export async function extractMetadata(filePath) {
   try {
-    console.log("Extracting metadata for:", filePath)
+    // console.log("Extracting metadata for:", filePath)
     const metadata = await parseFile(filePath)
     const { common, format } = metadata
 
@@ -20,7 +20,7 @@ export async function extractMetadata(filePath) {
       fs.writeFileSync(coverPath, img.data)
     }
 
-    console.log("coverPath:", coverPath)
+    // console.log("coverPath:", coverPath)
 
     return {
       title: common.title || path.basename(filePath),
@@ -75,7 +75,7 @@ export async function scanFolder(db, folderPath) {
       const duration = metadata.format.duration || 0
 
       db.prepare(
-        `INSERT INTO tracks (folder_id, file_path, title, artist, album, duration)
+        `INSERT OR IGNORE INTO tracks (folder_id, file_path, title, artist, album, duration)
          VALUES (?, ?, ?, ?, ?, ?)`
       ).run(
         folderId,
