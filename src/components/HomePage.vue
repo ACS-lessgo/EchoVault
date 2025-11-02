@@ -1,6 +1,5 @@
 <template>
   <div class="home-page">
-    <!-- Hero Section -->
     <div class="hero-card">
       <div class="hero-text">
         <h1>Welcome to <span class="highlight">EchoVault</span></h1>
@@ -10,46 +9,80 @@
       </div>
     </div>
 
-    <!-- Content Card -->
     <div class="content-card">
       <div class="add-section">
-        <h2>Add Music</h2>
+        <h2>Import Your Music</h2>
         <div class="button-group">
-          <button class="accent-btn">Add Folder</button>
-          <button class="accent-btn">Add Music Files</button>
+          <button class="accent-btn" @click="addFolder">Add Folder</button>
         </div>
       </div>
 
       <div class="table-section">
-        <h2>Music Folders</h2>
+        <h2>Your Music Collection</h2>
         <table class="folder-table">
           <thead>
             <tr>
               <th>Folder Path</th>
-              <th>Actions</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>D:/Music/Pop</td>
-              <td><button class="remove-btn">Remove</button></td>
-            </tr>
-            <tr>
-              <td>C:/Users/John/Music/Rock</td>
-              <td><button class="remove-btn">Remove</button></td>
+            <tr v-for="folder in folders" :key="folder.id">
+              <td>
+                <div class="folder-info">
+                  <span class="folder-path">{{ folder.path }}</span>
+                  <span class="track-count"
+                    >{{ folder.trackCount || 0 }} tracks</span
+                  >
+                </div>
+              </td>
+              <td class="remove-cell">
+                <button class="icon-btn" @click="removeFolder(folder.path)">
+                  −
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <div class="rescan-section">
-        <button class="rescan-btn">Rescan Library</button>
+        <button class="rescan-btn" @click="rescanLibrary">
+          Rescan Library
+        </button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref, onMounted } from "vue"
+
+const folders = ref([])
+
+async function loadFolders() {
+  folders.value = await window.api.getFolders()
+  console.log("Folders :", folders.value)
+}
+
+async function addFolder() {
+  folders.value = await window.api.addFolder()
+}
+
+async function removeFolder(path) {
+  folders.value = await window.api.removeFolder(path)
+}
+
+async function rescanLibrary() {
+  folders.value = await window.api.rescanLibrary()
+  console.log("Rescanned Folders :", folders.value)
+  alert("Library rescanned successfully!")
+}
+
+onMounted(() => {
+  loadFolders()
+})
+</script>
 
 <style scoped>
 .home-page {
@@ -238,5 +271,39 @@ h2 {
 .rescan-btn:hover {
   background-color: var(--accent);
   color: white;
+}
+
+.folder-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.folder-path {
+  font-weight: 500;
+}
+
+.track-count {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.remove-cell {
+  text-align: center;
+  width: 50px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: var(--accent-hover);
+  transform: scale(1.1);
 }
 </style>
