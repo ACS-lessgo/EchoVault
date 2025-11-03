@@ -8,4 +8,6 @@ contextBridge.exposeInMainWorld("api", {
   getTracks: () => ipcRenderer.invoke("get-tracks"),
   getCoverDataUrl: (filePath) =>
     ipcRenderer.invoke("get-cover-dataurl", filePath),
+  getEmbeddedLyrics: (filePath) =>
+    ipcRenderer.invoke("get-embedded-lyrics", filePath),
 })

@@ -1,6 +1,8 @@
 import { dialog, ipcMain } from "electron"
 import { scanFolder } from "./scanner.js"
 import { watchFolders } from "./watcher.js"
+import { extractEmbeddedLyrics } from "../utils/embeddedLyrics.js"
+import { parseFile } from "music-metadata"
 import fs from "fs"
 
 export function registerLibraryHandlers(mainWindow, db) {
@@ -83,6 +85,19 @@ export function registerLibraryHandlers(mainWindow, db) {
       return "data:image/jpeg;base64," + data.toString("base64")
     } catch (err) {
       console.error("Error reading cover file:", err)
+      return null
+    }
+  })
+
+  ipcMain.handle("get-embedded-lyrics", async (event, filePath) => {
+    try {
+      const metadata = await parseFile(filePath)
+      const lyricsData = extractEmbeddedLyrics(metadata)
+
+      const lyrics = lyricsData?.text || "No lyrics found."
+      return lyrics
+    } catch (err) {
+      console.error("Failed to read lyrics:", err)
       return null
     }
   })

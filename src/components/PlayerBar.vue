@@ -89,7 +89,7 @@ const togglePlay = () => {
     player.currentTrack.title || "(no track)"
   )
 
-  // TODO: IPC call
+  // TODO : IPC call
   // window.api.togglePlay(player.currentTrack)
 }
 
