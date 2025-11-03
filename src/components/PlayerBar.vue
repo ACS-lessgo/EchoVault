@@ -1,10 +1,16 @@
 <template>
   <footer class="player-bar">
     <div class="song-info">
-      <img src="../assests/images/default-cover.svg" alt="Album Art" />
-      <div>
-        <p>No song selected</p>
-        <small>Unknown artist</small>
+      <img
+        v-if="player.currentTrack?.coverDataUrl"
+        :src="player.currentTrack.coverDataUrl"
+        alt="Album Art"
+      />
+      <img v-else src="../assests/images/default-cover.svg" alt="Album Art" />
+
+      <div class="song-details">
+        <p>{{ player.currentTrack?.title || "No track selected" }}</p>
+        <small>{{ player.currentTrack?.artist || "" }}</small>
       </div>
     </div>
 
@@ -46,6 +52,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue"
+import { usePlayerStore } from "../store/player.js"
 import {
   Previous,
   Next,
@@ -56,7 +63,8 @@ import {
 } from "../assests/icons/icons"
 
 const volume = ref(50)
-const isPlaying = ref(false)
+const isPlaying = computed(() => player.isPlaying)
+const player = usePlayerStore()
 
 const playPreviousTrack = () => {
   console.log("playPreviousTrack")
@@ -74,8 +82,15 @@ watch(volume, (newVal) => {
 })
 
 const togglePlay = () => {
-  isPlaying.value = !isPlaying.value
-  console.log(isPlaying.value ? "Playing" : "Paused")
+  player.togglePlay()
+  console.log(
+    player.isPlaying ? "Playing" : "Paused",
+    " :: Track =>",
+    player.currentTrack.title || "(no track)"
+  )
+
+  // TODO: IPC call
+  // window.api.togglePlay(player.currentTrack)
 }
 
 const toggleMute = () => {
@@ -99,12 +114,41 @@ const toggleMute = () => {
 .song-info {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
 }
+
 .song-info img {
-  width: 50px;
-  height: 50px;
+  flex-shrink: 0;
+  width: 55px;
+  height: 55px;
   border-radius: 8px;
-  margin-right: 0.75rem;
+  object-fit: cover;
+}
+
+.song-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.song-details p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-details small {
+  color: #aaa;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls {
