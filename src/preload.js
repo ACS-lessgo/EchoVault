@@ -1,11 +1,13 @@
 import { contextBridge, ipcRenderer } from "electron"
 
 contextBridge.exposeInMainWorld("api", {
-  addFolder: () => ipcRenderer.invoke("add-folder"),
-  getFolders: () => ipcRenderer.invoke("get-folders"),
-  removeFolder: (path) => ipcRenderer.invoke("remove-folder", path),
-  rescanLibrary: () => ipcRenderer.invoke("rescan-library"),
-  getTracks: () => ipcRenderer.invoke("get-tracks"),
+  addFolder: () => ipcRenderer.invoke("library:add-folder"),
+  getFolders: () => ipcRenderer.invoke("library:get-folders"),
+  removeFolder: (path) => ipcRenderer.invoke("library:remove-folder", path),
+  rescanLibrary: () => ipcRenderer.invoke("library:rescan-library"),
+  getTracks: () => ipcRenderer.invoke("tracks:get-tracks"),
   getCoverDataUrl: (filePath) =>
-    ipcRenderer.invoke("get-cover-dataurl", filePath),
+    ipcRenderer.invoke("tracks:get-cover-dataurl", filePath),
+  getEmbeddedLyrics: (filePath) =>
+    ipcRenderer.invoke("tracks:get-embedded-lyrics", filePath),
 })

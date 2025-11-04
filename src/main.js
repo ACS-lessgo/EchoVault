@@ -26,7 +26,8 @@ function createWindow() {
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
     )
 
-  mainWindow.webContents.openDevTools()
+  // Open chrome dev tools on startup
+  // mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {

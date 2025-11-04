@@ -60,6 +60,7 @@
             v-for="(track, index) in filteredTracks"
             :key="track.id"
             class="track-row"
+            @click="playCurrentTrack(track)"
           >
             <td class="num-col">{{ index + 1 }}</td>
             <td class="title-col">
@@ -103,7 +104,7 @@
             :alt="track.title"
           />
           <div class="play-overlay">
-            <button class="play-btn">
+            <button class="play-btn" @click="playCurrentTrack(track)">
               <svg
                 width="24"
                 height="24"
@@ -126,13 +127,14 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue"
-import { Menu } from "../assests/icons/icons.js"
 import { useSearchStore } from "../store/search.js"
+import { usePlayerStore } from "../store/player.js"
 
 const tracks = ref([])
 const viewMode = ref("list")
 
 const search = useSearchStore()
+const player = usePlayerStore()
 
 async function loadTracks() {
   const result = await window.api.getTracks()
@@ -150,7 +152,6 @@ async function loadTracks() {
   )
 
   tracks.value = withCovers
-  console.log("Tracks loaded ::", tracks.value)
 }
 
 function formatDuration(seconds) {
@@ -182,6 +183,11 @@ const filteredTracks = computed(() => {
     return title.includes(q) || artist.includes(q) || album.includes(q)
   })
 })
+
+// Send to store for Player component
+function playCurrentTrack(track) {
+  player.setTrack(track)
+}
 
 // TODO : Add pagination OR Virtual scroll list
 </script>
