@@ -13,4 +13,6 @@ contextBridge.exposeInMainWorld("api", {
   getArtists: () => ipcRenderer.invoke("artists:get-artists"),
   getTracksByArtist: (artistId) =>
     ipcRenderer.invoke("artists:get-tracks-by-artist", artistId),
+  toggleLike: (trackId, isLiked) =>
+    ipcRenderer.invoke("tracks:updateLike", trackId, isLiked),
 })

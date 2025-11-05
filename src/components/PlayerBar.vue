@@ -1,5 +1,6 @@
 <template>
   <footer class="player-bar">
+    <!-- LEFT: Song Info -->
     <div class="song-info">
       <img
         v-if="player.currentTrack?.coverDataUrl"
@@ -14,38 +15,65 @@
       </div>
     </div>
 
+    <!-- CENTER: Controls -->
     <div class="controls">
       <button @click="playPreviousTrack" class="icon-btn">
         <img class="playbar-icon-class" :src="Previous" alt="Previous" />
       </button>
-      <button @click="togglePlay" class="icon-btn">
+
+      <button @click="togglePlay" class="icon-btn play-btn">
         <img
           class="playbar-icon-class play-icon"
           :src="isPlaying ? Pause : Play"
           :alt="isPlaying ? 'Pause' : 'Play'"
         />
       </button>
+
       <button class="icon-btn">
         <img class="playbar-icon-class" :src="Next" alt="Next" />
       </button>
     </div>
 
-    <div class="volume">
-      <button @click="toggleMute" class="icon-btn">
-        <img
-          class="playbar-icon-class"
-          :src="currentVolumeIcon"
-          alt="Volume icon"
-        />
-      </button>
+    <!-- RIGHT: Track Utils + Volume -->
+    <div class="right-section">
+      <div class="track-utils">
+        <button @click="toggleLikedSong" class="icon-btn">
+          <img
+            class="playbar-icon-class"
+            :src="player.currentTrack?.isLiked ? HeartSolid : Heart"
+            alt="Heart icon"
+          />
+        </button>
+        <!-- TODO : Add Repeat and Shuffle -->
+        <!-- <button @click="toggleRepeat" class="icon-btn">
+          <img class="playbar-icon-class" :src="Repeat" alt="Heart icon" />
+        </button>
+        <button @click="toggleShuffle" class="icon-btn">
+          <img
+            class="playbar-icon-class"
+            :src="Shuffle"
+            alt="HeaShufflert icon"
+          />
+        </button> -->
+      </div>
 
-      <input
-        type="range"
-        min="0"
-        max="100"
-        v-model="volume"
-        class="volume-slider"
-      />
+      <div class="volume">
+        <button @click="toggleMute" class="icon-btn">
+          <img
+            class="playbar-icon-class"
+            :src="currentVolumeIcon"
+            alt="Volume icon"
+          />
+        </button>
+
+        <input
+          type="range"
+          min="0"
+          max="100"
+          v-model="volume"
+          class="volume-slider"
+        />
+      </div>
     </div>
   </footer>
 </template>
@@ -60,18 +88,23 @@ import {
   Volume,
   VolumeMute,
   Pause,
+  Heart,
+  HeartSolid,
+  Shuffle,
+  Repeat,
+  RepeatOne,
 } from "../assests/icons/icons"
 
 const volume = ref(50)
-const isPlaying = computed(() => player.isPlaying)
 const player = usePlayerStore()
+const isPlaying = computed(() => player.isPlaying)
 
 const playPreviousTrack = () => {
   console.log("playPreviousTrack")
 }
 
 const currentVolumeIcon = computed(() =>
-  volume.value == 0 ? VolumeMute : Volume
+  volume.value === 0 ? VolumeMute : Volume
 )
 
 watch(volume, (newVal) => {
@@ -85,37 +118,54 @@ const togglePlay = () => {
   player.togglePlay()
   console.log(
     player.isPlaying ? "Playing" : "Paused",
-    " :: Track =>",
+    ":: Track =>",
     player.currentTrack.title || "(no track)"
   )
+}
 
-  // TODO : IPC call
-  // window.api.togglePlay(player.currentTrack)
+const toggleLikedSong = async () => {
+  const track = player.currentTrack
+  if (!track?.id) return
+
+  const newStatus = !track.isLiked
+
+  // change the like status for UI
+  track.isLiked = newStatus
+
+  // send same to db
+  await window.api.toggleLike(track.id, newStatus)
+  console.log(`Track ${track.title} like status updated: ${newStatus}`)
 }
 
 const toggleMute = () => {
-  volume.value = volume.value == 0 ? 50 : 0
+  volume.value = volume.value === 0 ? 50 : 0
 }
 </script>
 
 <style scoped>
+/* === PLAYER BAR LAYOUT === */
 .player-bar {
   height: 80px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* Left | Center | Right */
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
   padding: 0 1rem;
   background-color: var(--footer-bg);
   border-top: 2px solid var(--border-color);
   color: var(--text-color);
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
+/* === LEFT SECTION === */
 .song-info {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+  max-width: 320px;
+  overflow: hidden;
 }
 
 .song-info img {
@@ -129,8 +179,8 @@ const toggleMute = () => {
 .song-details {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   overflow: hidden;
+  min-width: 0;
 }
 
 .song-details p {
@@ -141,6 +191,24 @@ const toggleMute = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+/* 🎵 marquee scroll on hover */
+.song-details p:hover {
+  animation: scrollText 6s linear infinite;
+}
+
+@keyframes scrollText {
+  0%,
+  10% {
+    transform: translateX(0);
+  }
+  90%,
+  100% {
+    transform: translateX(-60%);
+  }
 }
 
 .song-details small {
@@ -151,12 +219,47 @@ const toggleMute = () => {
   text-overflow: ellipsis;
 }
 
+/* === CENTER SECTION === */
 .controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.play-btn {
+  transform: scale(1.2);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.play-btn:hover {
+  transform: scale(1.3);
+  filter: drop-shadow(0 0 5px white);
+}
+
+/* === RIGHT SECTION === */
+.right-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.track-utils {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* === ICONS === */
 .icon-btn {
   background: transparent;
   border: none;
@@ -183,18 +286,11 @@ const toggleMute = () => {
 }
 
 .play-icon {
-  width: 24px;
-  height: 24px;
-  transform: scale(1.2);
+  width: 26px;
+  height: 26px;
 }
 
-/* --- Volume section --- */
-.volume {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* === VOLUME SLIDER === */
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
