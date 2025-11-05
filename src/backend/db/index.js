@@ -43,8 +43,7 @@ export function initDB() {
         duration REAL,
         cover TEXT,
         FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
-        FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL,
-        UNIQUE(title, artist_id, album)
+        FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
       );
 
       CREATE TABLE IF NOT EXISTS artists (
@@ -56,6 +55,33 @@ export function initDB() {
   }
 
   db.exec(schema)
+
+  // Creating indexes for performance
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_file_path ON tracks(file_path);
+  `
+  ).run()
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_artist_id ON tracks(artist_id);
+  `
+  ).run()
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_folder_id ON tracks(folder_id);
+  `
+  ).run()
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);
+  `
+  ).run()
+
   console.log("SQLite DB initialized at:", dbPath)
+  console.log("Indexes verified / created.")
   return db
 }
