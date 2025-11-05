@@ -73,6 +73,20 @@ export async function scanFolder(db, folderPath) {
     (folder_id, artist_id, file_path, title, album, artist, duration, cover)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `)
+  const upsertTrack = db.prepare(`
+    INSERT INTO tracks (
+      folder_id, artist_id, file_path, title, album, artist, duration, cover
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(file_path) DO UPDATE SET
+      folder_id=excluded.folder_id,
+      artist_id=excluded.artist_id,
+      title=excluded.title,
+      album=excluded.album,
+      artist=excluded.artist,
+      duration=excluded.duration,
+      cover=excluded.cover
+  `)
 
   // Scan files
   for (const filePath of filesOnDisk) {
@@ -120,7 +134,7 @@ export async function scanFolder(db, folderPath) {
       }
 
       // Insert track
-      insertTrack.run(
+      upsertTrack.run(
         folderId,
         artistId,
         filePath,

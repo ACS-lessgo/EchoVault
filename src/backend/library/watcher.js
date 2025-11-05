@@ -51,10 +51,17 @@ export function watchFolders(db) {
         // Insert or update track with artist_id
         db.prepare(
           `
-          INSERT OR REPLACE INTO tracks 
-          (folder_id, artist_id, file_path, title, album, artist, duration, cover)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `
+            INSERT INTO tracks (folder_id, artist_id, file_path, title, album, artist, duration, cover)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(file_path) DO UPDATE SET
+              folder_id=excluded.folder_id,
+              artist_id=excluded.artist_id,
+              title=excluded.title,
+              album=excluded.album,
+              artist=excluded.artist,
+              duration=excluded.duration,
+              cover=excluded.cover
+          `
         ).run(
           folderId,
           artistId,
