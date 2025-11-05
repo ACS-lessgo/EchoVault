@@ -10,4 +10,7 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("tracks:get-cover-dataurl", filePath),
   getEmbeddedLyrics: (filePath) =>
     ipcRenderer.invoke("tracks:get-embedded-lyrics", filePath),
+  getArtists: () => ipcRenderer.invoke("artists:get-artists"),
+  getTracksByArtist: (artistId) =>
+    ipcRenderer.invoke("artists:get-tracks-by-artist", artistId),
 })

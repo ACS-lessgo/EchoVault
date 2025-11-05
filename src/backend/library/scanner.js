@@ -36,21 +36,21 @@ export async function extractMetadata(filePath) {
 }
 
 export async function scanFolder(db, folderPath) {
-  const folder = db
-    .prepare("INSERT OR IGNORE INTO folders (path) VALUES (?)")
-    .run(folderPath)
+  console.log("Scanning folder:", folderPath)
 
+  // Insert or get folder
+  db.prepare("INSERT OR IGNORE INTO folders (path) VALUES (?)").run(folderPath)
   const folderId = db
     .prepare("SELECT id FROM folders WHERE path=?")
     .get(folderPath).id
 
-  // Get list of audio files on disk
+  // Collect audio files
   const filesOnDisk = fs
     .readdirSync(folderPath)
     .filter((f) => /\.(mp3|flac|m4a|wav|ogg|aac)$/i.test(f))
     .map((f) => path.join(folderPath, f))
 
-  // Remove any tracks from DB that are no longer on disk
+  // Remove missing tracks
   const existingTracks = db
     .prepare("SELECT file_path FROM tracks WHERE folder_id=?")
     .all(folderId)
@@ -62,28 +62,73 @@ export async function scanFolder(db, folderPath) {
     for (const file of missing) del.run(file)
   }
 
-  // Now scan new files and insert/update them
+  // Prepare statements
+  const insertArtist = db.prepare(
+    "INSERT OR IGNORE INTO artists (name) VALUES (?)"
+  )
+  const getArtist = db.prepare("SELECT id, cover FROM artists WHERE name=?")
+  const updateArtistCover = db.prepare("UPDATE artists SET cover=? WHERE id=?")
+  const insertTrack = db.prepare(`
+    INSERT OR IGNORE INTO tracks 
+    (folder_id, artist_id, file_path, title, album, artist, duration, cover)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `)
+
+  // Scan files
   for (const filePath of filesOnDisk) {
     const exists = db
       .prepare("SELECT 1 FROM tracks WHERE file_path=?")
       .get(filePath)
-    if (exists) continue // already in DB
+    if (exists) continue
 
     try {
       const metadata = await parseFile(filePath)
-      const { title, artist, album } = metadata.common
+      const { title, artist, album, picture } = metadata.common
       const duration = metadata.format.duration || 0
 
-      db.prepare(
-        `INSERT OR IGNORE INTO tracks (folder_id, file_path, title, artist, album, duration)
-         VALUES (?, ?, ?, ?, ?, ?)`
-      ).run(
+      const artistName = artist || "Unknown Artist"
+
+      // Upsert artist and get id
+      const insertInfo = insertArtist.run(artistName)
+      let artistId = insertInfo.lastInsertRowid
+      console.log("artistId:", artistId)
+
+      // If already existed, fetch the id
+      if (!artistId) {
+        const artistRow = getArtist.get(artistName)
+        artistId = artistRow?.id || null
+      }
+
+      // Get cover (base64)
+      let coverData = null
+      if (picture && picture.length > 0) {
+        const img = picture[0]
+        const coverDir = path.join(app.getPath("userData"), "covers")
+        if (!fs.existsSync(coverDir)) fs.mkdirSync(coverDir)
+        const coverPath = path.join(
+          coverDir,
+          `${artistName.replace(/[\\/:*?"<>|]/g, "_")}.jpg`
+        )
+        fs.writeFileSync(coverPath, img.data)
+        coverData = coverPath
+      }
+
+      // If artist has no cover yet, set one from this track
+      const artistRow = getArtist.get(artistName)
+      if (!artistRow.cover && coverData) {
+        updateArtistCover.run(coverData, artistId)
+      }
+
+      // Insert track
+      insertTrack.run(
         folderId,
+        artistId,
         filePath,
         title || path.basename(filePath),
-        artist || "",
         album || "",
-        duration
+        artistName,
+        duration,
+        coverData
       )
     } catch (err) {
       console.warn("Metadata read failed for:", filePath, err.message)

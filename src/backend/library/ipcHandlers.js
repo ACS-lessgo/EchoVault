@@ -103,4 +103,18 @@ export function registerLibraryHandlers(mainWindow, db) {
       return null
     }
   })
+
+  ipcMain.handle("artists:get-artists", () => {
+    const stmt = db.prepare(`SELECT * FROM artists ORDER BY name`)
+    const artists = stmt.all()
+    return artists
+  })
+
+  ipcMain.handle("artists:get-tracks-by-artist", (event, artistId) => {
+    const stmt = db.prepare(
+      `SELECT * FROM tracks WHERE artist_id = ? ORDER BY album, title`
+    )
+    const tracks = stmt.all(artistId)
+    return tracks
+  })
 }
