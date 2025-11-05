@@ -6,12 +6,22 @@ let watcher = null
 
 export function watchFolders(db) {
   if (watcher) watcher.close()
+
   const folders = db
     .prepare("SELECT path FROM folders")
     .all()
     .map((f) => f.path)
+
   console.log("watchFolders watching these folders:", folders)
+
   watcher = chokidar.watch(folders, { ignoreInitial: false })
+
+  // Prepare artist-related statements
+  const insertArtist = db.prepare(
+    "INSERT OR IGNORE INTO artists (name) VALUES (?)"
+  )
+  const getArtist = db.prepare("SELECT id, cover FROM artists WHERE name=?")
+  const updateArtistCover = db.prepare("UPDATE artists SET cover=? WHERE id=?")
 
   watcher
     .on("add", async (filePath) => {
@@ -22,23 +32,41 @@ export function watchFolders(db) {
         .get(folderPath)?.id
       if (!folderId) return
 
-      // console.log("Calling extractMetadata for:", filePath)
-      const meta = await extractMetadata(filePath)
-      // console.log("Extracted metadata:", meta)
-      if (meta) {
+      try {
+        const meta = await extractMetadata(filePath)
+        if (!meta) return
+
+        const artistName = meta.artist || "Unknown Artist"
+
+        // Insert or get artist id
+        insertArtist.run(artistName)
+        const artistRow = getArtist.get(artistName)
+        const artistId = artistRow?.id || null
+
+        // If artist has no cover, set from this track
+        if (!artistRow.cover && meta.cover) {
+          updateArtistCover.run(meta.cover, artistId)
+        }
+
+        // Insert or update track with artist_id
         db.prepare(
-          `INSERT OR REPLACE INTO tracks 
-           (folder_id, file_path, title, artist, album, duration, cover)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`
+          `
+          INSERT OR REPLACE INTO tracks 
+          (folder_id, artist_id, file_path, title, album, artist, duration, cover)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `
         ).run(
           folderId,
+          artistId,
           filePath,
-          meta.title,
-          meta.artist,
-          meta.album,
-          meta.duration,
-          meta.cover
+          meta.title || path.basename(filePath),
+          meta.album || "",
+          artistName,
+          meta.duration || 0,
+          meta.cover || null
         )
+      } catch (err) {
+        console.warn("Metadata extraction failed:", filePath, err.message)
       }
     })
     .on("unlink", (filePath) => {

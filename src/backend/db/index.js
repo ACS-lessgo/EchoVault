@@ -36,14 +36,21 @@ export function initDB() {
       CREATE TABLE IF NOT EXISTS tracks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         folder_id INTEGER,
+        artist_id INTEGER,
         file_path TEXT UNIQUE,
         title TEXT,
-        artist TEXT,
         album TEXT,
         duration REAL,
         cover TEXT,
         FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
-        UNIQUE(title, artist, album)
+        FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL,
+        UNIQUE(title, artist_id, album)
+      );
+
+      CREATE TABLE IF NOT EXISTS artists (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE,
+        cover TEXT
       );
     `
   }
