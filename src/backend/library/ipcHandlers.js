@@ -91,6 +91,17 @@ export function registerLibraryHandlers(mainWindow, db) {
     }
   })
 
+  ipcMain.handle("tracks:get-liked-tracks", () =>
+    db.prepare("SELECT * FROM tracks WHERE isLiked=1").all()
+  )
+
+  ipcMain.handle("tracks:updateLike", (event, trackId, isLiked) => {
+    const result = db
+      .prepare("UPDATE tracks SET isLiked = ? WHERE id = ?")
+      .run(isLiked ? 1 : 0, trackId)
+    return result.changes > 0
+  })
+
   ipcMain.handle("tracks:get-embedded-lyrics", async (event, filePath) => {
     try {
       const metadata = await parseFile(filePath)
