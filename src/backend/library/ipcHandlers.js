@@ -92,7 +92,7 @@ export function registerLibraryHandlers(mainWindow, db) {
   })
 
   ipcMain.handle("tracks:get-liked-tracks", () =>
-    db.prepare("SELECT * FROM tracks WHERE is_liked=1").all()
+    db.prepare("SELECT * FROM tracks WHERE isLiked=1").all()
   )
 
   ipcMain.handle("tracks:updateLike", (event, trackId, isLiked) => {
