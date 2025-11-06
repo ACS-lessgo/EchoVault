@@ -9,6 +9,7 @@
 - FEAT : New feature
 - DOCS : Documentation updates (README, comments)
 - CHORE : Build config, dependencies, tooling
+- REFACTOR : Code restructuring
 
 ---
 
@@ -41,6 +42,7 @@
 
 - Fixed: better-sqlite3 build issue with Electron Forge (`ignore` regex trick) (dfad6e6)
 - Fixed: duplicate artist rows when rescanning folders (1590622)
+- Fixed: deleting folders wont cascade delete artists (536d2d3)
 
 ---
 
