@@ -1,5 +1,17 @@
 # EchoVault
 
+## Commits
+
+- CORE : Backend changes
+- UI : Frontend changes
+- BUG : Any CORE/UI bug fix
+- IMP : Enhancement of current feature
+- FEAT : New feature
+- DOCS : Documentation updates (README, comments)
+- CHORE : Build config, dependencies, tooling
+
+---
+
 ## Pending Tasks
 
 - Add full-screen lyrics view (linked to player)
@@ -27,8 +39,8 @@
 
 ## Recent Fixes
 
-- Fixed: better-sqlite3 build issue with Electron Forge (`ignore` regex trick)
-- Fixed: duplicate artist rows when rescanning folders
+- Fixed: better-sqlite3 build issue with Electron Forge (`ignore` regex trick) (dfad6e6)
+- Fixed: duplicate artist rows when rescanning folders (1590622)
 
 ---
 
