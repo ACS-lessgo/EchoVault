@@ -17,7 +17,7 @@
           />
           <img
             v-else
-            src="../assests/images/default-cover.svg"
+            src="../assets/images/default-cover.svg"
             :alt="artist.name"
             class="artist-cover-image"
           />
@@ -63,7 +63,7 @@
                   />
                   <img
                     v-else
-                    src="../assests/images/default-cover.svg"
+                    src="../assets/images/default-cover.svg"
                     :alt="track.title"
                     class="track-cover"
                   />

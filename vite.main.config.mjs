@@ -1,5 +1,5 @@
 import { defineConfig } from "vite"
-import { resolve } from "path"
+import path, { resolve } from "path"
 import fs from "fs"
 
 export default defineConfig({
@@ -13,13 +13,36 @@ export default defineConfig({
     {
       name: "copy-schema",
       closeBundle() {
+        function copyAppIcon() {
+          const src = resolve(__dirname, "src/assets/icons/app-icon.png")
+          const destDir = resolve(__dirname, ".vite/build/assets/icons")
+          const dest = path.join(destDir, "app-icon.png")
+
+          try {
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true })
+            }
+
+            if (fs.existsSync(src)) {
+              fs.copyFileSync(src, dest)
+              console.log("Copied app-icon.png to build folder:", dest)
+            } else {
+              console.warn("app-icon.png not found at:", src)
+            }
+          } catch (err) {
+            console.error("Failed to copy app icon:", err)
+          }
+        }
+
+        copyAppIcon()
+
         // schema.sql file is copied to build folder (doing it manullay as vite not able recognize it)
         const src = resolve(__dirname, "src/backend/db/schema.sql")
         const dest = resolve(__dirname, ".vite/build/schema.sql")
 
         if (fs.existsSync(src)) {
           fs.copyFileSync(src, dest)
-          console.log("Copied schema.sql to build folder")
+          console.log("Copied schema.sql to build folder at :", src)
         } else {
           console.warn("schema.sql not found at:", src)
         }

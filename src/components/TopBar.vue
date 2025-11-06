@@ -1,7 +1,7 @@
 <template>
   <header class="top-bar">
     <div class="search-bar">
-      <img src="../assests/icons/search.svg" alt="Search" class="search-icon" />
+      <img src="../assets/icons/search.svg" alt="Search" class="search-icon" />
       <input
         v-model="localQuery"
         type="text"
@@ -26,7 +26,7 @@
 
 <script setup>
 import { ref, watch } from "vue"
-import { Dark, Light, Settings, Search } from "../assests/icons/icons.js"
+import { Dark, Light, Settings, Search } from "../assets/icons/icons.js"
 import { useSearchStore } from "../store/search.js"
 import { debounce } from "../backend/utils/debounce.js"
 

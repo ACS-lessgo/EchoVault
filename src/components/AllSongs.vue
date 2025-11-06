@@ -73,7 +73,7 @@
                 />
                 <img
                   v-else
-                  src="../assests/images/default-cover.svg"
+                  src="../assets/images/default-cover.svg"
                   :alt="track.title"
                 />
                 <div class="track-details">
@@ -100,7 +100,7 @@
           />
           <img
             v-else
-            src="../assests/images/default-cover.svg"
+            src="../assets/images/default-cover.svg"
             :alt="track.title"
           />
           <div class="play-overlay">

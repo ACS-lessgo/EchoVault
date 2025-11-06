@@ -7,7 +7,7 @@
         :src="player.currentTrack.coverDataUrl"
         alt="Album Art"
       />
-      <img v-else src="../assests/images/default-cover.svg" alt="Album Art" />
+      <img v-else src="../assets/images/default-cover.svg" alt="Album Art" />
 
       <div class="song-details">
         <p>{{ player.currentTrack?.title || "No track selected" }}</p>
@@ -93,7 +93,7 @@ import {
   Shuffle,
   Repeat,
   RepeatOne,
-} from "../assests/icons/icons"
+} from "../assets/icons/icons"
 
 const volume = ref(50)
 const player = usePlayerStore()
