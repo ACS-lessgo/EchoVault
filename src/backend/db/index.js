@@ -6,8 +6,8 @@ import Database from "better-sqlite3"
 export function initDB() {
   const dbPath = path.join(app.getPath("userData"), "sonicbox.db")
   const db = new Database(dbPath)
-  db.pragma("journal_mode = WAL")
-  db.pragma("foreign_keys = ON")
+  db.pragma("journal_mode = WAL") // Write-Ahead Logging
+  db.pragma("foreign_keys = ON") // Enforce foreign key constraints
 
   console.log("Foreign keys:", db.pragma("foreign_keys", { simple: true }))
 

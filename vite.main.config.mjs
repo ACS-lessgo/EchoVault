@@ -13,6 +13,10 @@ export default defineConfig({
     {
       name: "copy-schema",
       closeBundle() {
+        // Note : Dont move this function to vite.config.js as vite not able to recognize it
+        // dont modify if u dont know the build process
+
+        // manually copy app icon and schema to build folder to maintain path
         function copyAppIcon() {
           const src = resolve(__dirname, "src/assets/icons/app-icon.png")
           const destDir = resolve(__dirname, ".vite/build/assets/icons")
@@ -36,7 +40,6 @@ export default defineConfig({
 
         copyAppIcon()
 
-        // schema.sql file is copied to build folder (doing it manullay as vite not able recognize it)
         const src = resolve(__dirname, "src/backend/db/schema.sql")
         const dest = resolve(__dirname, ".vite/build/schema.sql")
 

@@ -3,12 +3,15 @@ const { FusesPlugin } = require("@electron-forge/plugin-fuses")
 const { FuseV1Options, FuseVersion } = require("@electron/fuses")
 
 module.exports = {
+  // IMP : dont touch the packagerConfig
   packagerConfig: {
     icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
     executableName: "echovault",
     asar: {
       unpack: "*.{node,dll}",
     },
+    // ignore node_modules and use it on runtime
+    // dont modify this
     ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
   },
   rebuildConfig: {
