@@ -6,8 +6,8 @@ import Database from "better-sqlite3"
 export function initDB() {
   const dbPath = path.join(app.getPath("userData"), "sonicbox.db")
   const db = new Database(dbPath)
-  db.pragma("journal_mode = WAL")
-  db.pragma("foreign_keys = ON")
+  db.pragma("journal_mode = WAL") // Write-Ahead Logging
+  db.pragma("foreign_keys = ON") // Enforce foreign key constraints
 
   console.log("Foreign keys:", db.pragma("foreign_keys", { simple: true }))
 
@@ -36,18 +36,52 @@ export function initDB() {
       CREATE TABLE IF NOT EXISTS tracks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         folder_id INTEGER,
+        artist_id INTEGER,
         file_path TEXT UNIQUE,
         title TEXT,
-        artist TEXT,
         album TEXT,
         duration REAL,
         cover TEXT,
-        FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE
+        FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
+        FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS artists (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE,
+        cover TEXT
       );
     `
   }
 
   db.exec(schema)
+
+  // Creating indexes for performance
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_file_path ON tracks(file_path);
+  `
+  ).run()
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_artist_id ON tracks(artist_id);
+  `
+  ).run()
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_folder_id ON tracks(folder_id);
+  `
+  ).run()
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);
+  `
+  ).run()
+
   console.log("SQLite DB initialized at:", dbPath)
+  console.log("Indexes verified / created.")
   return db
 }
