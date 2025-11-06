@@ -59,3 +59,7 @@ export const GET_ARTIST_BY_NAME = `
 export const UPDATE_ARTIST_COVER = `
   UPDATE artists SET cover=? WHERE id=?
 `
+export const DELETE_ARTIST_WITHOUT_TRACKS = `
+  DELETE FROM artists
+  WHERE id NOT IN (SELECT DISTINCT artist_id FROM tracks WHERE artist_id IS NOT NULL)
+`
