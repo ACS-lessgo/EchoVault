@@ -28,7 +28,7 @@
 import { ref, watch } from "vue"
 import { Dark, Light, Settings, Search } from "../assets/icons/icons.js"
 import { useSearchStore } from "../store/search.js"
-import { debounce } from "../backend/utils/debounce.js"
+import { debounce } from "../../backend/utils/debounce.js"
 
 const isDarkMode = ref(true)
 const searchStore = useSearchStore()
