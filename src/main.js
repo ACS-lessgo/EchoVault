@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron"
 import path from "node:path"
 import started from "electron-squirrel-startup"
 import { initDB } from "./backend/db/index.js"
-import { registerAllHandlers } from "./backend/library/ipcHandlers.js"
+import { registerAllHandlers } from "./backend/main/ipcHandlers.js"
 
 if (started) app.quit()
 
