@@ -1,8 +1,8 @@
 {
-  "name": "sonic",
-  "productName": "sonic",
+  "name": "echovault",
+  "productName": "EchoVault",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "A modern music player for lossless audio formats",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -27,11 +27,16 @@
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron-forge/plugin-vite": "^7.10.2",
     "@electron/fuses": "^1.8.0",
+    "@electron/rebuild": "^4.0.1",
+    "@reforged/maker-appimage": "^5.1.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "electron": "38.3.0",
+    "electron-builder": "^26.0.12",
+    "electron-installer-redhat": "^3.3.0",
     "vite": "^5.4.20"
   },
   "dependencies": {
+    "@electron-forge/maker-flatpak": "^7.10.2",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "better-sqlite3": "^12.4.1",
     "chokidar": "^4.0.3",

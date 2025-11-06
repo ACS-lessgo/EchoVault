@@ -1,30 +1,57 @@
+const path = require("path")
 const { FusesPlugin } = require("@electron-forge/plugin-fuses")
 const { FuseV1Options, FuseVersion } = require("@electron/fuses")
 
 module.exports = {
   packagerConfig: {
-    asar: true,
-    icon: "./src/assets/icons/app-icon.png",
+    icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+    executableName: "echovault",
+    asar: {
+      unpack: "*.{node,dll}",
+    },
+    ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
   },
-  rebuildConfig: {},
+  rebuildConfig: {
+    force: true,
+  },
   makers: [
+    // Windows Installer
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        options: {
-          icon: "./src/assets/icons/app-icon.png",
-        },
+        icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
       },
     },
+
+    // macOS ZIP (optional)
     {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
     },
+
+    // Linux .deb
     {
       name: "@electron-forge/maker-deb",
       config: {
         options: {
-          icon: "./src/assets/icons/app-icon.png",
+          icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+          categories: ["AudioVideo", "Audio", "Player"],
+          genericName: "Music Player",
+          description: "A modern music player for lossless audio formats",
+        },
+      },
+    },
+
+    // Linux AppImage (portable)
+    {
+      name: "@reforged/maker-appimage",
+      config: {
+        options: {
+          icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+          categories: ["AudioVideo", "Audio", "Player"],
+          genericName: "Music Player",
+          description: "A modern music player for lossless audio formats",
+          bin: "echovault",
         },
       },
     },
