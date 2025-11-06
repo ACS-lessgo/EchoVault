@@ -7,6 +7,7 @@ import {
   GET_ARTIST_BY_NAME,
   UPDATE_ARTIST_COVER,
   DELETE_TRACK_BY_PATH,
+  UPSERT_TRACK,
 } from "../db/queries.js"
 
 let watcher = null

@@ -9,6 +9,7 @@
 - FEAT : New feature
 - DOCS : Documentation updates (README, comments)
 - CHORE : Build config, dependencies, tooling
+- REFACTOR : Code restructuring
 
 ---
 
@@ -25,7 +26,7 @@
 - FLAC duration sometimes returns `NaN`
 - Watcher re-triggers too often on folder changes
 - Built app doesnt load home page on launch or takes too much time
-- Deleting folders wont cascade delete artists
+- Metadata extraction fails for some cases
 
 ---
 
@@ -41,6 +42,8 @@
 
 - Fixed: better-sqlite3 build issue with Electron Forge (`ignore` regex trick) (dfad6e6)
 - Fixed: duplicate artist rows when rescanning folders (1590622)
+- Fixed: deleting folders wont cascade delete artists (536d2d3)
+- Fixed: cover image for same artist spreads for all related tracks
 
 ---
 

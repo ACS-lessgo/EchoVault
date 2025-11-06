@@ -6,6 +6,7 @@ import {
   DELETE_FOLDER,
   CLEAN_ORPHAN_TRACKS,
   GET_FOLDER_PATHS,
+  DELETE_ARTIST_WITHOUT_TRACKS,
 } from "../db/queries.js"
 
 export function registerLibraryHandlers(mainWindow, db) {
@@ -31,6 +32,9 @@ export function registerLibraryHandlers(mainWindow, db) {
   ipcMain.handle("library:remove-folder", (e, folderPath) => {
     db.prepare(DELETE_FOLDER).run(folderPath)
     db.prepare(CLEAN_ORPHAN_TRACKS).run()
+    // clean up empty artists
+    db.prepare(DELETE_ARTIST_WITHOUT_TRACKS).run()
+
     watchFolders(db)
     return db.prepare(GET_FOLDERS_WITH_TRACK_COUNT).all()
   })
