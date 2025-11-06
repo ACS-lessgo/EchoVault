@@ -102,10 +102,7 @@ export async function scanFolder(db, folderPath) {
         const img = picture[0]
         const coverDir = path.join(app.getPath("userData"), "covers")
         if (!fs.existsSync(coverDir)) fs.mkdirSync(coverDir)
-        const coverPath = path.join(
-          coverDir,
-          `${artistName.replace(/[\\/:*?"<>|]/g, "_")}.jpg`
-        )
+        const coverPath = path.join(coverDir, `${path.basename(filePath)}.jpg`)
         fs.writeFileSync(coverPath, img.data)
         coverData = coverPath
       }
