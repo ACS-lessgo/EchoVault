@@ -2,14 +2,25 @@ import fs from "node:fs"
 import path from "node:path"
 import { app } from "electron"
 import { parseFile } from "music-metadata"
+import {
+  INSERT_FOLDER_IF_NOT_EXISTS,
+  GET_FOLDER_ID_BY_PATH,
+  GET_TRACK_PATHS_BY_FOLDER,
+  DELETE_TRACK_BY_PATH,
+  INSERT_ARTIST_IF_NOT_EXISTS,
+  GET_ARTIST_BY_NAME,
+  UPDATE_ARTIST_COVER,
+  CHECK_TRACK_EXISTS,
+  UPSERT_TRACK,
+} from "../db/queries.js"
 
+/**
+ * Extracts metadata and writes cover image if embedded.
+ */
 export async function extractMetadata(filePath) {
   try {
-    // console.log("Extracting metadata for:", filePath)
     const metadata = await parseFile(filePath)
     const { common, format } = metadata
-
-    // console.log("Metadata:", metadata)
 
     let coverPath = null
     if (common.picture && common.picture[0]) {
@@ -19,8 +30,6 @@ export async function extractMetadata(filePath) {
       coverPath = path.join(coverDir, path.basename(filePath) + ".jpg")
       fs.writeFileSync(coverPath, img.data)
     }
-
-    // console.log("coverPath:", coverPath)
 
     return {
       title: common.title || path.basename(filePath),
@@ -35,14 +44,16 @@ export async function extractMetadata(filePath) {
   }
 }
 
+/**
+ * Scans a folder, extracts track metadata, and updates the DB.
+ * TODO: Make this recursive to scan subfolders
+ */
 export async function scanFolder(db, folderPath) {
   console.log("Scanning folder:", folderPath)
 
   // Insert or get folder
-  db.prepare("INSERT OR IGNORE INTO folders (path) VALUES (?)").run(folderPath)
-  const folderId = db
-    .prepare("SELECT id FROM folders WHERE path=?")
-    .get(folderPath).id
+  db.prepare(INSERT_FOLDER_IF_NOT_EXISTS).run(folderPath)
+  const folderId = db.prepare(GET_FOLDER_ID_BY_PATH).get(folderPath).id
 
   // Collect audio files
   const filesOnDisk = fs
@@ -52,68 +63,40 @@ export async function scanFolder(db, folderPath) {
 
   // Remove missing tracks
   const existingTracks = db
-    .prepare("SELECT file_path FROM tracks WHERE folder_id=?")
+    .prepare(GET_TRACK_PATHS_BY_FOLDER)
     .all(folderId)
     .map((t) => t.file_path)
 
   const missing = existingTracks.filter((f) => !filesOnDisk.includes(f))
   if (missing.length) {
-    const del = db.prepare("DELETE FROM tracks WHERE file_path=?")
+    const del = db.prepare(DELETE_TRACK_BY_PATH)
     for (const file of missing) del.run(file)
   }
 
   // Prepare statements
-  const insertArtist = db.prepare(
-    "INSERT OR IGNORE INTO artists (name) VALUES (?)"
-  )
-  const getArtist = db.prepare("SELECT id, cover FROM artists WHERE name=?")
-  const updateArtistCover = db.prepare("UPDATE artists SET cover=? WHERE id=?")
-  const insertTrack = db.prepare(`
-    INSERT OR IGNORE INTO tracks 
-    (folder_id, artist_id, file_path, title, album, artist, duration, cover)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `)
-  const upsertTrack = db.prepare(`
-    INSERT INTO tracks (
-      folder_id, artist_id, file_path, title, album, artist, duration, cover
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(file_path) DO UPDATE SET
-      folder_id=excluded.folder_id,
-      artist_id=excluded.artist_id,
-      title=excluded.title,
-      album=excluded.album,
-      artist=excluded.artist,
-      duration=excluded.duration,
-      cover=excluded.cover
-  `)
+  const insertArtist = db.prepare(INSERT_ARTIST_IF_NOT_EXISTS)
+  const getArtist = db.prepare(GET_ARTIST_BY_NAME)
+  const updateArtistCover = db.prepare(UPDATE_ARTIST_COVER)
+  const checkTrackExists = db.prepare(CHECK_TRACK_EXISTS)
+  const upsertTrack = db.prepare(UPSERT_TRACK)
 
   // Scan files
   for (const filePath of filesOnDisk) {
-    const exists = db
-      .prepare("SELECT 1 FROM tracks WHERE file_path=?")
-      .get(filePath)
+    const exists = checkTrackExists.get(filePath)
     if (exists) continue
 
     try {
       const metadata = await parseFile(filePath)
       const { title, artist, album, picture } = metadata.common
       const duration = metadata.format.duration || 0
-
       const artistName = artist || "Unknown Artist"
 
-      // Upsert artist and get id
-      const insertInfo = insertArtist.run(artistName)
-      let artistId = insertInfo.lastInsertRowid
-      console.log("artistId:", artistId)
+      // Insert or get artist
+      insertArtist.run(artistName)
+      const artistRow = getArtist.get(artistName)
+      const artistId = artistRow?.id || null
 
-      // If already existed, fetch the id
-      if (!artistId) {
-        const artistRow = getArtist.get(artistName)
-        artistId = artistRow?.id || null
-      }
-
-      // Get cover (base64)
+      // Handle cover
       let coverData = null
       if (picture && picture.length > 0) {
         const img = picture[0]
@@ -127,13 +110,12 @@ export async function scanFolder(db, folderPath) {
         coverData = coverPath
       }
 
-      // If artist has no cover yet, set one from this track
-      const artistRow = getArtist.get(artistName)
+      // Update artist cover if not already set
       if (!artistRow.cover && coverData) {
         updateArtistCover.run(coverData, artistId)
       }
 
-      // Insert track
+      // Insert or update track
       upsertTrack.run(
         folderId,
         artistId,
