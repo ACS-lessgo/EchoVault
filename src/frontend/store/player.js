@@ -118,9 +118,11 @@ export const usePlayerStore = defineStore("player", {
         source.onended = () => {
           console.log("Track ended")
 
-          if (this.hasNextInQueue()) {
-            this.playNext()
-          } else {
+          // Try to play next track
+          const hasNext = this.playNext()
+
+          // Only set to false if no next track
+          if (!hasNext) {
             this.isPlaying = false
             console.log("Queue finished")
           }
