@@ -41,7 +41,7 @@ function createWindow() {
     )
 
   // Open chrome dev tools on startup
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {

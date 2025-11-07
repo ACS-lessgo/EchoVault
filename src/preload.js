@@ -21,4 +21,7 @@ contextBridge.exposeInMainWorld("api", {
   getArtists: () => ipcRenderer.invoke("artists:get-artists"),
   getTracksByArtist: (artistId) =>
     ipcRenderer.invoke("artists:get-tracks-by-artist", artistId),
+
+  // player
+  playTrack: (track) => ipcRenderer.invoke("player:play", track),
 })

@@ -114,13 +114,8 @@ watch(volume, (newVal) => {
   }
 })
 
-const togglePlay = () => {
+const togglePlay = async () => {
   player.togglePlay()
-  console.log(
-    player.isPlaying ? "Playing" : "Paused",
-    ":: Track =>",
-    player.currentTrack.title || "(no track)"
-  )
 }
 
 const toggleLikedSong = async () => {
