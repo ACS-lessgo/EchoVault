@@ -17,7 +17,12 @@
 
     <!-- CENTER: Controls -->
     <div class="controls">
-      <button @click="playPreviousTrack" class="icon-btn">
+      <button
+        @click="playPreviousTrack"
+        class="icon-btn"
+        :disabled="!player.hasPrevious"
+        :class="{ disabled: !player.hasPrevious }"
+      >
         <img class="playbar-icon-class" :src="Previous" alt="Previous" />
       </button>
 
@@ -29,7 +34,12 @@
         />
       </button>
 
-      <button class="icon-btn">
+      <button
+        @click="playNextTrack"
+        class="icon-btn"
+        :disabled="!player.hasNext"
+        :class="{ disabled: !player.hasNext }"
+      >
         <img class="playbar-icon-class" :src="Next" alt="Next" />
       </button>
     </div>
@@ -71,6 +81,7 @@
           min="0"
           max="100"
           v-model="volume"
+          @input="onVolumeChange"
           class="volume-slider"
         />
       </div>
@@ -99,10 +110,6 @@ const volume = ref(50)
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
 
-const playPreviousTrack = () => {
-  console.log("playPreviousTrack")
-}
-
 const currentVolumeIcon = computed(() =>
   volume.value === 0 ? VolumeMute : Volume
 )
@@ -115,7 +122,18 @@ watch(volume, (newVal) => {
 })
 
 const togglePlay = async () => {
-  player.togglePlay()
+  await player.togglePlay()
+}
+
+const playPreviousTrack = async () => {
+  if (!player.hasPrevious) return
+  await player.playPrevious()
+}
+
+const playNextTrack = async () => {
+  console.log("Checking next", player.hasNext)
+  if (!player.hasNext) return
+  await player.playNext()
 }
 
 const toggleLikedSong = async () => {
@@ -132,8 +150,17 @@ const toggleLikedSong = async () => {
   console.log(`Track ${track.title} like status updated: ${newStatus}`)
 }
 
+const onVolumeChange = () => {
+  player.setVolume(volume.value / 100)
+}
+
 const toggleMute = () => {
-  volume.value = volume.value === 0 ? 50 : 0
+  if (volume.value === 0) {
+    volume.value = player.volume * 100 || 50
+  } else {
+    volume.value = 0
+  }
+  player.setVolume(volume.value / 100)
 }
 </script>
 

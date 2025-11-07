@@ -2,6 +2,8 @@ import { defineStore } from "pinia"
 
 let currentSource = null
 const audioCtx = new AudioContext()
+const gainNode = audioCtx.createGain() // master gain for volume
+gainNode.connect(audioCtx.destination)
 
 export const usePlayerStore = defineStore("player", {
   state: () => ({
@@ -15,12 +17,34 @@ export const usePlayerStore = defineStore("player", {
     },
     queue: [], // Track queue
     currentIndex: 0, // curr track index in queue
+    volume: 0.5, // 0 - 1 , default 0.5
   }),
+  getters: {
+    hasNext: (state) => state.currentIndex < state.queue.length - 1,
+    hasPrevious: (state) => state.currentIndex > 0,
+    queueLength: (state) => state.queue.length,
+  },
   actions: {
-    async setTrack(track) {
+    async setTrack(track, addToQueue = true) {
       this.currentTrack = track
       this.lyrics = null // Reset lyrics
       this.isPlaying = true
+
+      // Add to queue
+      if (addToQueue) {
+        const existingIndex = this.queue.findIndex(
+          (t) => t.file_path === track.file_path
+        )
+
+        if (existingIndex === -1) {
+          // add it
+          this.queue.push(track)
+          this.currentIndex = this.queue.length - 1
+        } else {
+          // just update index
+          this.currentIndex = existingIndex
+        }
+      }
 
       // Play track
       await this.playTrack(track.file_path)
@@ -108,7 +132,7 @@ export const usePlayerStore = defineStore("player", {
         // Play new track
         const source = audioCtx.createBufferSource()
         source.buffer = audioBuffer
-        source.connect(audioCtx.destination)
+        source.connect(gainNode)
         source.start(0)
 
         currentSource = source
@@ -133,22 +157,44 @@ export const usePlayerStore = defineStore("player", {
       }
     },
 
-    playPrevious() {
-      if (this.currentIndex > 0) {
+    async playPrevious() {
+      if (this.hasPrevious) {
         this.currentIndex--
-        this.setTrack(this.queue[this.currentIndex])
+        awaitthis.setTrack(this.queue[this.currentIndex], false)
         return true
       }
+      console.log("No previous track")
       return false
     },
 
-    playNext() {
-      if (this.currentIndex < this.queue.length - 1) {
+    async playNext() {
+      if (this.hasNext) {
         this.currentIndex++
-        this.setTrack(this.queue[this.currentIndex])
+        await this.setTrack(this.queue[this.currentIndex], false)
         return true
       }
+      console.log("No next track")
       return false
+    },
+
+    // Clear queue
+    clearQueue() {
+      this.queue = []
+      this.currentIndex = 0
+    },
+
+    // Remove track from queue
+    removeFromQueue(index) {
+      if (index < 0 || index >= this.queue.length) return
+
+      this.queue.splice(index, 1)
+
+      // Adjust current index if needed
+      if (this.currentIndex >= this.queue.length) {
+        this.currentIndex = this.queue.length - 1
+      } else if (index < this.currentIndex) {
+        this.currentIndex--
+      }
     },
 
     async togglePlay() {
@@ -161,6 +207,11 @@ export const usePlayerStore = defineStore("player", {
         await audioCtx.resume()
         this.isPlaying = true
       }
+    },
+
+    setVolume(level) {
+      this.volume = Math.max(0, Math.min(level, 1))
+      gainNode.gain.setTargetAtTime(this.volume, audioCtx.currentTime, 0.01)
     },
 
     async getLyrics() {
@@ -178,6 +229,15 @@ export const usePlayerStore = defineStore("player", {
         console.error("Failed to read lyrics:", err)
         this.lyrics = null
       }
+    },
+
+    // Play entire queue starting from index
+    async playQueue(tracks, startIndex = 0) {
+      if (!tracks || tracks.length === 0) return
+
+      this.queue = [...tracks]
+      this.currentIndex = startIndex
+      await this.setTrack(this.queue[startIndex], false) // false = don't re-add to queue
     },
   },
 })
