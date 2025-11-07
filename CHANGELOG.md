@@ -24,7 +24,6 @@
 - Tracks with the same filename in different folders overwrite cover
 - FLAC duration sometimes returns `NaN`
 - Watcher re-triggers too often on folder changes
-- Built app doesnt load home page on launch or takes too much time
 - Metadata extraction fails for some cases
 - Music playback fails for some songs , this causes glitch in the playerbar and queue indexes
 - Music playback stops and wont reset until app restart when queue play ends
@@ -45,6 +44,7 @@
 - Fixed: duplicate artist rows when rescanning folders (1590622)
 - Fixed: deleting folders wont cascade delete artists (536d2d3)
 - Fixed: cover image for same artist spreads for all related tracks
+- Fixed: built app doesnt load home page on launch or takes too much time
 
 ---
 
