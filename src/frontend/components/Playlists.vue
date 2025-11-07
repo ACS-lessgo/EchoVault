@@ -16,6 +16,9 @@
             v-for="(track, index) in filteredTracks"
             :key="track.id"
             class="track-row"
+            :class="{
+              playing: player.currentTrack?.file_path === track.file_path,
+            }"
             @click="playCurrentTrack(track)"
           >
             <td class="num-col">{{ index + 1 }}</td>
@@ -73,7 +76,25 @@ async function loadTracks() {
     })
   )
 
-  tracks.value = withCovers
+  // sort by title
+  const sorted = withCovers.sort((a, b) =>
+    a.title?.localeCompare(b.title, undefined, { sensitivity: "base" })
+  )
+
+  tracks.value = sorted
+
+  // reset queue and reinitialize it
+  if (player.isPlaying) {
+    player.clearQueue()
+    player.queue = sorted
+  } else {
+    player.clearQueue()
+    player.queue = sorted
+
+    // update player state with first track
+    player.currentIndex = 0
+    player.currentTrack = sorted[0] || {}
+  }
 }
 
 function formatDuration(seconds) {
@@ -207,5 +228,17 @@ function playCurrentTrack(track) {
 
 .track-table tbody tr.track-row:hover {
   background: var(--hover-bg);
+}
+
+.track-row.playing {
+  background: var(--hover-bg);
+  transition: background 0.3s;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.track-card.playing {
+  outline: 2px solid var(--accent);
+  background: var(--hover-bg);
+  transition: background 0.3s;
 }
 </style>

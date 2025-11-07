@@ -122,6 +122,9 @@ export const usePlayerStore = defineStore("player", {
         if (currentSource) {
           console.log("Stopping previous track")
           try {
+            // prevent auto-triggering of onended during manual stop
+            currentSource.onended = null
+
             currentSource.stop()
             currentSource.disconnect()
           } catch (e) {
@@ -160,7 +163,7 @@ export const usePlayerStore = defineStore("player", {
     async playPrevious() {
       if (this.hasPrevious) {
         this.currentIndex--
-        awaitthis.setTrack(this.queue[this.currentIndex], false)
+        await this.setTrack(this.queue[this.currentIndex], false)
         return true
       }
       console.log("No previous track")
@@ -200,11 +203,23 @@ export const usePlayerStore = defineStore("player", {
     async togglePlay() {
       if (!this.currentTrack?.file_path) return
 
+      // play - pause
       if (this.isPlaying) {
         await audioCtx.suspend()
         this.isPlaying = false
-      } else {
+        return
+      }
+
+      // pause - play
+      if (audioCtx.state === "suspended" && currentSource) {
         await audioCtx.resume()
+        this.isPlaying = true
+        return
+      }
+
+      // play new track
+      if (!currentSource) {
+        await this.playTrack(this.currentTrack.file_path)
         this.isPlaying = true
       }
     },

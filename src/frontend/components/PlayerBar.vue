@@ -301,6 +301,11 @@ const toggleMute = () => {
   transform: scale(1.05);
 }
 
+.icon-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .playbar-icon-class {
   width: 18px;
   height: 18px;
