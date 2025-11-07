@@ -24,4 +24,8 @@ contextBridge.exposeInMainWorld("api", {
 
   // player
   playTrack: (track) => ipcRenderer.invoke("player:play", track),
+  streamChunk: (trackPath, offset, size) =>
+    ipcRenderer.invoke("player:streamChunk", trackPath, offset, size),
+  getFileSize: (trackPath) =>
+    ipcRenderer.invoke("player:getFileSize", trackPath),
 })
