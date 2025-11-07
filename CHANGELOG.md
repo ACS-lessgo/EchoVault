@@ -16,7 +16,6 @@
 ## Pending Tasks
 
 - Add full-screen lyrics view (linked to player)
-- Web audio engine integration
 
 ---
 
@@ -27,6 +26,8 @@
 - Watcher re-triggers too often on folder changes
 - Built app doesnt load home page on launch or takes too much time
 - Metadata extraction fails for some cases
+- Music playback fails for some songs , this causes glitch in the playerbar and queue indexes
+- Music playback stops and wont reset until app restart when queue play ends
 
 ---
 
