@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 
@@ -60,6 +60,8 @@ const viewMode = ref("list")
 
 const search = useSearchStore()
 const player = usePlayerStore()
+
+watch(() => player.likedUpdated, loadTracks)
 
 async function loadTracks() {
   const result = await window.api.getLikedTracks()

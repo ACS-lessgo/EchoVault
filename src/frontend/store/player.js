@@ -18,6 +18,7 @@ export const usePlayerStore = defineStore("player", {
     queue: [], // Track queue
     currentIndex: 0, // curr track index in queue
     volume: 0.5, // 0 - 1 , default 0.5
+    likedUpdated: 0,
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -253,6 +254,10 @@ export const usePlayerStore = defineStore("player", {
       this.queue = [...tracks]
       this.currentIndex = startIndex
       await this.setTrack(this.queue[startIndex], false) // false = don't re-add to queue
+    },
+
+    notifyLikedChange() {
+      this.likedUpdated++
     },
   },
 })

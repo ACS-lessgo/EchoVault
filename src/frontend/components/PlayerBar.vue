@@ -137,6 +137,9 @@ const playNextTrack = async () => {
 }
 
 const toggleLikedSong = async () => {
+  // notify listeners
+  player.notifyLikedChange()
+
   const track = player.currentTrack
   if (!track?.id) return
 
