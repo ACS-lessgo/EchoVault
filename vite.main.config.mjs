@@ -18,7 +18,10 @@ export default defineConfig({
 
         // manually copy app icon and schema to build folder to maintain path
         function copyAppIcon() {
-          const src = resolve(__dirname, "src/assets/icons/app-icon.png")
+          const src = resolve(
+            __dirname,
+            "src/frontend/assets/icons/app-icon.png"
+          )
           const destDir = resolve(__dirname, ".vite/build/assets/icons")
           const dest = path.join(destDir, "app-icon.png")
 
