@@ -1,7 +1,8 @@
 import { defineStore } from "pinia"
 
 let currentSource = null
-const audioCtx = new AudioContext()
+let currentAudioBuffer = null // Track the buffer
+const audioCtx = new AudioContext({ sampleRate: 48000 })
 const gainNode = audioCtx.createGain() // master gain for volume
 gainNode.connect(audioCtx.destination)
 
@@ -10,7 +11,6 @@ export const usePlayerStore = defineStore("player", {
     currentTrack: {},
     isPlaying: false,
     lyrics: null,
-    audioCache: new Map(), // last 10 tracks
     cacheStats: {
       hits: 0,
       misses: 0,
@@ -55,72 +55,68 @@ export const usePlayerStore = defineStore("player", {
     },
 
     async playTrack(filePath) {
+      // CRITICAL: Stop and clear previous track FIRST
+      if (currentSource) {
+        console.log("Stopping previous track")
+        try {
+          currentSource.onended = null
+          currentSource.stop()
+          currentSource.disconnect()
+          currentSource.buffer = null
+        } catch (e) {
+          // Already stopped
+        }
+        currentSource = null
+      }
+
+      // Clear old buffer BEFORE loading new one
+      if (currentAudioBuffer) {
+        console.log("Clearing previous AudioBuffer")
+        currentAudioBuffer = null
+      }
+
       try {
         console.log("Playing track:", filePath)
 
         let audioBuffer
 
-        // Check cache first
-        if (this.audioCache.has(filePath)) {
-          console.log("Loading from cache")
-          audioBuffer = this.audioCache.get(filePath)
-          this.cacheStats.hits++
-          console.log(
-            `Cache hit! (${this.cacheStats.hits} hits, ${this.cacheStats.misses} misses)`
-          )
-        } else {
-          this.cacheStats.misses++
-          console.log(
-            `Cache miss! (${this.cacheStats.hits} hits, ${this.cacheStats.misses} misses)`
-          )
+        // Get file size
+        const fileSize = await window.api.getFileSize(filePath)
+        console.log("File size:", fileSize, "bytes")
 
-          // Load from disk
-          console.log("Loading from disk")
+        // Stream file in chunks
+        const chunkSize =
+          fileSize > 10 * 1024 * 1024 ? 512 * 1024 : 256 * 1024
+        const chunks = []
+        let offset = 0
 
-          // Get file size
-          const fileSize = await window.api.getFileSize(filePath)
-          console.log("File size:", fileSize, "bytes")
-
-          // Stream file in chunks
-          const chunkSize =
-            fileSize > 10 * 1024 * 1024 ? 512 * 1024 : 256 * 1024
-          const chunks = []
-          let offset = 0
-
-          while (offset < fileSize) {
-            const size = Math.min(chunkSize, fileSize - offset)
-            const chunk = await window.api.streamChunk(filePath, offset, size)
-            chunks.push(chunk)
-            offset += size
-          }
-
-          // Combine chunks
-          const totalLength = chunks.reduce(
-            (acc, chunk) => acc + chunk.byteLength,
-            0
-          )
-          const combinedBuffer = new ArrayBuffer(totalLength)
-          const combinedView = new Uint8Array(combinedBuffer)
-
-          let position = 0
-          for (const chunk of chunks) {
-            combinedView.set(new Uint8Array(chunk), position)
-            position += chunk.byteLength
-          }
-
-          // Decode audio
-          console.log("Decoding audio buffer...")
-          audioBuffer = await audioCtx.decodeAudioData(combinedBuffer)
-
-          // Add to cache
-          this.audioCache.set(filePath, audioBuffer)
-
-          // Keep only last 10 tracks
-          if (this.audioCache.size > 10) {
-            const firstKey = this.audioCache.keys().next().value
-            this.audioCache.delete(firstKey)
-          }
+        while (offset < fileSize) {
+          const size = Math.min(chunkSize, fileSize - offset)
+          const chunk = await window.api.streamChunk(filePath, offset, size)
+          chunks.push(chunk)
+          offset += size
         }
+
+        // Combine chunks
+        const totalLength = chunks.reduce(
+          (acc, chunk) => acc + chunk.byteLength,
+          0
+        )
+        const combinedBuffer = new ArrayBuffer(totalLength)
+        const combinedView = new Uint8Array(combinedBuffer)
+
+        let position = 0
+        for (const chunk of chunks) {
+          combinedView.set(new Uint8Array(chunk), position)
+          position += chunk.byteLength
+        }
+
+        // Decode audio
+        console.log("Decoding audio buffer...")
+        audioBuffer = await audioCtx.decodeAudioData(combinedBuffer)
+        
+        // Store buffer reference for memory tracking
+        currentAudioBuffer = audioBuffer
 
         // Stop previous track if playing
         if (currentSource) {
@@ -175,6 +171,7 @@ export const usePlayerStore = defineStore("player", {
     },
 
     async playNext() {
+      this.checkAudioMemory()
       if (this.hasNext) {
         this.currentIndex++
         await this.setTrack(this.queue[this.currentIndex], false)
@@ -274,5 +271,47 @@ export const usePlayerStore = defineStore("player", {
       this.repeatMode = modes[(currentIdx + 1) % modes.length]
       console.log("Repeat mode:", this.repeatMode)
     },
+
+    checkAudioMemory() {
+      console.log('=== Audio Memory Check ===')
+      
+      // Check AudioContext state
+      console.log('AudioContext state:', audioCtx.state)
+      console.log('AudioContext sample rate:', audioCtx.sampleRate)
+      console.log('AudioContext current time:', audioCtx.currentTime.toFixed(2), 's')
+      
+      // Check if source exists
+      console.log('Current source exists:', !!currentSource)
+      console.log('Current buffer exists:', !!currentAudioBuffer)
+      
+      // Estimate buffer size if exists
+      if (currentAudioBuffer) {
+        const channels = currentAudioBuffer.numberOfChannels
+        const length = currentAudioBuffer.length
+        const sampleRate = currentAudioBuffer.sampleRate
+        const duration = currentAudioBuffer.duration
+        
+        // Each sample is 4 bytes (32-bit float)
+        const sizeInBytes = channels * length * 4
+        const sizeInMB = Math.round(sizeInBytes / 1024 / 1024)
+        
+        console.log('AudioBuffer details:')
+        console.log('  Channels:', channels)
+        console.log('  Length:', length.toLocaleString(), 'samples')
+        console.log('  Sample rate:', sampleRate, 'Hz')
+        console.log('  Duration:', Math.round(duration), 'seconds')
+        console.log('  Estimated size:', sizeInMB, 'MB')
+      }
+      
+      // Check performance memory
+      if (performance.memory) {
+        console.log('Performance memory:')
+        console.log('  JS Heap Used:', Math.round(performance.memory.usedJSHeapSize / 1024 / 1024), 'MB')
+        console.log('  JS Heap Total:', Math.round(performance.memory.totalJSHeapSize / 1024 / 1024), 'MB')
+        console.log('  JS Heap Limit:', Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024), 'MB')
+      }
+      
+      console.log('======================')
+    }
   },
 })
