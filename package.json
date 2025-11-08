@@ -39,7 +39,6 @@
     "chokidar": "^4.0.3",
     "electron-forge-maker-appimage": "^26.0.12",
     "electron-squirrel-startup": "^1.0.1",
-    "lowdb": "^7.0.1",
     "music-metadata": "^11.9.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.22",

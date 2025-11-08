@@ -110,11 +110,12 @@ async function loadArtists() {
   const withCovers = await Promise.all(
     result.map(async (artist) => {
       if (artist.cover) {
-        try {
-          const coverDataUrl = await window.api.getCoverDataUrl(artist.cover)
-          return { ...artist, coverDataUrl }
-        } catch {
-          return { ...artist, coverDataUrl: null }
+        const url = artist.cover.startsWith("/")
+          ? `echovault://${artist.cover}`
+          : `echovault:///${artist.cover}`
+        return {
+          ...artist,
+          coverDataUrl: url,
         }
       } else {
         return { ...artist, coverDataUrl: null }
@@ -134,8 +135,13 @@ async function openArtist(artistId) {
   const withCovers = await Promise.all(
     songs.map(async (track) => {
       if (track.cover) {
-        const coverDataUrl = await window.api.getCoverDataUrl(track.cover)
-        return { ...track, coverDataUrl }
+        const url = track.cover.startsWith("/")
+          ? `echovault://${track.cover}`
+          : `echovault:///${track.cover}`
+        return {
+          ...track,
+          coverDataUrl: url,
+        }
       } else {
         return { ...track, coverDataUrl: null }
       }

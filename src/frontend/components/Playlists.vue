@@ -70,8 +70,13 @@ async function loadTracks() {
   const withCovers = await Promise.all(
     result.map(async (track) => {
       if (track.cover) {
-        const coverDataUrl = await window.api.getCoverDataUrl(track.cover)
-        return { ...track, coverDataUrl }
+        const url = track.cover.startsWith("/")
+          ? `echovault://${track.cover}`
+          : `echovault:///${track.cover}`
+        return {
+          ...track,
+          coverDataUrl: url,
+        }
       } else {
         return { ...track, coverDataUrl: null }
       }
