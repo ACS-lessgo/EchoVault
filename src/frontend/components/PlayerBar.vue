@@ -377,4 +377,25 @@ const toggleMute = () => {
   filter: drop-shadow(0 0 4px var(--accent));
   opacity: 1;
 }
+
+/* === ICON COLOR THEMING === */
+
+/* Default for dark mode */
+:root[data-theme="dark"] .playbar-icon-class {
+  filter: invert(100%) brightness(200%);
+}
+
+/* Light mode — show darker icons */
+:root[data-theme="light"] .playbar-icon-class {
+  filter: invert(0%) brightness(0%);
+}
+
+/* Optional: hover glow */
+:root[data-theme="dark"] .icon-btn:hover img {
+  filter: invert(100%) brightness(200%) drop-shadow(0 0 4px var(--accent-hover));
+}
+
+:root[data-theme="light"] .icon-btn:hover img {
+  filter: invert(0%) brightness(0%) drop-shadow(0 0 3px var(--accent));
+}
 </style>

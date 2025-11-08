@@ -42,7 +42,22 @@ watch(localQuery, (val) => updateSearch(val))
 
 const toggleTheme = () => {
   isDarkMode.value = !isDarkMode.value
+  document.documentElement.setAttribute(
+    "data-theme",
+    isDarkMode.value ? "dark" : "light"
+  )
 }
+
+// load previous preference
+if (localStorage.getItem("theme") === "light") {
+  isDarkMode.value = false
+  document.documentElement.setAttribute("data-theme", "light")
+}
+
+// persist preference
+watch(isDarkMode, (val) => {
+  localStorage.setItem("theme", val ? "dark" : "light")
+})
 
 // TODO : Move search completly to sqlite
 </script>
@@ -97,7 +112,7 @@ const toggleTheme = () => {
   background: transparent;
   border: none;
   outline: none;
-  color: whitesmoke;
+  color: var(--text-color);
   font-size: 0.9rem;
 }
 

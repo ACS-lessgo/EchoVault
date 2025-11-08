@@ -416,7 +416,7 @@ function playCurrentTrack(track) {
   border-radius: 50%;
   background: var(--accent);
   border: none;
-  color: white;
+  color: var(--text-color);
   cursor: pointer;
   display: flex;
   align-items: center;

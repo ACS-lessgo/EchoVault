@@ -17,6 +17,25 @@
   --search-bar-color: #2b2b2b
 }
 
+:root[data-theme="light"] {
+  /* Light theme overrides */
+  --bg-color: #fafafa;
+  --side-nav-bg: #ffffff;
+  --topbar-bg: #f0f0f0ee;
+  --footer-bg: #f0f0f0;
+  --content-bg: #ffffff;
+
+  --accent: #6c5ce7;
+  --accent-hover: #8e7dff;
+  --hover-bg: rgba(108, 92, 231, 0.15);
+
+  --border-color: #dcdcdc;
+  --text-color: #1e1e1e;
+  --muted-text: #555;
+
+  --search-bar-color: #e8e8e8;
+}
+
 body, html, #app {
   margin: 0;
   padding: 0;

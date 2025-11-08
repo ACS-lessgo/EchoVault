@@ -31,7 +31,7 @@
     <!-- Songs List for Selected Artist -->
     <div v-else class="artist-songs-view">
       <div class="artist-header">
-        <button class="back-btn" @click="isArtistView = true">← Back</button>
+        <button class="back-btn" @click="isArtistView = true"><</button>
         <h2>{{ selectedArtist?.name }}</h2>
       </div>
 
@@ -271,17 +271,30 @@ const filteredTracks = computed(() => {
   border-radius: 100%;
 }
 
+.artist-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .back-btn {
-  background: none;
-  border: none;
-  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--hover-bg);
+  color: var(--text-color);
   font-size: 1.2rem;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
 .back-btn:hover {
-  opacity: 0.8;
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px var(--accent-hover);
 }
 
 /* List View Styles */
