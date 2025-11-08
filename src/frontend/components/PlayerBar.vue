@@ -54,17 +54,26 @@
             alt="Heart icon"
           />
         </button>
-        <!-- TODO : Add Repeat and Shuffle -->
-        <!-- <button @click="toggleRepeat" class="icon-btn">
-          <img class="playbar-icon-class" :src="Repeat" alt="Heart icon" />
-        </button>
-        <button @click="toggleShuffle" class="icon-btn">
+        <button
+          @click="player.toggleRepeat"
+          class="icon-btn"
+          :class="player.repeatMode"
+          :title="`Repeat: ${player.repeatMode}`"
+        >
           <img
             class="playbar-icon-class"
-            :src="Shuffle"
-            alt="HeaShufflert icon"
+            :src="player.repeatMode === 'one' ? RepeatOne : Repeat"
+            alt="Repeat icon"
           />
-        </button> -->
+        </button>
+        <button
+          @click="player.toggleShuffle"
+          class="icon-btn toggle-shuffle"
+          :class="{ active: player.shuffleEnabled }"
+          :title="player.shuffleEnabled ? 'Shuffle: On' : 'Shuffle: Off'"
+        >
+          <img class="playbar-icon-class" :src="Shuffle" alt="Shuffle icon" />
+        </button>
       </div>
 
       <div class="volume">
@@ -347,5 +356,25 @@ const toggleMute = () => {
   border-radius: 50%;
   cursor: pointer;
   transition: background 0.2s ease;
+}
+
+.icon-btn.active img {
+  filter: brightness(1.3);
+}
+
+.icon-btn.off img {
+  opacity: 0.6;
+}
+
+.toggle-shuffle img {
+  opacity: 0.7;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.toggle-shuffle.active img {
+  filter: drop-shadow(0 0 4px var(--accent));
+  opacity: 1;
 }
 </style>

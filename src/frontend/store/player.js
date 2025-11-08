@@ -19,6 +19,9 @@ export const usePlayerStore = defineStore("player", {
     currentIndex: 0, // curr track index in queue
     volume: 0.5, // 0 - 1 , default 0.5
     likedUpdated: 0,
+    repeatMode: "off", // 'off', 'all', 'one'
+    shuffleEnabled: false,
+    playHistory: [], // For smart shuffle
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -258,6 +261,18 @@ export const usePlayerStore = defineStore("player", {
 
     notifyLikedChange() {
       this.likedUpdated++
+    },
+
+    toggleShuffle() {
+      this.shuffleEnabled = !this.shuffleEnabled
+    },
+
+    toggleRepeat() {
+      // Cycle: off -> all -> one -> off
+      const modes = ["off", "all", "one"]
+      const currentIdx = modes.indexOf(this.repeatMode)
+      this.repeatMode = modes[(currentIdx + 1) % modes.length]
+      console.log("Repeat mode:", this.repeatMode)
     },
   },
 })
