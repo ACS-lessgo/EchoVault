@@ -24,6 +24,8 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 function createWindow() {
+  const isDev = !app.isPackaged
+
   mainWindow = new BrowserWindow({
     show: false,
     autoHideMenuBar: true,
@@ -33,12 +35,18 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       // webSecurity stays true (default)
+      devTools: isDev,
     },
   })
 
   mainWindow.once("ready-to-show", () => {
     mainWindow.maximize()
     mainWindow.show()
+
+    // force close devTools if somehow opened
+    if (!isDev && mainWindow.webContents.isDevToolsOpened()) {
+      mainWindow.webContents.closeDevTools()
+    }
   })
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -48,7 +56,22 @@ function createWindow() {
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
     )
   }
+
+  if (!isDev) {
+    mainWindow.webContents.on("devtools-opened", () => {
+      mainWindow.webContents.closeDevTools()
+    })
+  }
 }
+
+// performance improvements
+
+app.commandLine.appendSwitch(
+  "disable-features",
+  "CalculateNativeWinOcclusion,MediaSessionService,HardwareMediaKeyHandling"
+)
+app.commandLine.appendSwitch("disable-gpu-process-crash-limit")
+app.commandLine.appendSwitch("js-flags", "--max-old-space-size=512") // cap V8 heap to 512 MB
 
 app.whenReady().then(() => {
   console.log("Registering echovault protocol...")
@@ -92,5 +115,13 @@ app.whenReady().then(() => {
 })
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit()
+  if (process.platform !== "darwin") {
+    app.quit()
+    app.exit(0)
+  }
+})
+
+app.on("before-quit", () => {
+  // Force close all windows and cleanup
+  BrowserWindow.getAllWindows().forEach((win) => win.destroy())
 })

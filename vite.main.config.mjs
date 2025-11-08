@@ -4,7 +4,10 @@ import fs from "fs"
 
 export default defineConfig({
   build: {
-    sourcemap: "inline",
+    sourcemap: false,
+    minify: "esbuild",
+    cssCodeSplit: true,
+    target: "esnext",
     rollupOptions: {
       external: ["better-sqlite3", "fs", "path", "os"],
     },
