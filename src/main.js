@@ -79,9 +79,13 @@ app.whenReady().then(() => {
   protocol.registerBufferProtocol("echovault", (request, callback) => {
     try {
       let filePath = request.url.substring(11)
-      if (!filePath.startsWith("/")) {
-        filePath = "/" + filePath
+
+      const wslMatch = filePath.match(/^\/([A-Za-z])\/(.*)$/)
+      if (wslMatch) {
+        filePath = `${wslMatch[1].toUpperCase()}:/${wslMatch[2]}`
       }
+
+      filePath = path.normalize(filePath)
       filePath = decodeURIComponent(filePath)
 
       if (!fs.existsSync(filePath)) {
