@@ -20,7 +20,7 @@
 :root[data-theme="light"] {
   /* Light theme overrides */
   --bg-color: #fafafa;
-  --side-nav-bg: #ffffff;
+  --side-nav-bg: #f0f0f0ee;
   --topbar-bg: #f0f0f0ee;
   --footer-bg: #f0f0f0;
   --content-bg: #ffffff;
