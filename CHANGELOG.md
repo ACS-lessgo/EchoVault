@@ -45,7 +45,9 @@
 - Fixed: deleting folders wont cascade delete artists (536d2d3)
 - Fixed: cover image for same artist spreads for all related tracks
 - Fixed: built app doesnt load home page on launch or takes too much time
+- Fixed: RAM leak in app player
+- Fixed: added a fallback mechanism for audio decode error
 
 ---
 
-_Last updated: 2025-11-06_
+_Last updated: 2025-11-09_
