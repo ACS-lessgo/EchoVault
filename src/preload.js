@@ -26,4 +26,11 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("player:streamChunk", trackPath, offset, size),
   getFileSize: (trackPath) =>
     ipcRenderer.invoke("player:getFileSize", trackPath),
+
+  // toast
+  showToast: (message, type = "info") => {
+    document.dispatchEvent(
+      new CustomEvent("show-toast", { detail: { message, type } })
+    )
+  },
 })

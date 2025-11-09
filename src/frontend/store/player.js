@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 
 let currentSource = null
 let currentAudioBuffer = null // Track the buffer
+let _playStartTime = 0
 const audioCtx = new AudioContext({ sampleRate: 48000 })
 const gainNode = audioCtx.createGain() // master gain for volume
 gainNode.connect(audioCtx.destination)
@@ -23,6 +24,11 @@ export const usePlayerStore = defineStore("player", {
     shuffleEnabled: false,
     playHistory: [], // For  shuffle
     queueSource: "all", // 'all', 'artist', 'liked'
+    progress: 0, // 0–1 normalized progress
+    duration: 0, // total duration in seconds
+    currentTime: 0, // current playback position
+    shuffleOrder: [], // shuffled indices
+    originalOrder: [], // original order for restoring
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -138,6 +144,11 @@ export const usePlayerStore = defineStore("player", {
         source.buffer = audioBuffer
         source.connect(gainNode)
         source.start(0)
+        _playStartTime = audioCtx.currentTime // reset reference point
+        this.currentTime = 0
+        this.progress = 0
+        this.duration = audioBuffer.duration
+        this.startProgressUpdater()
 
         currentSource = source
         this.isPlaying = true
@@ -157,33 +168,90 @@ export const usePlayerStore = defineStore("player", {
         }
       } catch (err) {
         console.error("Error playing track:", err)
-        this.isPlaying = false
+        console.error("Error playing track:", err)
+
+        // error toast
+        window.api.showToast?.(
+          `Track "${this.currentTrack?.title || "Unknown"}" can't be played — unsupported or corrupted format.`,
+          "error"
+        )
+
+        // next track automatically
+        const hasNext = await this.playNext()
+        if (!hasNext) {
+          this.isPlaying = false
+          console.log("No playable tracks left in queue.")
+        }
       }
     },
 
     async playPrevious() {
-      if (this.hasPrevious) {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+      this.currentTime = 0
+      this.progress = 0
+      _playStartTime = audioCtx.currentTime
+
+      const order = this.shuffleEnabled
+        ? this.shuffleOrder
+        : this.originalOrder.length
+          ? this.originalOrder
+          : null
+
+      if (this.shuffleEnabled && order?.length) {
+        const prevIndexInOrder = this.currentIndex - 1
+
+        if (prevIndexInOrder >= 0) {
+          this.currentIndex = prevIndexInOrder
+          const prevTrack = this.queue[order[prevIndexInOrder]]
+          await this.setTrack(prevTrack, false)
+          return true
+        }
+      } else if (this.hasPrevious) {
         this.currentIndex--
         await this.setTrack(this.queue[this.currentIndex], false)
         return true
       }
+
       console.log("No previous track")
       return false
     },
 
     async playNext() {
-      this.checkAudioMemory()
-      if (this.hasNext) {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+      this.currentTime = 0
+      this.progress = 0
+      _playStartTime = audioCtx.currentTime
+
+      const order = this.shuffleEnabled
+        ? this.shuffleOrder
+        : this.originalOrder.length
+          ? this.originalOrder
+          : null
+
+      if (this.shuffleEnabled && order?.length) {
+        const currentRealIndex = order[this.currentIndex]
+        const nextIndexInOrder = this.currentIndex + 1
+
+        if (nextIndexInOrder < order.length) {
+          this.currentIndex = nextIndexInOrder
+          const nextTrack = this.queue[order[nextIndexInOrder]]
+          await this.setTrack(nextTrack, false)
+          return true
+        }
+      } else if (this.hasNext) {
         this.currentIndex++
         await this.setTrack(this.queue[this.currentIndex], false)
         return true
       }
+
       console.log("No next track")
       return false
     },
 
     // Clear queue
     clearQueue() {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+
       this.queue = []
       this.currentIndex = 0
     },
@@ -263,6 +331,37 @@ export const usePlayerStore = defineStore("player", {
 
     toggleShuffle() {
       this.shuffleEnabled = !this.shuffleEnabled
+
+      if (this.shuffleEnabled) {
+        console.log("Shuffle enabled")
+
+        // Build an array of indices [0, 1, 2, ...]
+        this.originalOrder = [...Array(this.queue.length).keys()]
+
+        // Fisher-Yates shuffle for true randomness
+        this.shuffleOrder = this.originalOrder
+          .slice()
+          .sort(() => Math.random() - 0.5)
+
+        // Find current track’s new position
+        const currentFile = this.currentTrack?.file_path
+        const currentIndexInOriginal = this.queue.findIndex(
+          (t) => t.file_path === currentFile
+        )
+        const newPos = this.shuffleOrder.indexOf(currentIndexInOriginal)
+        this.currentIndex = newPos >= 0 ? newPos : 0
+      } else {
+        console.log("Shuffle disabled")
+
+        // Restore original order
+        const currentFile = this.currentTrack?.file_path
+        const currentIndexInOriginal = this.queue.findIndex(
+          (t) => t.file_path === currentFile
+        )
+        this.shuffleOrder = []
+        this.currentIndex =
+          currentIndexInOriginal >= 0 ? currentIndexInOriginal : 0
+      }
     },
 
     toggleRepeat() {
@@ -329,6 +428,57 @@ export const usePlayerStore = defineStore("player", {
       }
 
       console.log("======================")
+    },
+
+    startProgressUpdater() {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+
+      this.progressTimer = setInterval(() => {
+        if (this.isPlaying && currentSource && currentAudioBuffer) {
+          const elapsed = audioCtx.currentTime - _playStartTime
+          this.currentTime = Math.min(elapsed, currentAudioBuffer.duration)
+          this.duration = currentAudioBuffer.duration
+          this.progress = Math.min(this.currentTime / this.duration, 1)
+        }
+      }, 200)
+    },
+
+    async seekTo(targetTime) {
+      if (!this.currentTrack?.file_path) return
+      if (!currentAudioBuffer) return
+
+      // seek time
+      const t = Math.max(0, Math.min(targetTime, currentAudioBuffer.duration))
+
+      try {
+        if (currentSource) {
+          currentSource.onended = null
+          currentSource.stop()
+          currentSource.disconnect()
+        }
+
+        const src = audioCtx.createBufferSource()
+        src.buffer = currentAudioBuffer
+        src.connect(gainNode)
+        src.start(0, t)
+
+        currentSource = src
+        this.isPlaying = true
+        this.currentTime = t
+        this.duration = currentAudioBuffer.duration
+        this.progress = t / this.duration
+        _playStartTime = audioCtx.currentTime - t
+
+        // restart progress tracking
+        this.startProgressUpdater()
+
+        src.onended = () => {
+          const hasNext = this.playNext()
+          if (!hasNext) this.isPlaying = false
+        }
+      } catch (e) {
+        console.error("Seek error:", e)
+      }
     },
   },
 })

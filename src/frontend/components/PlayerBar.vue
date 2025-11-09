@@ -1,4 +1,24 @@
 <template>
+  <!-- === PROGRESS BAR === -->
+  <div
+    class="progress-bar"
+    @click="seek($event)"
+    @mousemove="showHoverTime($event)"
+    @mouseleave="hideHoverTime"
+  >
+    <div
+      class="progress-fill"
+      :style="{ width: `${player.progress * 100}%` }"
+    ></div>
+    <div
+      v-if="hoverTimeVisible"
+      class="hover-time"
+      :style="{ left: hoverX + 'px' }"
+    >
+      {{ formatTime(hoverTime) }}
+    </div>
+  </div>
+
   <footer class="player-bar">
     <!-- LEFT: Song Info -->
     <div class="song-info">
@@ -112,7 +132,12 @@
   <transition name="slide-fade">
     <div v-if="showQueue" class="queue-panel">
       <div class="queue-header">
-        <h3>Play Queue</h3>
+        <h3>
+          Play Queue
+          <small v-if="player.shuffleEnabled" style="opacity: 0.7"
+            >(Shuffled)</small
+          >
+        </h3>
         <button class="close-btn" @click="togglePlayListQueueView">
           <img :src="X" alt="x" class="playbar-icon-class" />
         </button>
@@ -120,12 +145,13 @@
 
       <div class="queue-list">
         <div
-          v-for="(track, index) in player.queue"
+          v-for="(track, index) in displayedQueue"
           :key="track.id || index"
           class="queue-item"
           :class="{
             playing: player.currentTrack?.file_path === track.file_path,
           }"
+          @click="playSongFromQueue(track, index)"
         >
           <div class="queue-info">
             <span class="index">{{ index + 1 }}</span>
@@ -173,6 +199,9 @@ const volume = ref(50)
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
 const showQueue = ref(false)
+const hoverTimeVisible = ref(false)
+const hoverTime = ref(0)
+const hoverX = ref(0)
 
 const currentVolumeIcon = computed(() =>
   volume.value === 0 ? VolumeMute : Volume
@@ -238,12 +267,51 @@ const removeFromQueue = (index) => {
   player.queue.splice(index, 1)
 }
 
-const formatTime = (seconds) => {
+function formatTime(seconds) {
   if (!seconds) return "--:--"
   const m = Math.floor(seconds / 60)
   const s = Math.floor(seconds % 60)
   return `${m}:${s.toString().padStart(2, "0")}`
 }
+
+function showHoverTime(event) {
+  const bar = event.currentTarget
+  const rect = bar.getBoundingClientRect()
+  const ratio = (event.clientX - rect.left) / rect.width
+  hoverTime.value = player.duration * ratio
+  hoverX.value = event.clientX - rect.left
+  hoverTimeVisible.value = true
+}
+
+function hideHoverTime() {
+  hoverTimeVisible.value = false
+}
+
+const seek = (event) => {
+  const bar = event.currentTarget
+  const rect = bar.getBoundingClientRect()
+  const ratio = (event.clientX - rect.left) / rect.width
+  const targetTime = player.duration * Math.max(0, Math.min(1, ratio))
+  player.seekTo(targetTime)
+}
+
+const playSongFromQueue = async (track, index) => {
+  if (player.shuffleEnabled && player.shuffleOrder?.length) {
+    player.currentIndex = index // index in shuffled order
+  } else {
+    player.currentIndex = index
+  }
+  await player.setTrack(track, false)
+}
+
+const displayedQueue = computed(() => {
+  if (player.shuffleEnabled && player.shuffleOrder?.length) {
+    // Map shuffled indices to actual tracks
+    return player.shuffleOrder.map((i) => player.queue[i])
+  }
+  // Default — normal order
+  return player.queue
+})
 </script>
 
 <style scoped>
@@ -475,7 +543,7 @@ const formatTime = (seconds) => {
   top: 0;
   right: 0;
   width: 340px;
-  height: 100vh;
+  height: calc(100vh - 86px);
   background-color: var(--content-bg);
   border-left: 2px solid var(--border-color);
   color: var(--text-color);
@@ -483,9 +551,11 @@ const formatTime = (seconds) => {
   flex-direction: column;
   z-index: 9999;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .queue-header {
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -498,6 +568,12 @@ const formatTime = (seconds) => {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.queue-item:active {
+  transform: scale(0.98);
+  background-color: var(--hover-bg);
+  transition: transform 0.1s ease;
 }
 
 .clear-btn,
@@ -656,6 +732,37 @@ const formatTime = (seconds) => {
 .slide-fade-leave-to {
   opacity: 0;
   transform: translateX(100%);
+}
+
+.progress-bar {
+  position: fixed;
+  bottom: 80px; /* just above player bar */
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--border-color);
+  cursor: pointer;
+  z-index: 10000;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+
+.hover-time {
+  position: absolute;
+  bottom: 110%;
+  background: var(--topbar-bg);
+  color: var(--text-color);
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10001;
 }
 
 /* === RESPONSIVE QUEUE PANEL === */

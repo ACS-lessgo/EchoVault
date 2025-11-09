@@ -10,6 +10,7 @@
     </div>
 
     <PlayerBar />
+    <Toast />
   </div>
 </template>
 
@@ -17,6 +18,7 @@
 import TopBar from "./components/TopBar.vue"
 import SideNav from "./components/SideNav.vue"
 import PlayerBar from "./components/PlayerBar.vue"
+import Toast from "./components/Toast.vue"
 </script>
 
 <style>
