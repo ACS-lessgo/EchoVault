@@ -124,6 +124,30 @@
         </div>
         <div class="stat-sparkle"></div>
       </div>
+
+      <!-- Total Listening Time -->
+      <div class="stat-card" :style="{ animationDelay: '0.6s' }">
+        <div class="stat-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+            <path
+              d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"
+            />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">
+            {{ formatListeningTime(animatedListeningTime) }}
+          </div>
+          <div class="stat-label">Listening Time</div>
+        </div>
+        <div class="stat-sparkle"></div>
+      </div>
     </div>
 
     <!-- Additional Info Section -->
@@ -315,6 +339,7 @@ const stats = ref({
   totalPlays: 0,
   topTracks: [],
   topArtists: [],
+  totalListeningTime: 0,
 })
 
 const loading = ref(true)
@@ -322,6 +347,7 @@ const animatedTracks = ref(0)
 const animatedArtists = ref(0)
 const animatedLiked = ref(0)
 const animatedFolders = ref(0)
+const animatedListeningTime = ref(0)
 
 // Animate numbers
 function animateValue(target, duration = 1500) {
@@ -361,6 +387,9 @@ const updateAnimations = () => {
     animatedArtists.value = Math.floor(stats.value.totalArtists * easeOutQuart)
     animatedLiked.value = Math.floor(stats.value.likedSongs * easeOutQuart)
     animatedFolders.value = Math.floor(stats.value.totalFolders * easeOutQuart)
+    animatedListeningTime.value = Math.floor(
+      stats.value.totalListeningTime * easeOutQuart
+    )
 
     if (progress < 1) {
       requestAnimationFrame(animate)
@@ -430,6 +459,17 @@ async function loadStats() {
       }
     }
 
+    // total listening time
+    let listeningTime = 0
+
+    for (const track of tracks) {
+      const plays = track.noOfPlays || 0
+      const duration = track.duration || 0
+      listeningTime += duration * plays
+    }
+
+    stats.value.totalListeningTime = listeningTime
+
     // Get top 10 most played tracks
     try {
       const topTracks = await window.api.getTopPlayedTracks()
@@ -486,6 +526,13 @@ async function loadStats() {
   } finally {
     loading.value = false
   }
+}
+
+function formatListeningTime(seconds) {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}m`
 }
 
 function formatStorage(bytes) {
