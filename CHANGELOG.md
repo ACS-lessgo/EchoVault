@@ -21,6 +21,7 @@
 
 ## Known Bugs
 
+- Player silently fails to play song ( work around is to CTRL + R refresh the app and play again)
 - Tracks with the same filename in different folders overwrite cover
 - FLAC duration sometimes returns `NaN`
 - Watcher re-triggers too often on folder changes
