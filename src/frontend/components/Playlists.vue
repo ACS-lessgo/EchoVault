@@ -16,6 +16,9 @@
             v-for="(track, index) in filteredTracks"
             :key="track.id"
             class="track-row"
+            :class="{
+              playing: player.currentTrack?.file_path === track.file_path,
+            }"
             @click="playCurrentTrack(track)"
           >
             <td class="num-col">{{ index + 1 }}</td>
@@ -48,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 
@@ -58,6 +61,8 @@ const viewMode = ref("list")
 const search = useSearchStore()
 const player = usePlayerStore()
 
+watch(() => player.likedUpdated, loadTracks)
+
 async function loadTracks() {
   const result = await window.api.getLikedTracks()
 
@@ -65,15 +70,25 @@ async function loadTracks() {
   const withCovers = await Promise.all(
     result.map(async (track) => {
       if (track.cover) {
-        const coverDataUrl = await window.api.getCoverDataUrl(track.cover)
-        return { ...track, coverDataUrl }
+        const url = track.cover.startsWith("/")
+          ? `echovault://${track.cover}`
+          : `echovault:///${track.cover}`
+        return {
+          ...track,
+          coverDataUrl: url,
+        }
       } else {
         return { ...track, coverDataUrl: null }
       }
     })
   )
 
-  tracks.value = withCovers
+  // sort by title
+  const sorted = withCovers.sort((a, b) =>
+    a.title?.localeCompare(b.title, undefined, { sensitivity: "base" })
+  )
+
+  tracks.value = sorted
 }
 
 function formatDuration(seconds) {
@@ -108,7 +123,19 @@ const filteredTracks = computed(() => {
 
 // Send to store for Player component
 function playCurrentTrack(track) {
-  player.setTrack(track)
+  if (player.queueSource !== "liked") {
+    player.clearQueue()
+    player.queue = tracks.value.map((t) => ({ ...t }))
+    player.queueSource = "liked"
+  }
+
+  const index = player.queue.findIndex((t) => t.file_path === track.file_path)
+  if (index !== -1) {
+    player.currentIndex = index
+    player.setTrack(player.queue[index], false)
+  } else {
+    player.setTrack(track)
+  }
 }
 </script>
 
@@ -207,5 +234,17 @@ function playCurrentTrack(track) {
 
 .track-table tbody tr.track-row:hover {
   background: var(--hover-bg);
+}
+
+.track-row.playing {
+  background: var(--hover-bg);
+  transition: background 0.3s;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.track-card.playing {
+  outline: 2px solid var(--accent);
+  background: var(--hover-bg);
+  transition: background 0.3s;
 }
 </style>

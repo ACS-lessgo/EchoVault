@@ -19,17 +19,6 @@ export function registerTrackHandlers(mainWindow, db) {
     return result.changes > 0
   })
 
-  // cover
-  ipcMain.handle("tracks:get-cover-dataurl", async (event, filePath) => {
-    try {
-      const data = fs.readFileSync(filePath)
-      return "data:image/jpeg;base64," + data.toString("base64")
-    } catch (err) {
-      console.error("Error reading cover file:", err)
-      return null
-    }
-  })
-
   // lyrics
   ipcMain.handle("tracks:get-embedded-lyrics", async (event, filePath) => {
     try {

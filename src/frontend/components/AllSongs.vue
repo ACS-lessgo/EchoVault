@@ -60,6 +60,9 @@
             v-for="(track, index) in filteredTracks"
             :key="track.id"
             class="track-row"
+            :class="{
+              playing: player.currentTrack?.file_path === track.file_path,
+            }"
             @click="playCurrentTrack(track)"
           >
             <td class="num-col">{{ index + 1 }}</td>
@@ -91,7 +94,12 @@
 
     <!-- Grid View -->
     <div v-else class="grid-view">
-      <div v-for="track in filteredTracks" :key="track.id" class="track-card">
+      <div
+        v-for="track in filteredTracks"
+        :key="track.id"
+        class="track-card"
+        :class="{ playing: player.currentTrack?.file_path === track.file_path }"
+      >
         <div class="card-cover">
           <img
             v-if="track.coverDataUrl"
@@ -126,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, nextTick } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 
@@ -143,15 +151,35 @@ async function loadTracks() {
   const withCovers = await Promise.all(
     result.map(async (track) => {
       if (track.cover) {
-        const coverDataUrl = await window.api.getCoverDataUrl(track.cover)
-        return { ...track, coverDataUrl }
+        const url = track.cover.startsWith("/")
+          ? `echovault://${track.cover}`
+          : `echovault:///${track.cover}`
+        return {
+          ...track,
+          coverDataUrl: url,
+        }
       } else {
         return { ...track, coverDataUrl: null }
       }
     })
   )
 
-  tracks.value = withCovers
+  // sort by title
+  const sorted = withCovers.sort((a, b) =>
+    a.title?.localeCompare(b.title, undefined, { sensitivity: "base" })
+  )
+
+  tracks.value = sorted
+
+  if (Object.keys(player.currentTrack).length === 0) {
+    player.clearQueue()
+    player.queue = structuredClone(sorted)
+    player.currentIndex = 0
+    player.currentTrack = { ...sorted[0] } || {}
+    player.queueSource = "all"
+  }
+
+  await nextTick()
 }
 
 function formatDuration(seconds) {
@@ -186,7 +214,19 @@ const filteredTracks = computed(() => {
 
 // Send to store for Player component
 function playCurrentTrack(track) {
-  player.setTrack(track)
+  if (player.queueSource !== "all") {
+    player.clearQueue()
+    player.queue = tracks.value.map((t) => ({ ...t }))
+    player.queueSource = "all"
+  }
+
+  const index = player.queue.findIndex((t) => t.file_path === track.file_path)
+  if (index !== -1) {
+    player.currentIndex = index
+    player.setTrack(player.queue[index], false)
+  } else {
+    player.setTrack(track)
+  }
 }
 
 // TODO : Add pagination OR Virtual scroll list
@@ -382,7 +422,7 @@ function playCurrentTrack(track) {
   border-radius: 50%;
   background: var(--accent);
   border: none;
-  color: white;
+  color: var(--text-color);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -430,5 +470,17 @@ function playCurrentTrack(track) {
 
 .track-table tbody tr.track-row:hover {
   background: var(--hover-bg);
+}
+
+.track-row.playing {
+  background: var(--hover-bg);
+  transition: background 0.3s;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.track-card.playing {
+  outline: 2px solid var(--accent);
+  background: var(--hover-bg);
+  transition: background 0.3s;
 }
 </style>

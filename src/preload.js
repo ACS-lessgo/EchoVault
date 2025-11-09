@@ -9,8 +9,6 @@ contextBridge.exposeInMainWorld("api", {
 
   // tracks
   getTracks: () => ipcRenderer.invoke("tracks:get-tracks"),
-  getCoverDataUrl: (filePath) =>
-    ipcRenderer.invoke("tracks:get-cover-dataurl", filePath),
   getEmbeddedLyrics: (filePath) =>
     ipcRenderer.invoke("tracks:get-embedded-lyrics", filePath),
   toggleLike: (trackId, isLiked) =>
@@ -21,4 +19,11 @@ contextBridge.exposeInMainWorld("api", {
   getArtists: () => ipcRenderer.invoke("artists:get-artists"),
   getTracksByArtist: (artistId) =>
     ipcRenderer.invoke("artists:get-tracks-by-artist", artistId),
+
+  // player
+  playTrack: (track) => ipcRenderer.invoke("player:play", track),
+  streamChunk: (trackPath, offset, size) =>
+    ipcRenderer.invoke("player:streamChunk", trackPath, offset, size),
+  getFileSize: (trackPath) =>
+    ipcRenderer.invoke("player:getFileSize", trackPath),
 })

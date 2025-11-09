@@ -5,7 +5,7 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses")
 module.exports = {
   // IMP : dont touch the packagerConfig
   packagerConfig: {
-    icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+    icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
     executableName: "echovault",
     asar: {
       unpack: "*.{node,dll}",
@@ -22,7 +22,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+        icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
       },
     },
 
@@ -37,7 +37,7 @@ module.exports = {
       name: "@electron-forge/maker-deb",
       config: {
         options: {
-          icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+          icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
           categories: ["AudioVideo", "Audio", "Player"],
           genericName: "Music Player",
           description: "A modern music player for lossless audio formats",
@@ -50,7 +50,7 @@ module.exports = {
       name: "@reforged/maker-appimage",
       config: {
         options: {
-          icon: path.join(__dirname, "src/assets/icons/app-icon.png"),
+          icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
           categories: ["AudioVideo", "Audio", "Player"],
           genericName: "Music Player",
           description: "A modern music player for lossless audio formats",

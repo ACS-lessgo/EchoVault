@@ -4,9 +4,18 @@ import fs from "fs"
 
 export default defineConfig({
   build: {
-    sourcemap: "inline",
+    sourcemap: false,
+    minify: "esbuild",
+    cssCodeSplit: true,
+    target: "esnext",
     rollupOptions: {
       external: ["better-sqlite3", "fs", "path", "os"],
+    },
+  },
+  server: {
+    headers: {
+      "Content-Security-Policy":
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: echovault-cover:; media-src 'self' echovault-cover: file:;",
     },
   },
   plugins: [
@@ -18,7 +27,10 @@ export default defineConfig({
 
         // manually copy app icon and schema to build folder to maintain path
         function copyAppIcon() {
-          const src = resolve(__dirname, "src/assets/icons/app-icon.png")
+          const src = resolve(
+            __dirname,
+            "src/frontend/assets/icons/app-icon.png"
+          )
           const destDir = resolve(__dirname, ".vite/build/assets/icons")
           const dest = path.join(destDir, "app-icon.png")
 
