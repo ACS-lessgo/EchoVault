@@ -27,6 +27,8 @@ export const usePlayerStore = defineStore("player", {
     progress: 0, // 0–1 normalized progress
     duration: 0, // total duration in seconds
     currentTime: 0, // current playback position
+    shuffleOrder: [], // shuffled indices
+    originalOrder: [], // original order for restoring
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -189,11 +191,27 @@ export const usePlayerStore = defineStore("player", {
       this.progress = 0
       _playStartTime = audioCtx.currentTime
 
-      if (this.hasPrevious) {
+      const order = this.shuffleEnabled
+        ? this.shuffleOrder
+        : this.originalOrder.length
+          ? this.originalOrder
+          : null
+
+      if (this.shuffleEnabled && order?.length) {
+        const prevIndexInOrder = this.currentIndex - 1
+
+        if (prevIndexInOrder >= 0) {
+          this.currentIndex = prevIndexInOrder
+          const prevTrack = this.queue[order[prevIndexInOrder]]
+          await this.setTrack(prevTrack, false)
+          return true
+        }
+      } else if (this.hasPrevious) {
         this.currentIndex--
         await this.setTrack(this.queue[this.currentIndex], false)
         return true
       }
+
       console.log("No previous track")
       return false
     },
@@ -204,12 +222,28 @@ export const usePlayerStore = defineStore("player", {
       this.progress = 0
       _playStartTime = audioCtx.currentTime
 
-      this.checkAudioMemory()
-      if (this.hasNext) {
+      const order = this.shuffleEnabled
+        ? this.shuffleOrder
+        : this.originalOrder.length
+          ? this.originalOrder
+          : null
+
+      if (this.shuffleEnabled && order?.length) {
+        const currentRealIndex = order[this.currentIndex]
+        const nextIndexInOrder = this.currentIndex + 1
+
+        if (nextIndexInOrder < order.length) {
+          this.currentIndex = nextIndexInOrder
+          const nextTrack = this.queue[order[nextIndexInOrder]]
+          await this.setTrack(nextTrack, false)
+          return true
+        }
+      } else if (this.hasNext) {
         this.currentIndex++
         await this.setTrack(this.queue[this.currentIndex], false)
         return true
       }
+
       console.log("No next track")
       return false
     },
@@ -297,6 +331,37 @@ export const usePlayerStore = defineStore("player", {
 
     toggleShuffle() {
       this.shuffleEnabled = !this.shuffleEnabled
+
+      if (this.shuffleEnabled) {
+        console.log("Shuffle enabled")
+
+        // Build an array of indices [0, 1, 2, ...]
+        this.originalOrder = [...Array(this.queue.length).keys()]
+
+        // Fisher-Yates shuffle for true randomness
+        this.shuffleOrder = this.originalOrder
+          .slice()
+          .sort(() => Math.random() - 0.5)
+
+        // Find current track’s new position
+        const currentFile = this.currentTrack?.file_path
+        const currentIndexInOriginal = this.queue.findIndex(
+          (t) => t.file_path === currentFile
+        )
+        const newPos = this.shuffleOrder.indexOf(currentIndexInOriginal)
+        this.currentIndex = newPos >= 0 ? newPos : 0
+      } else {
+        console.log("Shuffle disabled")
+
+        // Restore original order
+        const currentFile = this.currentTrack?.file_path
+        const currentIndexInOriginal = this.queue.findIndex(
+          (t) => t.file_path === currentFile
+        )
+        this.shuffleOrder = []
+        this.currentIndex =
+          currentIndexInOriginal >= 0 ? currentIndexInOriginal : 0
+      }
     },
 
     toggleRepeat() {
