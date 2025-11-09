@@ -78,6 +78,7 @@
                   v-else
                   src="../assets/images/default-cover.svg"
                   :alt="track.title"
+                  class="track-cover"
                 />
                 <div class="track-details">
                   <div class="track-title">{{ track.title }}</div>
