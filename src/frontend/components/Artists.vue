@@ -187,7 +187,7 @@ function formatDuration(seconds) {
 function playCurrentTrack(track) {
   if (player.queueSource !== "artist") {
     player.clearQueue()
-    player.queue = tracks.value.map((t) => ({ ...t }))
+    player.queue = artistTracks.value.map((t) => ({ ...t }))
     player.queueSource = "artist"
   }
 

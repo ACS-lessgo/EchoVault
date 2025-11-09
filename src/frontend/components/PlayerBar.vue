@@ -1,4 +1,24 @@
 <template>
+  <!-- === PROGRESS BAR === -->
+  <div
+    class="progress-bar"
+    @click="seek($event)"
+    @mousemove="showHoverTime($event)"
+    @mouseleave="hideHoverTime"
+  >
+    <div
+      class="progress-fill"
+      :style="{ width: `${player.progress * 100}%` }"
+    ></div>
+    <div
+      v-if="hoverTimeVisible"
+      class="hover-time"
+      :style="{ left: hoverX + 'px' }"
+    >
+      {{ formatTime(hoverTime) }}
+    </div>
+  </div>
+
   <footer class="player-bar">
     <!-- LEFT: Song Info -->
     <div class="song-info">
@@ -173,6 +193,9 @@ const volume = ref(50)
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
 const showQueue = ref(false)
+const hoverTimeVisible = ref(false)
+const hoverTime = ref(0)
+const hoverX = ref(0)
 
 const currentVolumeIcon = computed(() =>
   volume.value === 0 ? VolumeMute : Volume
@@ -238,11 +261,32 @@ const removeFromQueue = (index) => {
   player.queue.splice(index, 1)
 }
 
-const formatTime = (seconds) => {
+function formatTime(seconds) {
   if (!seconds) return "--:--"
   const m = Math.floor(seconds / 60)
   const s = Math.floor(seconds % 60)
   return `${m}:${s.toString().padStart(2, "0")}`
+}
+
+function showHoverTime(event) {
+  const bar = event.currentTarget
+  const rect = bar.getBoundingClientRect()
+  const ratio = (event.clientX - rect.left) / rect.width
+  hoverTime.value = player.duration * ratio
+  hoverX.value = event.clientX - rect.left
+  hoverTimeVisible.value = true
+}
+
+function hideHoverTime() {
+  hoverTimeVisible.value = false
+}
+
+const seek = (event) => {
+  const bar = event.currentTarget
+  const rect = bar.getBoundingClientRect()
+  const ratio = (event.clientX - rect.left) / rect.width
+  const targetTime = player.duration * Math.max(0, Math.min(1, ratio))
+  player.seekTo(targetTime)
 }
 </script>
 
@@ -656,6 +700,36 @@ const formatTime = (seconds) => {
 .slide-fade-leave-to {
   opacity: 0;
   transform: translateX(100%);
+}
+
+.progress-bar {
+  position: fixed;
+  bottom: 80px; /* just above player bar */
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--border-color);
+  cursor: pointer;
+  z-index: 2000;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+
+.hover-time {
+  position: absolute;
+  bottom: 110%;
+  background: var(--topbar-bg);
+  color: var(--text-color);
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 /* === RESPONSIVE QUEUE PANEL === */

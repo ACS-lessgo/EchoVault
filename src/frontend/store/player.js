@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 
 let currentSource = null
 let currentAudioBuffer = null // Track the buffer
+let _playStartTime = 0
 const audioCtx = new AudioContext({ sampleRate: 48000 })
 const gainNode = audioCtx.createGain() // master gain for volume
 gainNode.connect(audioCtx.destination)
@@ -23,6 +24,9 @@ export const usePlayerStore = defineStore("player", {
     shuffleEnabled: false,
     playHistory: [], // For  shuffle
     queueSource: "all", // 'all', 'artist', 'liked'
+    progress: 0, // 0–1 normalized progress
+    duration: 0, // total duration in seconds
+    currentTime: 0, // current playback position
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -138,6 +142,11 @@ export const usePlayerStore = defineStore("player", {
         source.buffer = audioBuffer
         source.connect(gainNode)
         source.start(0)
+        _playStartTime = audioCtx.currentTime // reset reference point
+        this.currentTime = 0
+        this.progress = 0
+        this.duration = audioBuffer.duration
+        this.startProgressUpdater()
 
         currentSource = source
         this.isPlaying = true
@@ -162,6 +171,11 @@ export const usePlayerStore = defineStore("player", {
     },
 
     async playPrevious() {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+      this.currentTime = 0
+      this.progress = 0
+      _playStartTime = audioCtx.currentTime
+
       if (this.hasPrevious) {
         this.currentIndex--
         await this.setTrack(this.queue[this.currentIndex], false)
@@ -172,6 +186,11 @@ export const usePlayerStore = defineStore("player", {
     },
 
     async playNext() {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+      this.currentTime = 0
+      this.progress = 0
+      _playStartTime = audioCtx.currentTime
+
       this.checkAudioMemory()
       if (this.hasNext) {
         this.currentIndex++
@@ -184,6 +203,8 @@ export const usePlayerStore = defineStore("player", {
 
     // Clear queue
     clearQueue() {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+
       this.queue = []
       this.currentIndex = 0
     },
@@ -329,6 +350,57 @@ export const usePlayerStore = defineStore("player", {
       }
 
       console.log("======================")
+    },
+
+    startProgressUpdater() {
+      if (this.progressTimer) clearInterval(this.progressTimer)
+
+      this.progressTimer = setInterval(() => {
+        if (this.isPlaying && currentSource && currentAudioBuffer) {
+          const elapsed = audioCtx.currentTime - _playStartTime
+          this.currentTime = Math.min(elapsed, currentAudioBuffer.duration)
+          this.duration = currentAudioBuffer.duration
+          this.progress = Math.min(this.currentTime / this.duration, 1)
+        }
+      }, 200)
+    },
+
+    async seekTo(targetTime) {
+      if (!this.currentTrack?.file_path) return
+      if (!currentAudioBuffer) return
+
+      // seek time
+      const t = Math.max(0, Math.min(targetTime, currentAudioBuffer.duration))
+
+      try {
+        if (currentSource) {
+          currentSource.onended = null
+          currentSource.stop()
+          currentSource.disconnect()
+        }
+
+        const src = audioCtx.createBufferSource()
+        src.buffer = currentAudioBuffer
+        src.connect(gainNode)
+        src.start(0, t)
+
+        currentSource = src
+        this.isPlaying = true
+        this.currentTime = t
+        this.duration = currentAudioBuffer.duration
+        this.progress = t / this.duration
+        _playStartTime = audioCtx.currentTime - t
+
+        // restart progress tracking
+        this.startProgressUpdater()
+
+        src.onended = () => {
+          const hasNext = this.playNext()
+          if (!hasNext) this.isPlaying = false
+        }
+      } catch (e) {
+        console.error("Seek error:", e)
+      }
     },
   },
 })
