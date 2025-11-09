@@ -1,3 +1,7 @@
+// set theme before Vue app mounts (fixes white scrollbar flash)
+const savedTheme = localStorage.getItem("theme") || "dark"
+document.documentElement.setAttribute("data-theme", savedTheme)
+
 import { createApp } from "vue"
 import { createPinia } from "pinia"
 import App from "./frontend/App.vue"

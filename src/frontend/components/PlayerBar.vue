@@ -54,7 +54,7 @@
         >
           <img :src="Playlist" class="playbar-icon-class" alt="Playlist" />
         </button>
-        <button @click="toggleLikedSong" class="icon-btn">
+        <button @click="toggleLikedSong" class="icon-btn" :title="`Like Song`">
           <img
             class="playbar-icon-class"
             :src="player.currentTrack?.isLiked ? HeartSolid : Heart"
@@ -84,7 +84,11 @@
       </div>
 
       <div class="volume">
-        <button @click="toggleMute" class="icon-btn">
+        <button
+          @click="toggleMute"
+          class="icon-btn"
+          :title="`Volume: ${volume}%`"
+        >
           <img
             class="playbar-icon-class"
             :src="currentVolumeIcon"
