@@ -15,7 +15,7 @@ export function registerLibraryHandlers(mainWindow, db) {
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ["openDirectory", "multiSelections"],
     })
-    if (result.canceled) return []
+    if (result.canceled) return db.prepare(GET_FOLDERS_WITH_TRACK_COUNT).all()
 
     for (const folder of result.filePaths) await scanFolder(db, folder)
     watchFolders(db)

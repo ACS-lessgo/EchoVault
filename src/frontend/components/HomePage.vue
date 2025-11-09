@@ -97,9 +97,15 @@ onMounted(() => {
 }
 
 /* ---------- HERO SECTION ---------- */
+/* ---------- HERO SECTION ---------- */
 .hero-card {
   width: 85%;
-  background: linear-gradient(135deg, #2d0b5d, #6b23a8, #8e44ad);
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-hover),
+    var(--hover-bg)
+  );
   border-radius: 16px;
   padding: 2rem;
   display: flex;
@@ -107,21 +113,33 @@ onMounted(() => {
   justify-content: space-between;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   animation: fadeIn 0.8s ease;
+  color: var(--text-color);
+  transition:
+    background 0.4s ease,
+    color 0.4s ease,
+    box-shadow 0.4s ease;
 }
 
+/* subtle variant for light theme (optional tweak to soften the glow) */
+:root[data-theme="light"] .hero-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Text styling */
 .hero-text h1 {
   font-size: 2rem;
   font-weight: 700;
+  color: var(--text-color);
 }
 
 .hero-text .highlight {
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  color: var(--accent-hover);
+  text-shadow: 0 0 10px rgb(255, 255, 255);
 }
 
 .hero-text p {
   margin-top: 0.5rem;
-  color: #ddd;
+  color: var(--muted-text);
 }
 
 /* Animated wave bars */
@@ -135,7 +153,7 @@ onMounted(() => {
 .bar {
   width: 6px;
   height: 20px;
-  background-color: white;
+  background: var(--text-color);
   border-radius: 3px;
   animation: waveAnim 1s ease-in-out infinite;
 }

@@ -151,8 +151,13 @@ async function loadTracks() {
   const withCovers = await Promise.all(
     result.map(async (track) => {
       if (track.cover) {
-        const coverDataUrl = await window.api.getCoverDataUrl(track.cover)
-        return { ...track, coverDataUrl }
+        const url = track.cover.startsWith("/")
+          ? `echovault://${track.cover}`
+          : `echovault:///${track.cover}`
+        return {
+          ...track,
+          coverDataUrl: url,
+        }
       } else {
         return { ...track, coverDataUrl: null }
       }
@@ -166,18 +171,12 @@ async function loadTracks() {
 
   tracks.value = sorted
 
-  // reset queue and reinitialize it
-  // reset queue and reinitialize it
-  if (player.isPlaying) {
+  if (Object.keys(player.currentTrack).length === 0) {
     player.clearQueue()
-    player.queue = sorted
-  } else {
-    player.clearQueue()
-    player.queue = sorted
-
-    // update player state with first track
+    player.queue = structuredClone(sorted)
     player.currentIndex = 0
-    player.currentTrack = sorted[0] || {}
+    player.currentTrack = { ...sorted[0] } || {}
+    player.queueSource = "all"
   }
 
   await nextTick()
@@ -215,7 +214,19 @@ const filteredTracks = computed(() => {
 
 // Send to store for Player component
 function playCurrentTrack(track) {
-  player.setTrack(track)
+  if (player.queueSource !== "all") {
+    player.clearQueue()
+    player.queue = tracks.value.map((t) => ({ ...t }))
+    player.queueSource = "all"
+  }
+
+  const index = player.queue.findIndex((t) => t.file_path === track.file_path)
+  if (index !== -1) {
+    player.currentIndex = index
+    player.setTrack(player.queue[index], false)
+  } else {
+    player.setTrack(track)
+  }
 }
 
 // TODO : Add pagination OR Virtual scroll list
@@ -411,7 +422,7 @@ function playCurrentTrack(track) {
   border-radius: 50%;
   background: var(--accent);
   border: none;
-  color: white;
+  color: var(--text-color);
   cursor: pointer;
   display: flex;
   align-items: center;

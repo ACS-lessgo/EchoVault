@@ -47,28 +47,48 @@
     <!-- RIGHT: Track Utils + Volume -->
     <div class="right-section">
       <div class="track-utils">
-        <button @click="toggleLikedSong" class="icon-btn">
+        <button
+          @click="togglePlayListQueueView"
+          class="icon-btn"
+          :title="`Show Queue`"
+        >
+          <img :src="Playlist" class="playbar-icon-class" alt="Playlist" />
+        </button>
+        <button @click="toggleLikedSong" class="icon-btn" :title="`Like Song`">
           <img
             class="playbar-icon-class"
             :src="player.currentTrack?.isLiked ? HeartSolid : Heart"
             alt="Heart icon"
           />
         </button>
-        <!-- TODO : Add Repeat and Shuffle -->
-        <!-- <button @click="toggleRepeat" class="icon-btn">
-          <img class="playbar-icon-class" :src="Repeat" alt="Heart icon" />
-        </button>
-        <button @click="toggleShuffle" class="icon-btn">
+        <button
+          @click="player.toggleRepeat"
+          class="icon-btn"
+          :class="player.repeatMode"
+          :title="`Repeat: ${player.repeatMode}`"
+        >
           <img
             class="playbar-icon-class"
-            :src="Shuffle"
-            alt="HeaShufflert icon"
+            :src="player.repeatMode === 'one' ? RepeatOne : Repeat"
+            alt="Repeat icon"
           />
-        </button> -->
+        </button>
+        <button
+          @click="player.toggleShuffle"
+          class="icon-btn toggle-shuffle"
+          :class="{ active: player.shuffleEnabled }"
+          :title="player.shuffleEnabled ? 'Shuffle: On' : 'Shuffle: Off'"
+        >
+          <img class="playbar-icon-class" :src="Shuffle" alt="Shuffle icon" />
+        </button>
       </div>
 
       <div class="volume">
-        <button @click="toggleMute" class="icon-btn">
+        <button
+          @click="toggleMute"
+          class="icon-btn"
+          :title="`Volume: ${volume}%`"
+        >
           <img
             class="playbar-icon-class"
             :src="currentVolumeIcon"
@@ -87,6 +107,47 @@
       </div>
     </div>
   </footer>
+
+  <!-- QUEUE SIDEBAR -->
+  <transition name="slide-fade">
+    <div v-if="showQueue" class="queue-panel">
+      <div class="queue-header">
+        <h3>Play Queue</h3>
+        <button class="close-btn" @click="togglePlayListQueueView">
+          <img :src="X" alt="x" class="playbar-icon-class" />
+        </button>
+      </div>
+
+      <div class="queue-list">
+        <div
+          v-for="(track, index) in player.queue"
+          :key="track.id || index"
+          class="queue-item"
+          :class="{
+            playing: player.currentTrack?.file_path === track.file_path,
+          }"
+        >
+          <div class="queue-info">
+            <span class="index">{{ index + 1 }}</span>
+            <div class="track-details">
+              <div class="track-title">{{ track.title }}</div>
+              <div class="track-artist">{{ track.artist }}</div>
+            </div>
+          </div>
+
+          <span class="duration">{{ formatTime(track.duration) }}</span>
+
+          <button
+            class="remove-btn"
+            title="Remove from queue"
+            @click.stop="removeFromQueue(index)"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -104,11 +165,14 @@ import {
   Shuffle,
   Repeat,
   RepeatOne,
+  Playlist,
+  X,
 } from "../assets/icons/icons"
 
 const volume = ref(50)
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
+const showQueue = ref(false)
 
 const currentVolumeIcon = computed(() =>
   volume.value === 0 ? VolumeMute : Volume
@@ -164,6 +228,21 @@ const toggleMute = () => {
     volume.value = 0
   }
   player.setVolume(volume.value / 100)
+}
+
+const togglePlayListQueueView = () => {
+  showQueue.value = !showQueue.value
+}
+
+const removeFromQueue = (index) => {
+  player.queue.splice(index, 1)
+}
+
+const formatTime = (seconds) => {
+  if (!seconds) return "--:--"
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${s.toString().padStart(2, "0")}`
 }
 </script>
 
@@ -347,5 +426,276 @@ const toggleMute = () => {
   border-radius: 50%;
   cursor: pointer;
   transition: background 0.2s ease;
+}
+
+.icon-btn.active img {
+  filter: brightness(1.3);
+}
+
+.icon-btn.off img {
+  opacity: 0.6;
+}
+
+.toggle-shuffle img {
+  opacity: 0.7;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.toggle-shuffle.active img {
+  filter: drop-shadow(0 0 4px var(--accent));
+  opacity: 1;
+}
+
+/* === ICON COLOR THEMING === */
+
+/* Default for dark mode */
+:root[data-theme="dark"] .playbar-icon-class {
+  filter: invert(100%) brightness(200%);
+}
+
+/* Light mode — show darker icons */
+:root[data-theme="light"] .playbar-icon-class {
+  filter: invert(0%) brightness(0%);
+}
+
+/* Optional: hover glow */
+:root[data-theme="dark"] .icon-btn:hover img {
+  filter: invert(100%) brightness(200%) drop-shadow(0 0 4px var(--accent-hover));
+}
+
+:root[data-theme="light"] .icon-btn:hover img {
+  filter: invert(0%) brightness(0%) drop-shadow(0 0 3px var(--accent));
+}
+
+/* === QUEUE PANEL === */
+.queue-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 340px;
+  height: 100vh;
+  background-color: var(--content-bg);
+  border-left: 2px solid var(--border-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--topbar-bg);
+}
+
+.queue-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.clear-btn,
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.clear-btn:hover,
+.close-btn:hover {
+  color: var(--accent);
+}
+
+/* === QUEUE LIST === */
+.queue-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  position: relative;
+  background-color: var(--side-nav-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.queue-item:nth-child(odd) {
+  background-color: var(--row-alt-bg);
+}
+
+.queue-item:nth-child(even) {
+  background-color: var(--row-even-bg);
+}
+
+.queue-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.queue-item.playing {
+  background-color: var(--accent-hover);
+  color: #fff;
+}
+
+/* compact info column */
+.queue-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.queue-info .index {
+  width: 20px;
+  text-align: right;
+  color: var(--muted-text);
+  font-size: 0.85rem;
+}
+
+/* Match all-songs styling */
+.track-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.track-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-artist {
+  font-size: 13px;
+  color: var(--muted-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  gap: 2px; /* reduced from default 6–8px */
+  overflow: hidden;
+}
+
+.title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.artist {
+  font-size: 0.8rem;
+  color: var(--muted-text);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* time duration alignment */
+.duration {
+  font-size: 0.85rem;
+  color: var(--muted-text);
+  margin-left: auto;
+  margin-right: 1.5rem;
+}
+
+/* hover remove button */
+.remove-btn {
+  opacity: 0;
+  background: transparent;
+  border: none;
+  color: var(--muted-text);
+  font-size: 1rem;
+  position: absolute;
+  right: 10px;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+  cursor: pointer;
+}
+
+.queue-item:hover .remove-btn {
+  opacity: 1;
+}
+
+.remove-btn:hover {
+  color: var(--accent);
+}
+
+/* Slide animation */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* === RESPONSIVE QUEUE PANEL === */
+@media (max-width: 768px) {
+  .queue-panel {
+    width: 100%;
+    height: 60vh;
+    bottom: 0;
+    right: 0;
+    top: auto;
+    border-left: none;
+    border-top: 2px solid var(--border-color);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.3s ease;
+  }
+
+  .queue-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .queue-list {
+    padding-bottom: 1rem;
+  }
+
+  /* make close button easier to tap */
+  .close-btn {
+    font-size: 1.4rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>

@@ -31,7 +31,7 @@
     <!-- Songs List for Selected Artist -->
     <div v-else class="artist-songs-view">
       <div class="artist-header">
-        <button class="back-btn" @click="isArtistView = true">← Back</button>
+        <button class="back-btn" @click="isArtistView = true"><</button>
         <h2>{{ selectedArtist?.name }}</h2>
       </div>
 
@@ -110,11 +110,12 @@ async function loadArtists() {
   const withCovers = await Promise.all(
     result.map(async (artist) => {
       if (artist.cover) {
-        try {
-          const coverDataUrl = await window.api.getCoverDataUrl(artist.cover)
-          return { ...artist, coverDataUrl }
-        } catch {
-          return { ...artist, coverDataUrl: null }
+        const url = artist.cover.startsWith("/")
+          ? `echovault://${artist.cover}`
+          : `echovault:///${artist.cover}`
+        return {
+          ...artist,
+          coverDataUrl: url,
         }
       } else {
         return { ...artist, coverDataUrl: null }
@@ -134,8 +135,13 @@ async function openArtist(artistId) {
   const withCovers = await Promise.all(
     songs.map(async (track) => {
       if (track.cover) {
-        const coverDataUrl = await window.api.getCoverDataUrl(track.cover)
-        return { ...track, coverDataUrl }
+        const url = track.cover.startsWith("/")
+          ? `echovault://${track.cover}`
+          : `echovault:///${track.cover}`
+        return {
+          ...track,
+          coverDataUrl: url,
+        }
       } else {
         return { ...track, coverDataUrl: null }
       }
@@ -149,19 +155,6 @@ async function openArtist(artistId) {
 
   artistTracks.value = sorted
   isArtistView.value = false
-
-  // reset queue and reinitialize it
-  if (player.isPlaying) {
-    player.clearQueue()
-    player.queue = sorted
-  } else {
-    player.clearQueue()
-    player.queue = sorted
-
-    // update player state with first track
-    player.currentIndex = 0
-    player.currentTrack = sorted[0] || {}
-  }
 
   await nextTick()
 }
@@ -192,7 +185,19 @@ function formatDuration(seconds) {
 
 // --- Stub for Playing Track ---
 function playCurrentTrack(track) {
-  player.setTrack(track)
+  if (player.queueSource !== "artist") {
+    player.clearQueue()
+    player.queue = tracks.value.map((t) => ({ ...t }))
+    player.queueSource = "artist"
+  }
+
+  const index = player.queue.findIndex((t) => t.file_path === track.file_path)
+  if (index !== -1) {
+    player.currentIndex = index
+    player.setTrack(player.queue[index], false)
+  } else {
+    player.setTrack(track)
+  }
 }
 
 const filteredTracks = computed(() => {
@@ -271,17 +276,30 @@ const filteredTracks = computed(() => {
   border-radius: 100%;
 }
 
+.artist-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .back-btn {
-  background: none;
-  border: none;
-  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--hover-bg);
+  color: var(--text-color);
   font-size: 1.2rem;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
 .back-btn:hover {
-  opacity: 0.8;
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px var(--accent-hover);
 }
 
 /* List View Styles */

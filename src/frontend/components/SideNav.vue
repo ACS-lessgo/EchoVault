@@ -52,7 +52,7 @@ nav {
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  color: #ccc;
+  color: var(--text-color);
   padding: 8px 10px;
   border-radius: 8px;
   transition:
@@ -62,17 +62,38 @@ nav {
 
 .nav-item:hover {
   background-color: var(--hover-bg);
-  color: white;
+  color: var(--accent-hover);
 }
 
 .nav-item.router-link-active {
   background-color: var(--hover-bg);
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .nav-icon {
   width: 20px;
   height: 20px;
   filter: invert(100%) brightness(200%);
+}
+
+/* DARK THEME icons (light look) */
+:root[data-theme="dark"] .nav-icon {
+  filter: invert(100%) brightness(200%);
+}
+
+/* LIGHT THEME icons (dark look) */
+:root[data-theme="light"] .nav-icon {
+  filter: invert(0%) brightness(0%);
+}
+
+/* Hover states per theme */
+:root[data-theme="dark"] .nav-item:hover .nav-icon {
+  filter: invert(100%) brightness(250%) drop-shadow(0 0 4px var(--accent-hover));
+}
+
+:root[data-theme="light"] .nav-item:hover .nav-icon {
+  filter: invert(0%) brightness(0%) drop-shadow(0 0 3px var(--accent));
 }
 
 /* --- Responsive collapsed mode --- */

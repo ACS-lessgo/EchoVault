@@ -1,7 +1,16 @@
 <template>
   <header class="top-bar">
     <div class="search-bar">
-      <img src="../assets/icons/search.svg" alt="Search" class="search-icon" />
+      <img
+        :src="Search"
+        alt="Search"
+        class="search-icon"
+        :style="{
+          filter: isDarkMode
+            ? 'invert(100%) brightness(200%)'
+            : 'invert(0%) brightness(0%)',
+        }"
+      />
       <input
         v-model="localQuery"
         type="text"
@@ -14,11 +23,25 @@
         <img
           class="topbar-icon-class"
           :src="isDarkMode ? Light : Dark"
+          :style="{
+            filter: isDarkMode
+              ? 'invert(100%) brightness(200%)'
+              : 'invert(0%) brightness(0%)',
+          }"
           alt="Light"
         />
       </button>
       <button title="Settings" class="icon-btn">
-        <img class="topbar-icon-class" :src="Settings" alt="Settings" />
+        <img
+          class="topbar-icon-class"
+          :src="Settings"
+          :style="{
+            filter: isDarkMode
+              ? 'invert(100%) brightness(200%)'
+              : 'invert(0%) brightness(0%)',
+          }"
+          alt="Settings"
+        />
       </button>
     </div>
   </header>
@@ -42,7 +65,22 @@ watch(localQuery, (val) => updateSearch(val))
 
 const toggleTheme = () => {
   isDarkMode.value = !isDarkMode.value
+  document.documentElement.setAttribute(
+    "data-theme",
+    isDarkMode.value ? "dark" : "light"
+  )
 }
+
+// load previous preference
+if (localStorage.getItem("theme") === "light") {
+  isDarkMode.value = false
+  document.documentElement.setAttribute("data-theme", "light")
+}
+
+// persist preference
+watch(isDarkMode, (val) => {
+  localStorage.setItem("theme", val ? "dark" : "light")
+})
 
 // TODO : Move search completly to sqlite
 </script>
@@ -97,7 +135,7 @@ const toggleTheme = () => {
   background: transparent;
   border: none;
   outline: none;
-  color: whitesmoke;
+  color: var(--text-color);
   font-size: 0.9rem;
 }
 
