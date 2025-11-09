@@ -156,19 +156,6 @@ async function openArtist(artistId) {
   artistTracks.value = sorted
   isArtistView.value = false
 
-  // reset queue and reinitialize it
-  if (player.isPlaying) {
-    player.clearQueue()
-    player.queue = sorted
-  } else {
-    player.clearQueue()
-    player.queue = sorted
-
-    // update player state with first track
-    player.currentIndex = 0
-    player.currentTrack = sorted[0] || {}
-  }
-
   await nextTick()
 }
 
@@ -198,7 +185,19 @@ function formatDuration(seconds) {
 
 // --- Stub for Playing Track ---
 function playCurrentTrack(track) {
-  player.setTrack(track)
+  if (player.queueSource !== "artist") {
+    player.clearQueue()
+    player.queue = tracks.value.map((t) => ({ ...t }))
+    player.queueSource = "artist"
+  }
+
+  const index = player.queue.findIndex((t) => t.file_path === track.file_path)
+  if (index !== -1) {
+    player.currentIndex = index
+    player.setTrack(player.queue[index], false)
+  } else {
+    player.setTrack(track)
+  }
 }
 
 const filteredTracks = computed(() => {

@@ -21,7 +21,8 @@ export const usePlayerStore = defineStore("player", {
     likedUpdated: 0,
     repeatMode: "off", // 'off', 'all', 'one'
     shuffleEnabled: false,
-    playHistory: [], // For smart shuffle
+    playHistory: [], // For  shuffle
+    queueSource: "all", // 'all', 'artist', 'liked'
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -30,7 +31,8 @@ export const usePlayerStore = defineStore("player", {
   },
   actions: {
     async setTrack(track, addToQueue = true) {
-      this.currentTrack = track
+      const clonedTrack = { ...track } // Make a copy
+      this.currentTrack = clonedTrack
       this.lyrics = null // Reset lyrics
       this.isPlaying = true
 
@@ -42,7 +44,7 @@ export const usePlayerStore = defineStore("player", {
 
         if (existingIndex === -1) {
           // add it
-          this.queue.push(track)
+          this.queue.push({ ...track })
           this.currentIndex = this.queue.length - 1
         } else {
           // just update index
@@ -85,8 +87,7 @@ export const usePlayerStore = defineStore("player", {
         console.log("File size:", fileSize, "bytes")
 
         // Stream file in chunks
-        const chunkSize =
-          fileSize > 10 * 1024 * 1024 ? 512 * 1024 : 256 * 1024
+        const chunkSize = fileSize > 10 * 1024 * 1024 ? 512 * 1024 : 256 * 1024
         const chunks = []
         let offset = 0
 
@@ -114,7 +115,7 @@ export const usePlayerStore = defineStore("player", {
         // Decode audio
         console.log("Decoding audio buffer...")
         audioBuffer = await audioCtx.decodeAudioData(combinedBuffer)
-        
+
         // Store buffer reference for memory tracking
         currentAudioBuffer = audioBuffer
 
@@ -273,45 +274,61 @@ export const usePlayerStore = defineStore("player", {
     },
 
     checkAudioMemory() {
-      console.log('=== Audio Memory Check ===')
-      
+      console.log("=== Audio Memory Check ===")
+
       // Check AudioContext state
-      console.log('AudioContext state:', audioCtx.state)
-      console.log('AudioContext sample rate:', audioCtx.sampleRate)
-      console.log('AudioContext current time:', audioCtx.currentTime.toFixed(2), 's')
-      
+      console.log("AudioContext state:", audioCtx.state)
+      console.log("AudioContext sample rate:", audioCtx.sampleRate)
+      console.log(
+        "AudioContext current time:",
+        audioCtx.currentTime.toFixed(2),
+        "s"
+      )
+
       // Check if source exists
-      console.log('Current source exists:', !!currentSource)
-      console.log('Current buffer exists:', !!currentAudioBuffer)
-      
+      console.log("Current source exists:", !!currentSource)
+      console.log("Current buffer exists:", !!currentAudioBuffer)
+
       // Estimate buffer size if exists
       if (currentAudioBuffer) {
         const channels = currentAudioBuffer.numberOfChannels
         const length = currentAudioBuffer.length
         const sampleRate = currentAudioBuffer.sampleRate
         const duration = currentAudioBuffer.duration
-        
+
         // Each sample is 4 bytes (32-bit float)
         const sizeInBytes = channels * length * 4
         const sizeInMB = Math.round(sizeInBytes / 1024 / 1024)
-        
-        console.log('AudioBuffer details:')
-        console.log('  Channels:', channels)
-        console.log('  Length:', length.toLocaleString(), 'samples')
-        console.log('  Sample rate:', sampleRate, 'Hz')
-        console.log('  Duration:', Math.round(duration), 'seconds')
-        console.log('  Estimated size:', sizeInMB, 'MB')
+
+        console.log("AudioBuffer details:")
+        console.log("  Channels:", channels)
+        console.log("  Length:", length.toLocaleString(), "samples")
+        console.log("  Sample rate:", sampleRate, "Hz")
+        console.log("  Duration:", Math.round(duration), "seconds")
+        console.log("  Estimated size:", sizeInMB, "MB")
       }
-      
+
       // Check performance memory
       if (performance.memory) {
-        console.log('Performance memory:')
-        console.log('  JS Heap Used:', Math.round(performance.memory.usedJSHeapSize / 1024 / 1024), 'MB')
-        console.log('  JS Heap Total:', Math.round(performance.memory.totalJSHeapSize / 1024 / 1024), 'MB')
-        console.log('  JS Heap Limit:', Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024), 'MB')
+        console.log("Performance memory:")
+        console.log(
+          "  JS Heap Used:",
+          Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
+          "MB"
+        )
+        console.log(
+          "  JS Heap Total:",
+          Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
+          "MB"
+        )
+        console.log(
+          "  JS Heap Limit:",
+          Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024),
+          "MB"
+        )
       }
-      
-      console.log('======================')
-    }
+
+      console.log("======================")
+    },
   },
 })
