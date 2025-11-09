@@ -132,7 +132,12 @@
   <transition name="slide-fade">
     <div v-if="showQueue" class="queue-panel">
       <div class="queue-header">
-        <h3>Play Queue</h3>
+        <h3>
+          Play Queue
+          <small v-if="player.shuffleEnabled" style="opacity: 0.7"
+            >(Shuffled)</small
+          >
+        </h3>
         <button class="close-btn" @click="togglePlayListQueueView">
           <img :src="X" alt="x" class="playbar-icon-class" />
         </button>
@@ -140,7 +145,7 @@
 
       <div class="queue-list">
         <div
-          v-for="(track, index) in player.queue"
+          v-for="(track, index) in displayedQueue"
           :key="track.id || index"
           class="queue-item"
           :class="{
@@ -291,11 +296,22 @@ const seek = (event) => {
 }
 
 const playSongFromQueue = async (track, index) => {
-  // update current index
-  player.currentIndex = index
-
-  await player.setTrack(track, false) // false → don’t re-add to queue
+  if (player.shuffleEnabled && player.shuffleOrder?.length) {
+    player.currentIndex = index // index in shuffled order
+  } else {
+    player.currentIndex = index
+  }
+  await player.setTrack(track, false)
 }
+
+const displayedQueue = computed(() => {
+  if (player.shuffleEnabled && player.shuffleOrder?.length) {
+    // Map shuffled indices to actual tracks
+    return player.shuffleOrder.map((i) => player.queue[i])
+  }
+  // Default — normal order
+  return player.queue
+})
 </script>
 
 <style scoped>
