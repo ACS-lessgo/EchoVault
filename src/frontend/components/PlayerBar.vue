@@ -146,6 +146,7 @@
           :class="{
             playing: player.currentTrack?.file_path === track.file_path,
           }"
+          @click="playSongFromQueue(track, index)"
         >
           <div class="queue-info">
             <span class="index">{{ index + 1 }}</span>
@@ -287,6 +288,13 @@ const seek = (event) => {
   const ratio = (event.clientX - rect.left) / rect.width
   const targetTime = player.duration * Math.max(0, Math.min(1, ratio))
   player.seekTo(targetTime)
+}
+
+const playSongFromQueue = async (track, index) => {
+  // update current index
+  player.currentIndex = index
+
+  await player.setTrack(track, false) // false → don’t re-add to queue
 }
 </script>
 
@@ -519,7 +527,7 @@ const seek = (event) => {
   top: 0;
   right: 0;
   width: 340px;
-  height: 100vh;
+  height: calc(100vh - 86px);
   background-color: var(--content-bg);
   border-left: 2px solid var(--border-color);
   color: var(--text-color);
@@ -527,9 +535,11 @@ const seek = (event) => {
   flex-direction: column;
   z-index: 9999;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .queue-header {
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -542,6 +552,12 @@ const seek = (event) => {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.queue-item:active {
+  transform: scale(0.98);
+  background-color: var(--hover-bg);
+  transition: transform 0.1s ease;
 }
 
 .clear-btn,
@@ -710,7 +726,7 @@ const seek = (event) => {
   height: 6px;
   background: var(--border-color);
   cursor: pointer;
-  z-index: 2000;
+  z-index: 10000;
 }
 
 .progress-fill {
@@ -730,6 +746,7 @@ const seek = (event) => {
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
+  z-index: 10001;
 }
 
 /* === RESPONSIVE QUEUE PANEL === */
