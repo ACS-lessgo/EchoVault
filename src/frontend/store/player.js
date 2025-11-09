@@ -166,7 +166,20 @@ export const usePlayerStore = defineStore("player", {
         }
       } catch (err) {
         console.error("Error playing track:", err)
-        this.isPlaying = false
+        console.error("Error playing track:", err)
+
+        // error toast
+        window.api.showToast?.(
+          `Track "${this.currentTrack?.title || "Unknown"}" can't be played — unsupported or corrupted format.`,
+          "error"
+        )
+
+        // next track automatically
+        const hasNext = await this.playNext()
+        if (!hasNext) {
+          this.isPlaying = false
+          console.log("No playable tracks left in queue.")
+        }
       }
     },
 
