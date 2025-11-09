@@ -81,6 +81,12 @@ export function initDB() {
   `
   ).run()
 
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_plays ON tracks(noOfPlays DESC);
+  `
+  ).run()
+
   console.log("SQLite DB initialized at:", dbPath)
   console.log("Indexes verified / created.")
   return db

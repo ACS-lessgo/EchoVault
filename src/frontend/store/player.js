@@ -60,6 +60,16 @@ export const usePlayerStore = defineStore("player", {
 
       // Play track
       await this.playTrack(track.file_path)
+
+      // Increment play count
+      if (track.id) {
+        try {
+          await window.api.incrementPlayCount(track.id)
+          console.log(`Play count incremented for: ${track.title}`)
+        } catch (err) {
+          console.warn("Failed to increment play count:", err)
+        }
+      }
     },
 
     async playTrack(filePath) {

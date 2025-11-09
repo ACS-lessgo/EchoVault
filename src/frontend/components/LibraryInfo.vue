@@ -134,7 +134,7 @@
         <!-- Most Liked Artist -->
         <div class="info-card" v-if="stats.topArtist">
           <div class="info-header">
-            <span class="info-icon">⭐</span>
+            <i class="fas fa-star info-icon"></i>
             <span class="info-title">Most Liked Artist</span>
           </div>
           <div class="info-value">{{ stats.topArtist.name }}</div>
@@ -146,7 +146,7 @@
         <!-- Average Song Duration -->
         <div class="info-card">
           <div class="info-header">
-            <span class="info-icon">⏱️</span>
+            <i class="fas fa-clock info-icon"></i>
             <span class="info-title">Average Song Duration</span>
           </div>
           <div class="info-value">{{ formatTime(stats.avgDuration) }}</div>
@@ -156,11 +156,128 @@
         <!-- Library Growth -->
         <div class="info-card">
           <div class="info-header">
-            <span class="info-icon">📈</span>
+            <i class="fas fa-chart-line info-icon"></i>
             <span class="info-title">Collection Size</span>
           </div>
           <div class="info-value">{{ stats.totalAlbums }}</div>
           <div class="info-sub">unique albums</div>
+        </div>
+
+        <!-- Total Plays -->
+        <div class="info-card">
+          <div class="info-header">
+            <i class="fas fa-headphones info-icon"></i>
+            <span class="info-title">Total Plays</span>
+          </div>
+          <div class="info-value">
+            {{ (stats.totalPlays || 0).toLocaleString() }}
+          </div>
+          <div class="info-sub">all time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Most Played Songs -->
+    <div class="top-lists-section">
+      <div class="top-list">
+        <h2 class="section-title">
+          <i class="fas fa-fire title-icon"></i>
+          Top 10 Most Played Songs
+        </h2>
+        <div class="top-list-container">
+          <div v-if="stats.topTracks.length === 0" class="empty-state">
+            <p>
+              No plays recorded yet. Start listening to see your top tracks!
+            </p>
+          </div>
+          <div
+            v-else
+            v-for="(track, index) in stats.topTracks"
+            :key="track.id"
+            class="top-list-item"
+            :style="{ animationDelay: `${index * 0.05}s` }"
+          >
+            <div class="rank">{{ index + 1 }}</div>
+            <img
+              v-if="track.coverDataUrl"
+              :src="track.coverDataUrl"
+              alt="Cover"
+              class="track-cover"
+            />
+            <div v-else class="track-cover-placeholder">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
+            <div class="track-info">
+              <div class="track-name">{{ track.title }}</div>
+              <div class="track-artist">
+                {{ track.artist || "Unknown Artist" }}
+              </div>
+            </div>
+            <div class="play-count">
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                width="16"
+                height="16"
+              >
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              {{ (track.noOfPlays || 0).toLocaleString() }} plays
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Most Played Artists -->
+      <div class="top-list">
+        <h2 class="section-title">
+          <i class="fas fa-crown title-icon"></i>
+          Top 10 Most Played Artists
+        </h2>
+        <div class="top-list-container">
+          <div v-if="stats.topArtists.length === 0" class="empty-state">
+            <p>
+              No plays recorded yet. Start listening to see your top artists!
+            </p>
+          </div>
+          <div
+            v-else
+            v-for="(artist, index) in stats.topArtists"
+            :key="artist.artist"
+            class="top-list-item"
+            :style="{ animationDelay: `${index * 0.05}s` }"
+          >
+            <div class="rank">{{ index + 1 }}</div>
+            <img
+              v-if="artist.coverDataUrl"
+              :src="artist.coverDataUrl"
+              alt="Artist"
+              class="artist-cover"
+            />
+            <div v-else class="artist-avatar">
+              {{ artist.artist.charAt(0).toUpperCase() }}
+            </div>
+            <div class="track-info">
+              <div class="track-name">{{ artist.artist }}</div>
+              <div class="track-artist">
+                {{ artist.trackCount }} tracks in library
+              </div>
+            </div>
+            <div class="play-count">
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                width="16"
+                height="16"
+              >
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              {{ (artist.totalPlays || 0).toLocaleString() }} plays
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -195,6 +312,9 @@ const stats = ref({
   avgDuration: 0,
   totalAlbums: 0,
   topArtist: null,
+  totalPlays: 0,
+  topTracks: [],
+  topArtists: [],
 })
 
 const loading = ref(true)
@@ -308,6 +428,55 @@ async function loadStats() {
         name: topArtistEntry[0],
         likedCount: topArtistEntry[1],
       }
+    }
+
+    // Get top 10 most played tracks
+    try {
+      const topTracks = await window.api.getTopPlayedTracks()
+      stats.value.topTracks = topTracks || []
+    } catch (e) {
+      console.warn("Could not get top tracks:", e)
+      stats.value.topTracks = []
+    }
+
+    // Get artists (for covers)
+    const allArtists = await window.api.getArtists()
+
+    // Get top 10 most played artists
+    try {
+      const topArtists = await window.api.getTopPlayedArtists()
+
+      // Add cover URLs for artists by matching with full artists list
+      const artistsWithCovers = (topArtists || []).map((topArtist) => {
+        // Find matching artist from full list
+        const artistData = allArtists.find((a) => a.name === topArtist.artist)
+
+        if (artistData?.cover) {
+          const url = artistData.cover.startsWith("/")
+            ? `echovault://${artistData.cover}`
+            : `echovault:///${artistData.cover}`
+          return {
+            ...topArtist,
+            coverDataUrl: url,
+          }
+        }
+
+        return { ...topArtist, coverDataUrl: null }
+      })
+
+      stats.value.topArtists = artistsWithCovers
+    } catch (e) {
+      console.warn("Could not get top artists:", e)
+      stats.value.topArtists = []
+    }
+
+    // Get total plays
+    try {
+      const totalPlaysResult = await window.api.getTotalPlays()
+      stats.value.totalPlays = totalPlaysResult?.totalPlays || 0
+    } catch (e) {
+      console.warn("Could not get total plays:", e)
+      stats.value.totalPlays = 0
     }
 
     // Animate the numbers
@@ -638,5 +807,204 @@ onMounted(() => {
   .info-grid {
     grid-template-columns: 1fr;
   }
+
+  .top-lists-section {
+    grid-template-columns: 1fr;
+  }
+
+  .track-name {
+    font-size: 0.95rem;
+  }
+
+  .play-count {
+    font-size: 0.85rem;
+  }
+}
+
+/* Top Lists Section */
+.top-lists-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.top-list {
+  animation: fadeIn 0.8s ease 0.5s both;
+}
+
+.title-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.top-list-container {
+  background: var(--side-nav-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.top-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.top-list-container::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-radius: 4px;
+}
+
+.top-list-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.top-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--muted-text);
+}
+
+.empty-state p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.top-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-color);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+  animation: slideInLeft 0.4s ease both;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.top-list-item:hover {
+  background: var(--hover-bg);
+  transform: translateX(4px);
+  border-left: 3px solid var(--accent);
+}
+
+.rank {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--muted-text);
+  width: 24px;
+  text-align: right;
+  margin-right: 0.5rem;
+}
+
+.top-list-item:nth-child(1) {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), transparent 80%);
+}
+
+.top-list-item:nth-child(2) {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text-color) 10%, rgba(192, 192, 192, 0.25)),
+    transparent 85%
+  );
+}
+
+.top-list-item:nth-child(3) {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.15), transparent 80%);
+}
+
+.track-cover,
+.track-cover-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.track-cover-placeholder {
+  background: var(--hover-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.track-cover-placeholder svg {
+  width: 24px;
+  height: 24px;
+}
+
+.artist-avatar,
+.artist-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.artist-avatar {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.25rem;
+}
+
+.track-artist {
+  font-size: 0.85rem;
+  color: var(--muted-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.play-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.play-count svg {
+  opacity: 0.7;
 }
 </style>

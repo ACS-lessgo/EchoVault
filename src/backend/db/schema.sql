@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS tracks (
   duration REAL,
   cover TEXT,
   isLiked INTEGER DEFAULT 0,
+  noOfPlays INTEGER DEFAULT 0,
   FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
   FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
   -- UNIQUE(title, artist_id, album)
