@@ -315,7 +315,9 @@ const displayedQueue = computed(() => {
 </script>
 
 <style scoped>
-/* === PLAYER BAR LAYOUT === */
+/* Player bar and queue panel – includes playback controls, song info, volume, and queue list */
+
+/* Player bar layout */
 .player-bar {
   height: 80px;
   display: grid;
@@ -330,7 +332,7 @@ const displayedQueue = computed(() => {
   overflow: hidden;
 }
 
-/* === LEFT SECTION === */
+/* Left section: song info */
 .song-info {
   display: flex;
   align-items: center;
@@ -367,7 +369,7 @@ const displayedQueue = computed(() => {
   cursor: default;
 }
 
-/* 🎵 marquee scroll on hover */
+/* Scrolling song title on hover */
 .song-details p:hover {
   animation: scrollText 6s linear infinite;
 }
@@ -391,7 +393,7 @@ const displayedQueue = computed(() => {
   text-overflow: ellipsis;
 }
 
-/* === CENTER SECTION === */
+/* Center section: playback controls */
 .controls {
   display: flex;
   align-items: center;
@@ -411,7 +413,7 @@ const displayedQueue = computed(() => {
   filter: drop-shadow(0 0 5px white);
 }
 
-/* === RIGHT SECTION === */
+/* Right section: utilities and volume */
 .right-section {
   display: flex;
   align-items: center;
@@ -431,19 +433,19 @@ const displayedQueue = computed(() => {
   gap: 8px;
 }
 
-/* === ICONS === */
+/* Icon buttons */
 .icon-btn {
   background: transparent;
   border: none;
   border-radius: 8px;
   padding: 8px;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .icon-btn:hover {
@@ -467,7 +469,7 @@ const displayedQueue = computed(() => {
   height: 26px;
 }
 
-/* === VOLUME SLIDER === */
+/* Volume slider */
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -487,7 +489,6 @@ const displayedQueue = computed(() => {
 
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
   width: 12px;
   height: 12px;
   background: white;
@@ -496,6 +497,7 @@ const displayedQueue = computed(() => {
   transition: background 0.2s ease;
 }
 
+/* Button states */
 .icon-btn.active img {
   filter: brightness(1.3);
 }
@@ -516,19 +518,16 @@ const displayedQueue = computed(() => {
   opacity: 1;
 }
 
-/* === ICON COLOR THEMING === */
-
-/* Default for dark mode */
+/* Icon theming by theme mode */
 :root[data-theme="dark"] .playbar-icon-class {
   filter: invert(100%) brightness(200%);
 }
 
-/* Light mode — show darker icons */
 :root[data-theme="light"] .playbar-icon-class {
   filter: invert(0%) brightness(0%);
 }
 
-/* Optional: hover glow */
+/* Hover glow effect */
 :root[data-theme="dark"] .icon-btn:hover img {
   filter: invert(100%) brightness(200%) drop-shadow(0 0 4px var(--accent-hover));
 }
@@ -537,7 +536,7 @@ const displayedQueue = computed(() => {
   filter: invert(0%) brightness(0%) drop-shadow(0 0 3px var(--accent));
 }
 
-/* === QUEUE PANEL === */
+/* Queue panel layout */
 .queue-panel {
   position: fixed;
   top: 0;
@@ -554,6 +553,7 @@ const displayedQueue = computed(() => {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* Queue header */
 .queue-header {
   height: 38px;
   display: flex;
@@ -570,12 +570,7 @@ const displayedQueue = computed(() => {
   font-weight: 600;
 }
 
-.queue-item:active {
-  transform: scale(0.98);
-  background-color: var(--hover-bg);
-  transition: transform 0.1s ease;
-}
-
+/* Queue header buttons */
 .clear-btn,
 .close-btn {
   background: transparent;
@@ -591,12 +586,13 @@ const displayedQueue = computed(() => {
   color: var(--accent);
 }
 
-/* === QUEUE LIST === */
+/* Queue list */
 .queue-list {
   flex: 1;
   overflow-y: auto;
 }
 
+/* Queue item styles */
 .queue-item {
   display: flex;
   align-items: center;
@@ -626,7 +622,7 @@ const displayedQueue = computed(() => {
   color: #fff;
 }
 
-/* compact info column */
+/* Queue item content */
 .queue-info {
   display: flex;
   align-items: center;
@@ -641,7 +637,7 @@ const displayedQueue = computed(() => {
   font-size: 0.85rem;
 }
 
-/* Match all-songs styling */
+/* Track details inside queue */
 .track-details {
   display: flex;
   flex-direction: column;
@@ -666,11 +662,12 @@ const displayedQueue = computed(() => {
   text-overflow: ellipsis;
 }
 
+/* Meta info (used in some queue variants) */
 .meta {
   display: flex;
   flex-direction: column;
   line-height: 1.2;
-  gap: 2px; /* reduced from default 6–8px */
+  gap: 2px;
   overflow: hidden;
 }
 
@@ -679,19 +676,19 @@ const displayedQueue = computed(() => {
   font-weight: 600;
   color: var(--text-color);
   white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .artist {
   font-size: 0.8rem;
   color: var(--muted-text);
   white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* time duration alignment */
+/* Duration text alignment */
 .duration {
   font-size: 0.85rem;
   color: var(--muted-text);
@@ -699,7 +696,7 @@ const displayedQueue = computed(() => {
   margin-right: 1.5rem;
 }
 
-/* hover remove button */
+/* Remove button inside queue item */
 .remove-btn {
   opacity: 0;
   background: transparent;
@@ -722,7 +719,7 @@ const displayedQueue = computed(() => {
   color: var(--accent);
 }
 
-/* Slide animation */
+/* Queue transition animation */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.3s ease;
@@ -734,9 +731,10 @@ const displayedQueue = computed(() => {
   transform: translateX(100%);
 }
 
+/* Playback progress bar */
 .progress-bar {
   position: fixed;
-  bottom: 80px; /* just above player bar */
+  bottom: 80px; /* above player bar */
   left: 0;
   right: 0;
   height: 6px;
@@ -765,7 +763,7 @@ const displayedQueue = computed(() => {
   z-index: 10001;
 }
 
-/* === RESPONSIVE QUEUE PANEL === */
+/* Responsive queue panel adjustments */
 @media (max-width: 768px) {
   .queue-panel {
     width: 100%;
@@ -788,13 +786,13 @@ const displayedQueue = computed(() => {
     padding-bottom: 1rem;
   }
 
-  /* make close button easier to tap */
   .close-btn {
     font-size: 1.4rem;
     padding: 0.3rem 0.6rem;
   }
 }
 
+/* Slide-up animation for queue on mobile */
 @keyframes slideUp {
   from {
     transform: translateY(100%);

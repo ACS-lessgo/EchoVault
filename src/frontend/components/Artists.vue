@@ -214,12 +214,14 @@ const filteredTracks = computed(() => {
 </script>
 
 <style scoped>
+/* Artists grid container */
 .artists-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
 }
 
+/* Artist/track card base */
 .track-card {
   border-radius: 8px;
   padding: 16px;
@@ -229,8 +231,10 @@ const filteredTracks = computed(() => {
 
 .track-card:hover {
   transform: translateY(-4px);
+  opacity: 1;
 }
 
+/* Circular artist cover */
 .card-cover {
   position: relative;
   margin-bottom: 16px;
@@ -245,10 +249,7 @@ const filteredTracks = computed(() => {
   display: block;
 }
 
-.track-card:hover {
-  opacity: 1;
-}
-
+/* Card info text layout */
 .card-info {
   display: flex;
   flex-direction: column;
@@ -272,10 +273,12 @@ const filteredTracks = computed(() => {
   text-overflow: ellipsis;
 }
 
+/* Artist-specific styling */
 .artist-cover-image {
   border-radius: 100%;
 }
 
+/* Artist header section */
 .artist-header {
   display: flex;
   align-items: center;
@@ -284,6 +287,7 @@ const filteredTracks = computed(() => {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* Back button styling */
 .back-btn {
   width: 40px;
   height: 40px;
@@ -302,11 +306,12 @@ const filteredTracks = computed(() => {
   box-shadow: 0 0 8px var(--accent-hover);
 }
 
-/* List View Styles */
+/* List view container */
 .list-view {
   width: 100%;
 }
 
+/* Track table layout */
 .track-table {
   width: 100%;
   border-collapse: collapse;
@@ -326,6 +331,7 @@ const filteredTracks = computed(() => {
   letter-spacing: 0.5px;
 }
 
+/* Column widths */
 .num-col {
   width: 50px;
 }
@@ -344,6 +350,7 @@ const filteredTracks = computed(() => {
   text-align: left;
 }
 
+/* Track rows */
 .track-row {
   transition: background 0.2s;
   cursor: pointer;
@@ -354,6 +361,7 @@ const filteredTracks = computed(() => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Track info layout inside row */
 .track-info {
   display: flex;
   align-items: center;
@@ -367,6 +375,7 @@ const filteredTracks = computed(() => {
   object-fit: cover;
 }
 
+/* Track details text */
 .track-details {
   display: flex;
   flex-direction: column;
@@ -384,8 +393,7 @@ const filteredTracks = computed(() => {
   color: var(--muted-text);
 }
 
-/* Alternate greys bg */
-
+/* Alternating row backgrounds */
 .track-table tbody tr:nth-child(odd) {
   background-color: var(--side-nav-bg);
 }
@@ -394,6 +402,7 @@ const filteredTracks = computed(() => {
   background-color: transparent;
 }
 
+/* Hover and active states */
 .track-table tbody tr.track-row:hover {
   background: var(--hover-bg);
 }
