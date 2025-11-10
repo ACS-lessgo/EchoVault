@@ -1,4 +1,4 @@
-import { ipcMain } from "electron"
+import { ipcMain, BrowserWindow } from "electron"
 import fs from "fs"
 
 export function registerPlayerHandlers(mainWindow, db) {
@@ -43,6 +43,32 @@ export function registerPlayerHandlers(mainWindow, db) {
     } catch (err) {
       console.error("Failed to get file size:", err)
       throw err
+    }
+  })
+
+  let isProgrammaticResize = false
+
+  ipcMain.handle("enable-mini-player", () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win && !isProgrammaticResize) {
+      isProgrammaticResize = true
+      win.setSize(350, 650)
+      win.center()
+      setTimeout(() => {
+        isProgrammaticResize = false
+      }, 500)
+    }
+  })
+
+  ipcMain.handle("restore-window-size", () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win && !isProgrammaticResize) {
+      isProgrammaticResize = true
+      win.setSize(1200, 900)
+      win.center()
+      setTimeout(() => {
+        isProgrammaticResize = false
+      }, 500)
     }
   })
 }
