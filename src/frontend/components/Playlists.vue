@@ -140,11 +140,14 @@ function playCurrentTrack(track) {
 </script>
 
 <style scoped>
-/* List View Styles */
+/* Track list table – used for displaying songs in list view */
+
+/* List view container */
 .list-view {
   width: 100%;
 }
 
+/* Table layout */
 .track-table {
   width: 100%;
   border-collapse: collapse;
@@ -164,6 +167,7 @@ function playCurrentTrack(track) {
   letter-spacing: 0.5px;
 }
 
+/* Column widths */
 .num-col {
   width: 50px;
 }
@@ -182,6 +186,7 @@ function playCurrentTrack(track) {
   text-align: left;
 }
 
+/* Table rows */
 .track-row {
   transition: background 0.2s;
   cursor: pointer;
@@ -192,6 +197,7 @@ function playCurrentTrack(track) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Track info layout */
 .track-info {
   display: flex;
   align-items: center;
@@ -222,8 +228,7 @@ function playCurrentTrack(track) {
   color: var(--muted-text);
 }
 
-/* Alternate greys bg */
-
+/* Alternating row backgrounds */
 .track-table tbody tr:nth-child(odd) {
   background-color: var(--side-nav-bg);
 }
@@ -232,6 +237,7 @@ function playCurrentTrack(track) {
   background-color: transparent;
 }
 
+/* Hover and active states */
 .track-table tbody tr.track-row:hover {
   background: var(--hover-bg);
 }

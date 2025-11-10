@@ -234,11 +234,17 @@ function playCurrentTrack(track) {
 </script>
 
 <style scoped>
+/* ────────────────────────────────
+    Base Container
+──────────────────────────────── */
 .music-container {
   /* padding: 20px; */
   color: var(--text-color);
 }
 
+/* ────────────────────────────────
+    Header & View Toggle Controls
+──────────────────────────────── */
 .header {
   display: flex;
   justify-content: space-between;
@@ -252,6 +258,7 @@ function playCurrentTrack(track) {
   font-weight: 700;
 }
 
+/* View toggle buttons container */
 .view-toggle {
   display: flex;
   gap: 8px;
@@ -260,6 +267,7 @@ function playCurrentTrack(track) {
   border-radius: 8px;
 }
 
+/* Individual toggle button */
 .toggle-btn {
   background: transparent;
   border: none;
@@ -283,16 +291,20 @@ function playCurrentTrack(track) {
   color: white;
 }
 
-/* List View Styles */
+/* ────────────────────────────────
+   List View Styles
+──────────────────────────────── */
 .list-view {
   width: 100%;
 }
 
+/* Table wrapper for tracks */
 .track-table {
   width: 100%;
   border-collapse: collapse;
 }
 
+/* Table header */
 .track-table thead {
   border-bottom: 1px solid var(--border-color);
 }
@@ -307,6 +319,7 @@ function playCurrentTrack(track) {
   letter-spacing: 0.5px;
 }
 
+/* Column widths */
 .num-col {
   width: 50px;
 }
@@ -325,6 +338,7 @@ function playCurrentTrack(track) {
   text-align: left;
 }
 
+/* Table row styling */
 .track-row {
   transition: background 0.2s;
   cursor: pointer;
@@ -335,12 +349,14 @@ function playCurrentTrack(track) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Track info layout */
 .track-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+/* Album cover thumbnail */
 .track-cover {
   width: 48px;
   height: 48px;
@@ -348,6 +364,7 @@ function playCurrentTrack(track) {
   object-fit: cover;
 }
 
+/* Track text info */
 .track-details {
   display: flex;
   flex-direction: column;
@@ -365,13 +382,16 @@ function playCurrentTrack(track) {
   color: var(--muted-text);
 }
 
-/* Grid View Styles */
+/* ────────────────────────────────
+  Grid View Styles
+──────────────────────────────── */
 .grid-view {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
 }
 
+/* Individual track card */
 .track-card {
   background: var(--side-nav-bg);
   border-radius: 8px;
@@ -385,6 +405,7 @@ function playCurrentTrack(track) {
   transform: translateY(-4px);
 }
 
+/* Album art container */
 .card-cover {
   position: relative;
   margin-bottom: 16px;
@@ -399,6 +420,7 @@ function playCurrentTrack(track) {
   display: block;
 }
 
+/* Play overlay (on hover) */
 .play-overlay {
   position: absolute;
   top: 0;
@@ -417,6 +439,7 @@ function playCurrentTrack(track) {
   opacity: 1;
 }
 
+/* Play button inside overlay */
 .play-btn {
   width: 48px;
   height: 48px;
@@ -436,6 +459,7 @@ function playCurrentTrack(track) {
   transform: scale(1.1);
 }
 
+/* Card info text */
 .card-info {
   display: flex;
   flex-direction: column;
@@ -459,8 +483,9 @@ function playCurrentTrack(track) {
   text-overflow: ellipsis;
 }
 
-/* Alternate greys bg */
-
+/* ────────────────────────────────
+   State & Alternate Row Colors
+──────────────────────────────── */
 .track-table tbody tr:nth-child(odd) {
   background-color: var(--side-nav-bg);
 }
@@ -473,12 +498,14 @@ function playCurrentTrack(track) {
   background: var(--hover-bg);
 }
 
+/* Currently playing row (list view) */
 .track-row.playing {
   background: var(--hover-bg);
   transition: background 0.3s;
   box-shadow: inset 2px 0 0 var(--accent);
 }
 
+/* Currently playing card (grid view) */
 .track-card.playing {
   outline: 2px solid var(--accent);
   background: var(--hover-bg);

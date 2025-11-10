@@ -20,6 +20,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Toast notifications – success, error, and info messages with fade animation */
+
+/* Base toast container */
 .toast {
   position: fixed;
   bottom: 100px;
@@ -35,16 +38,21 @@ onMounted(() => {
   transform: translateY(20px);
   animation: fadeInOut 4s ease forwards;
 }
+
+/* Toast variants */
 .toast.error {
   background: #e74c3c;
 }
+
 .toast.info {
   background: #3498db;
 }
+
 .toast.success {
   background: #2ecc71;
 }
 
+/* Toast animation */
 @keyframes fadeInOut {
   0% {
     opacity: 0;

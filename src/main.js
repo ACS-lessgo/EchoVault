@@ -37,6 +37,8 @@ function createWindow() {
       // webSecurity stays true (default)
       devTools: isDev,
     },
+    minHeight: 600,
+    minWidth: 850,
   })
 
   mainWindow.once("ready-to-show", () => {

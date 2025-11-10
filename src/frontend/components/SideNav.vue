@@ -30,6 +30,9 @@
 </template>
 
 <style scoped>
+/* Sidebar navigation – layout, nav items, icons, and responsive collapse */
+
+/* Sidebar container */
 .side-nav {
   width: 220px;
   background-color: var(--side-nav-bg);
@@ -41,12 +44,14 @@
   transition: width 0.3s ease;
 }
 
+/* Navigation list */
 nav {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* Navigation link */
 .nav-item {
   display: flex;
   align-items: center;
@@ -65,39 +70,32 @@ nav {
   color: var(--accent-hover);
 }
 
+/* Active route link */
 .nav-item.router-link-active {
   background-color: var(--hover-bg);
   color: var(--accent);
   font-weight: 600;
 }
 
+/* Navigation icons */
 .nav-icon {
   width: 20px;
   height: 20px;
   filter: invert(100%) brightness(200%);
 }
 
-/* DARK THEME icons (light look) */
+/* Dark theme: light icons */
 :root[data-theme="dark"] .nav-icon {
   filter: invert(100%) brightness(200%);
 }
 
-/* LIGHT THEME icons (dark look) */
+/* Light theme: dark icons */
 :root[data-theme="light"] .nav-icon {
   filter: invert(0%) brightness(0%);
 }
 
-/* Hover states per theme */
-:root[data-theme="dark"] .nav-item:hover .nav-icon {
-  filter: invert(100%) brightness(250%) drop-shadow(0 0 4px var(--accent-hover));
-}
-
-:root[data-theme="light"] .nav-item:hover .nav-icon {
-  filter: invert(0%) brightness(0%) drop-shadow(0 0 3px var(--accent));
-}
-
-/* --- Responsive collapsed mode --- */
-@media (max-width: 768px) {
+/* Responsive: collapsed sidebar mode */
+@media (max-width: 968px) {
   .side-nav {
     width: 50px;
     padding: auto;

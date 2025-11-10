@@ -565,6 +565,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Stats dashboard page – includes metrics cards, info sections, refresh button, and top lists */
+
+/* Container layout */
 .stats-container {
   padding: 2rem;
   max-width: 1400px;
@@ -572,6 +575,7 @@ onMounted(() => {
   animation: fadeIn 0.6s ease;
 }
 
+/* Fade-in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -583,6 +587,7 @@ onMounted(() => {
   }
 }
 
+/* Page title */
 .stats-title {
   font-size: 2.5rem;
   font-weight: 700;
@@ -594,6 +599,7 @@ onMounted(() => {
   background-clip: text;
 }
 
+/* Stats grid layout */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -601,6 +607,7 @@ onMounted(() => {
   margin-bottom: 3rem;
 }
 
+/* Stat card base */
 .stat-card {
   position: relative;
   background: var(--side-nav-bg);
@@ -615,6 +622,7 @@ onMounted(() => {
   animation: slideUp 0.6s ease both;
 }
 
+/* Slide-up animation for cards */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -626,6 +634,7 @@ onMounted(() => {
   }
 }
 
+/* Stat card hover effects */
 .stat-card:hover {
   transform: translateY(-4px);
   border-color: var(--accent);
@@ -637,6 +646,7 @@ onMounted(() => {
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
 }
 
+/* Icon container */
 .stat-icon {
   width: 60px;
   height: 60px;
@@ -660,6 +670,7 @@ onMounted(() => {
   color: white;
 }
 
+/* Stat card content */
 .stat-content {
   flex: 1;
 }
@@ -681,6 +692,7 @@ onMounted(() => {
   letter-spacing: 0.5px;
 }
 
+/* Sparkle hover effect */
 .stat-sparkle {
   position: absolute;
   top: -50%;
@@ -714,7 +726,7 @@ onMounted(() => {
   }
 }
 
-/* Info Section */
+/* Info section */
 .info-section {
   margin-top: 3rem;
   animation: fadeIn 0.8s ease 0.3s both;
@@ -727,12 +739,14 @@ onMounted(() => {
   margin-bottom: 1.5rem;
 }
 
+/* Info cards grid */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
+/* Info card styles */
 .info-card {
   background: var(--side-nav-bg);
   border: 1px solid var(--border-color);
@@ -747,6 +761,7 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(142, 68, 173, 0.15);
 }
 
+/* Info card header */
 .info-header {
   display: flex;
   align-items: center;
@@ -778,7 +793,7 @@ onMounted(() => {
   color: var(--muted-text);
 }
 
-/* Refresh Button */
+/* Refresh button */
 .refresh-btn {
   display: flex;
   align-items: center;
@@ -828,7 +843,7 @@ onMounted(() => {
   }
 }
 
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .stats-container {
     padding: 1rem;
@@ -868,7 +883,7 @@ onMounted(() => {
   }
 }
 
-/* Top Lists Section */
+/* Top lists section */
 .top-lists-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
@@ -885,6 +900,7 @@ onMounted(() => {
   margin-right: 0.5rem;
 }
 
+/* Top list container */
 .top-list-container {
   background: var(--side-nav-bg);
   border: 1px solid var(--border-color);
@@ -894,6 +910,7 @@ onMounted(() => {
   overflow-y: auto;
 }
 
+/* Custom scrollbar for top list */
 .top-list-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -912,6 +929,7 @@ onMounted(() => {
   background: var(--accent);
 }
 
+/* Empty state inside top lists */
 .empty-state {
   padding: 3rem;
   text-align: center;
@@ -923,6 +941,7 @@ onMounted(() => {
   line-height: 1.6;
 }
 
+/* Top list items */
 .top-list-item {
   display: flex;
   align-items: center;
@@ -952,6 +971,7 @@ onMounted(() => {
   border-left: 3px solid var(--accent);
 }
 
+/* Rank and highlights */
 .rank {
   font-weight: 600;
   font-size: 1rem;
@@ -961,6 +981,7 @@ onMounted(() => {
   margin-right: 0.5rem;
 }
 
+/* Highlight for top 3 */
 .top-list-item:nth-child(1) {
   background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), transparent 80%);
 }
@@ -977,6 +998,7 @@ onMounted(() => {
   background: linear-gradient(90deg, rgba(205, 127, 50, 0.15), transparent 80%);
 }
 
+/* Track and artist images */
 .track-cover,
 .track-cover-placeholder {
   width: 48px;
@@ -1018,6 +1040,7 @@ onMounted(() => {
   font-weight: 700;
 }
 
+/* Track info layout */
 .track-info {
   flex: 1;
   min-width: 0;
@@ -1041,6 +1064,7 @@ onMounted(() => {
   text-overflow: ellipsis;
 }
 
+/* Play count badge */
 .play-count {
   display: flex;
   align-items: center;

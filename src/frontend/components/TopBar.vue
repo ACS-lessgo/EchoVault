@@ -181,6 +181,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Top bar – header layout with search, actions, and settings dropdown */
+
+/* Layout and base styling */
 .top-bar {
   background-color: var(--topbar-bg);
   color: var(--text-color);
@@ -193,11 +196,36 @@ onBeforeUnmount(() => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* Action buttons group */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .actions button {
   margin-left: 0.5rem;
   background: transparent;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+/* Icon buttons */
+.icon-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  justify-content: center;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
 .topbar-icon-class {
@@ -206,6 +234,7 @@ onBeforeUnmount(() => {
   filter: invert(100%) brightness(200%);
 }
 
+/* Search bar */
 .search-bar {
   display: flex;
   align-items: center;
@@ -238,31 +267,14 @@ onBeforeUnmount(() => {
   color: var(--muted-text);
 }
 
-.icon-btn {
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
-  justify-content: center;
-}
-
-.icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: scale(1.05);
-}
-
-/* Dropdown styles */
+/* Settings dropdown container */
 .settings-dropdown-wrapper {
   position: relative;
-  position: relative;
-  display: flex; /* make it align inline with other buttons */
-  align-items: center; /* vertically center the button */
+  display: flex;
+  align-items: center;
 }
 
+/* Dropdown panel */
 .settings-dropdown {
   position: absolute;
   top: 120%;
@@ -277,6 +289,7 @@ onBeforeUnmount(() => {
   animation: fadeIn 0.2s ease;
 }
 
+/* Dropdown sections and titles */
 .dropdown-section {
   margin-bottom: 1rem;
 }
@@ -294,60 +307,11 @@ onBeforeUnmount(() => {
   margin-bottom: 0.5rem;
 }
 
+/* Color theme options */
 .color-options {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-}
-
-.color-circle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.color-circle:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 6px var(--accent);
-}
-
-.dropdown-note {
-  font-size: 0.85rem;
-  color: var(--muted-text);
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem; /* consistent spacing */
-}
-
-.settings-dropdown-wrapper {
-  position: relative;
-  display: flex; /* make it align inline with other buttons */
-  align-items: center; /* vertically center the button */
-}
-
-/* Dropdown transition animation */
-.dropdown-fade-enter-active,
-.dropdown-fade-leave-active {
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
-}
-
-.dropdown-fade-enter-from,
-.dropdown-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-.dropdown-fade-enter-to,
-.dropdown-fade-leave-from {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .color-circle {
@@ -379,6 +343,33 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+/* Dropdown note text */
+.dropdown-note {
+  font-size: 0.85rem;
+  color: var(--muted-text);
+}
+
+/* Dropdown transition animations */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.dropdown-fade-enter-to,
+.dropdown-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Dropdown fade-in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;

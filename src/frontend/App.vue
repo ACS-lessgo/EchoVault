@@ -22,7 +22,9 @@ import Toast from "./components/Toast.vue"
 </script>
 
 <style>
-/* Prevent the body from scrolling */
+/* Global layout – root structure, main layout, and theme-specific scrollbar styles */
+
+/* Root structure and body setup */
 html,
 body,
 #app {
@@ -33,15 +35,17 @@ body,
   flex-direction: column;
 }
 
+/* Main layout wrapper (between top bar and player bar) */
 .main-layout {
   display: flex;
   flex: 1;
-  height: calc(100vh - 70px - 80px); /* minus topbar + playerbar */
+  height: calc(100vh - 70px - 80px); /* subtract topbar + playerbar height */
   background-color: var(--bg-color);
   overflow: hidden;
   max-height: 100vh;
 }
 
+/* Content area */
 .content-area {
   flex: 1;
   padding: 1rem;
@@ -50,7 +54,7 @@ body,
   color: var(--text-color);
 }
 
-/* === DARK THEME SCROLLBAR === */
+/* Dark theme scrollbar */
 :root[data-theme="dark"] ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -69,7 +73,7 @@ body,
   background-color: #666;
 }
 
-/* === LIGHT THEME SCROLLBAR === */
+/* Light theme scrollbar */
 :root[data-theme="light"] ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
