@@ -85,6 +85,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Home page layout */
 .home-page {
   color: var(--text-color);
   padding: 2rem;
@@ -96,8 +97,7 @@ onMounted(() => {
   gap: 2rem;
 }
 
-/* ---------- HERO SECTION ---------- */
-/* ---------- HERO SECTION ---------- */
+/* Hero section container */
 .hero-card {
   width: 85%;
   background: linear-gradient(
@@ -120,12 +120,12 @@ onMounted(() => {
     box-shadow 0.4s ease;
 }
 
-/* subtle variant for light theme (optional tweak to soften the glow) */
+/* Hero section variant for light theme */
 :root[data-theme="light"] .hero-card {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Text styling */
+/* Hero text styles */
 .hero-text h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -142,7 +142,7 @@ onMounted(() => {
   color: var(--muted-text);
 }
 
-/* Animated wave bars */
+/* Animated wave visualization */
 .wave {
   display: flex;
   align-items: flex-end;
@@ -161,10 +161,12 @@ onMounted(() => {
 .bar:nth-child(odd) {
   animation-delay: 0.2s;
 }
+
 .bar:nth-child(even) {
   animation-delay: 0.4s;
 }
 
+/* Wave animation */
 @keyframes waveAnim {
   0%,
   100% {
@@ -177,6 +179,7 @@ onMounted(() => {
   }
 }
 
+/* Fade-in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -188,7 +191,7 @@ onMounted(() => {
   }
 }
 
-/* ---------- CONTENT CARD ---------- */
+/* Content card wrapper */
 .content-card {
   background-color: var(--side-nav-bg);
   border: 1px solid var(--border-color);
@@ -198,6 +201,7 @@ onMounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Section spacing */
 .add-section,
 .table-section,
 .rescan-section {
@@ -205,17 +209,20 @@ onMounted(() => {
   text-align: center;
 }
 
+/* Section headers */
 h2 {
   color: var(--accent);
   margin-bottom: 1rem;
 }
 
+/* Button group layout */
 .button-group {
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
 
+/* Accent button */
 .accent-btn {
   background-color: var(--accent);
   color: #fff;
@@ -232,6 +239,7 @@ h2 {
   background-color: var(--accent-hover);
 }
 
+/* Accent button hover effect */
 .accent-btn::after {
   content: "";
   position: absolute;
@@ -247,6 +255,7 @@ h2 {
   left: 0;
 }
 
+/* Folder table layout */
 .folder-table {
   width: 80%;
   margin: 0 auto;
@@ -263,6 +272,7 @@ h2 {
   text-align: left;
 }
 
+/* Remove folder button */
 .remove-btn {
   background-color: transparent;
   border: 1px solid var(--accent);
@@ -277,6 +287,7 @@ h2 {
   color: white;
 }
 
+/* Rescan button */
 .rescan-btn {
   background-color: var(--topbar-bg);
   border: 1px solid var(--accent);
@@ -291,6 +302,7 @@ h2 {
   color: white;
 }
 
+/* Folder info layout */
 .folder-info {
   display: flex;
   flex-direction: column;
@@ -305,11 +317,13 @@ h2 {
   color: #aaa;
 }
 
+/* Remove cell alignment */
 .remove-cell {
   text-align: center;
   width: 50px;
 }
 
+/* Icon button styles */
 .icon-btn {
   background: none;
   border: none;

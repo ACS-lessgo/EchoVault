@@ -33,4 +33,12 @@ contextBridge.exposeInMainWorld("api", {
       new CustomEvent("show-toast", { detail: { message, type } })
     )
   },
+
+  // Play count APIs
+  incrementPlayCount: (trackId) =>
+    ipcRenderer.invoke("increment-play-count", trackId),
+  getTopPlayedTracks: () => ipcRenderer.invoke("get-top-played-tracks"),
+  getTopPlayedArtists: () => ipcRenderer.invoke("get-top-played-artists"),
+  getTotalPlays: () => ipcRenderer.invoke("get-total-plays"),
+  getArtistByName: (name) => ipcRenderer.invoke("get-artist-by-name", name),
 })

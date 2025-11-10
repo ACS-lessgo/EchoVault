@@ -81,6 +81,20 @@ export function initDB() {
   `
   ).run()
 
+  const columns = db.prepare("PRAGMA table_info(tracks)").all();
+  const hasNoOfPlays = columns.some(c => c.name === "noOfPlays");
+
+  // Create column if missing
+  if (!hasNoOfPlays) {
+    db.prepare("ALTER TABLE tracks ADD COLUMN noOfPlays INTEGER DEFAULT 0").run();
+  }
+
+  db.prepare(
+    `
+    CREATE INDEX IF NOT EXISTS idx_tracks_plays ON tracks(noOfPlays DESC);
+  `
+  ).run()
+
   console.log("SQLite DB initialized at:", dbPath)
   console.log("Indexes verified / created.")
   return db

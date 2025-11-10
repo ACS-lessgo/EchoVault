@@ -63,3 +63,30 @@ export const DELETE_ARTIST_WITHOUT_TRACKS = `
   DELETE FROM artists
   WHERE id NOT IN (SELECT DISTINCT artist_id FROM tracks WHERE artist_id IS NOT NULL)
 `
+// Play Count
+export const INCREMENT_PLAY_COUNT = `
+  UPDATE tracks SET noOfPlays = noOfPlays + 1 WHERE id = ?
+`
+
+export const GET_TOP_PLAYED_TRACKS = `
+  SELECT * FROM tracks 
+  WHERE noOfPlays > 0
+  ORDER BY noOfPlays DESC 
+  LIMIT 10
+`
+
+export const GET_TOP_PLAYED_ARTISTS = `
+  SELECT 
+    artist, 
+    SUM(noOfPlays) as totalPlays,
+    COUNT(*) as trackCount
+  FROM tracks 
+  WHERE artist IS NOT NULL AND noOfPlays > 0
+  GROUP BY artist 
+  ORDER BY totalPlays DESC 
+  LIMIT 10
+`
+
+export const GET_TOTAL_PLAYS = `
+  SELECT SUM(noOfPlays) as totalPlays FROM tracks
+`

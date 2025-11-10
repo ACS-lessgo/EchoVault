@@ -21,6 +21,7 @@
 
 ## Known Bugs
 
+- Player silently fails to play song ( work around is to CTRL + R refresh the app and play again)
 - Tracks with the same filename in different folders overwrite cover
 - FLAC duration sometimes returns `NaN`
 - Watcher re-triggers too often on folder changes
@@ -45,7 +46,9 @@
 - Fixed: deleting folders wont cascade delete artists (536d2d3)
 - Fixed: cover image for same artist spreads for all related tracks
 - Fixed: built app doesnt load home page on launch or takes too much time
+- Fixed: RAM leak in app player
+- Fixed: added a fallback mechanism for audio decode error
 
 ---
 
-_Last updated: 2025-11-06_
+_Last updated: 2025-11-09_

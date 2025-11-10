@@ -1,3 +1,14 @@
+/* ==========================================================
+   Global Styles and Theme Variables
+   - Color variables (light/dark)
+   - Base resets and typography
+   - Scrollbars
+   - Shared utilities and reusable components
+========================================================== */
+
+/* ----------------------------------------------------------
+   Theme Variables
+---------------------------------------------------------- */
 :root {
   --bg-color: #121212;
   --side-nav-bg: #181818;
@@ -5,7 +16,7 @@
   --footer-bg: #181818;
   --content-bg: #121212;
 
-  /* new tones */
+  /* Accent tones */
   --accent: #8e44ad;
   --accent-hover: #9b59b6;
   --hover-bg: rgba(142, 68, 173, 0.25);
@@ -14,11 +25,11 @@
   --text-color: #e5e5e5;
   --muted-text: #a0a0a0;
 
-  --search-bar-color: #2b2b2b
+  --search-bar-color: #2b2b2b;
 }
 
+/* Light theme overrides */
 :root[data-theme="light"] {
-  /* Light theme overrides */
   --bg-color: #fafafa;
   --side-nav-bg: #f0f0f0ee;
   --topbar-bg: #f0f0f0ee;
@@ -36,18 +47,125 @@
   --search-bar-color: #e8e8e8;
 }
 
-body, html, #app {
+/* ----------------------------------------------------------
+   Base Layout and Typography
+---------------------------------------------------------- */
+html,
+body,
+#app {
+  height: 100%;
   margin: 0;
   padding: 0;
-  height: 100%;
   font-family: "Inter", sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-button, input {
+button,
+input {
   color: inherit;
   background: none;
   border: none;
   outline: none;
+  font-family: inherit;
+}
+
+/* ----------------------------------------------------------
+   Scrollbars (Light/Dark Themes)
+---------------------------------------------------------- */
+:root[data-theme="dark"] ::-webkit-scrollbar,
+:root[data-theme="light"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border: 2px solid #1a1a1a;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #eaeaea;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background-color: #b5b5b5;
+  border: 2px solid #eaeaea;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
+}
+
+/* ----------------------------------------------------------
+   Shared Utility Classes
+---------------------------------------------------------- */
+
+/* Reusable icon button */
+.icon-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+/* Theme-aware icon coloring */
+:root[data-theme="dark"] img.icon,
+:root[data-theme="dark"] .nav-icon,
+:root[data-theme="dark"] .topbar-icon-class {
+  filter: invert(100%) brightness(200%);
+}
+
+:root[data-theme="light"] img.icon,
+:root[data-theme="light"] .nav-icon,
+:root[data-theme="light"] .topbar-icon-class {
+  filter: invert(0%) brightness(0%);
+}
+
+/* Accent button */
+.accent-btn {
+  background-color: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.accent-btn:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Basic fade animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
