@@ -37,6 +37,18 @@ The project is currently in **Alpha** phase, meaning core features are functiona
 
 ## Screenshots
 
+### Dark theme
+
+![Home](./screenshots/home-page.png)
+
+![Main Player View](./screenshots/main-player.png)
+
+![Mini Player Overlay](./screenshots/mini-player.png)
+
+![Library Information](./screenshots/library.png)
+
+![Artists](./screenshots/artists.png)
+
 ---
 
 ## Installation (Development)
