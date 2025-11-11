@@ -39,15 +39,15 @@ The project is currently in **Alpha** phase, meaning core features are functiona
 
 ### Dark theme
 
-![Home](/screenshots/home-page.png)
+![Home](screenshots/home-page.png)
 
-![Main Player View](/screenshots/main-player.png)
+![Main Player View](screenshots/main-player.png)
 
-![Mini Player Overlay](/screenshots/mini-player.png)
+![Mini Player Overlay](screenshots/mini-player.png)
 
-![Library Information](/screenshots/library.png)
+![Library Information](screenshots/library.png)
 
-![Artists](/screenshots/artists.png)
+![Artists](screenshots/artists.png)
 
 ---
 

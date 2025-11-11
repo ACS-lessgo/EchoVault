@@ -1,6 +1,11 @@
 <template>
   <transition name="fade-slide">
     <div v-if="showMiniPlayer" class="mini-player-overlay">
+      <!-- Falling Stars Background -->
+      <div class="stars-container">
+        <div v-for="n in 50" :key="n" class="star" :style="getStarStyle(n)"></div>
+      </div>
+      
       <div class="mini-player">
         <!-- Header -->
         <div class="mini-header">
@@ -191,6 +196,22 @@ const volumeIcon = computed(() => {
   return "fas fa-volume-up"
 })
 
+// generate random star styles
+function getStarStyle(index) {
+  const left = Math.random() * 100
+  const animationDuration = 2 + Math.random() * 4 // 2-6 seconds
+  const animationDelay = Math.random() * 5 // 0-5 seconds delay
+  const size = 1 + Math.random() * 2 // 1-3px star size
+  
+  return {
+    left: `${left}%`,
+    animationDuration: `${animationDuration}s`,
+    animationDelay: `${animationDelay}s`,
+    width: `${size}px`,
+    height: `${size}px`,
+  }
+}
+
 // Check window size
 function checkWindowSize() {
   if (resizingFromCode) return
@@ -230,12 +251,13 @@ function checkWindowSize() {
 }
 
 function exitMiniPlayer() {
-  // Request to restore window size (you'll need to add this IPC)
+  isMiniActive = false
   window.api.restoreWindowSize?.()
   showMiniPlayer.value = false
 }
 
 function closeMiniPlayer() {
+  isMiniActive = false
   showMiniPlayer.value = false
   window.api.restoreWindowSize?.()
 }
@@ -311,6 +333,45 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow: hidden;
+}
+
+/* Falling Stars */
+.stars-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  top: -10px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: fall linear infinite;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes fall {
+  0% {
+    top: -10px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 .mini-player {
@@ -320,6 +381,8 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 1.5rem;
   animation: scaleIn 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes scaleIn {
