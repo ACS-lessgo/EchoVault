@@ -41,4 +41,6 @@ contextBridge.exposeInMainWorld("api", {
   getTopPlayedArtists: () => ipcRenderer.invoke("get-top-played-artists"),
   getTotalPlays: () => ipcRenderer.invoke("get-total-plays"),
   getArtistByName: (name) => ipcRenderer.invoke("get-artist-by-name", name),
+  restoreWindowSize: () => ipcRenderer.invoke("restore-window-size"),
+  enableMiniPlayer: () => ipcRenderer.invoke("enable-mini-player"),
 })
