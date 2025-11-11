@@ -193,7 +193,7 @@ const volumeIcon = computed(() => {
 
 // Check window size
 function checkWindowSize() {
-  if (resizingFromCode) return // ignore programmatic changes
+  if (resizingFromCode) return
 
   if (resizeTimeout) clearTimeout(resizeTimeout)
   resizeTimeout = setTimeout(() => {
@@ -203,23 +203,28 @@ function checkWindowSize() {
     const miniThresholdW = 600
     const miniThresholdH = 700
 
-    if (!isMiniActive && (width < miniThresholdW || height < miniThresholdH)) {
+    // Check if EITHER width OR height crosses threshold
+    const shouldActivateMini = width < miniThresholdW || height < miniThresholdH
+    const shouldDeactivateMini = width >= miniThresholdW && height >= miniThresholdH
+
+    if (!isMiniActive && shouldActivateMini) {
       isMiniActive = true
       resizingFromCode = true
       showMiniPlayer.value = true
       window.api.enableMiniPlayer?.()
       setTimeout(() => (resizingFromCode = false), 600)
-    } else if (
-      isMiniActive &&
-      width > miniThresholdW + 100 &&
-      height > miniThresholdH + 100
-    ) {
-      // note the +100 grace to prevent bouncing near threshold
-      isMiniActive = false
-      resizingFromCode = true
-      showMiniPlayer.value = false
-      window.api.restoreWindowSize?.()
-      setTimeout(() => (resizingFromCode = false), 600)
+    } else if (isMiniActive && shouldDeactivateMini) {
+      // Only deactivate if window is significantly larger to prevent bouncing
+      const hasSignificantMargin = 
+        width > miniThresholdW + 50 && height > miniThresholdH + 50
+      
+      if (hasSignificantMargin) {
+        isMiniActive = false
+        resizingFromCode = true
+        showMiniPlayer.value = false
+        window.api.restoreWindowSize?.()
+        setTimeout(() => (resizingFromCode = false), 600)
+      }
     }
   }, 250)
 }
@@ -560,16 +565,15 @@ onUnmounted(() => {
 }
 
 .play-btn {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  color: white;
-  box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+  transform: scale(1.2);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
 
 .play-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(142, 68, 173, 0.6);
+  transform: scale(1.3);
+  filter: drop-shadow(0 0 5px white);
 }
 
 .play-btn i {
