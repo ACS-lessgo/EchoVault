@@ -120,7 +120,7 @@ cd EchoVault
 
 ```bash
 
-git checkout develop
+git checkout release/v1.0.0
 ```
 
 3. Install dependencies
