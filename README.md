@@ -39,15 +39,29 @@ The project is currently in **Alpha** phase, meaning core features are functiona
 
 ### Dark theme
 
+#### Home Page
+
 ![Home](screenshots/home.png)
+
+#### All Songs
 
 ![Main Player View](screenshots/all-songs.png)
 
+#### Artists
+
+![Artists](screenshots/artists-page.png)
+
+#### Mini Player
+
 ![Mini Player Overlay](screenshots/m-player.png)
+
+#### User library information
 
 ![Library Information](screenshots/library-view.png)
 
-![Artists](screenshots/artists-page.png)
+#### Color schemes and theme
+
+![Color Schemes](screenshots/colors-n-themes.png)
 
 ---
 
