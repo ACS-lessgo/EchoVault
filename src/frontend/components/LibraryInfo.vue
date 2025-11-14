@@ -6,15 +6,7 @@
       <!-- Total Tracks -->
       <div class="stat-card" :style="{ animationDelay: '0s' }">
         <div class="stat-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
+          <i class="fas fa-bullseye"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedTracks }}</div>
@@ -26,15 +18,7 @@
       <!-- Total Artists -->
       <div class="stat-card" :style="{ animationDelay: '0.1s' }">
         <div class="stat-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
+          <i class="fa-solid fa-user"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedArtists }}</div>
@@ -46,11 +30,7 @@
       <!-- Liked Songs -->
       <div class="stat-card" :style="{ animationDelay: '0.2s' }">
         <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-            />
-          </svg>
+          <i class="fa-solid fa-heart"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedLiked }}</div>
@@ -62,18 +42,7 @@
       <!-- Storage Used -->
       <div class="stat-card" :style="{ animationDelay: '0.3s' }">
         <div class="stat-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-            />
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-            <line x1="12" y1="22.08" x2="12" y2="12" />
-          </svg>
+          <i class="fas fa-cube"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ formatStorage(stats.storageUsed) }}</div>
@@ -85,16 +54,7 @@
       <!-- Total Folders -->
       <div class="stat-card" :style="{ animationDelay: '0.4s' }">
         <div class="stat-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-            />
-          </svg>
+          <i class="fas fa-folder"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedFolders }}</div>
@@ -106,15 +66,7 @@
       <!-- Total Duration -->
       <div class="stat-card" :style="{ animationDelay: '0.5s' }">
         <div class="stat-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
+          <i class="fas fa-clock"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">
@@ -128,17 +80,7 @@
       <!-- Total Listening Time -->
       <div class="stat-card" :style="{ animationDelay: '0.6s' }">
         <div class="stat-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
-            <path
-              d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"
-            />
-          </svg>
+          <i class="fas fa-headphones"></i>
         </div>
         <div class="stat-content">
           <div class="stat-value">
@@ -229,10 +171,7 @@
               class="track-cover"
             />
             <div v-else class="track-cover-placeholder">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="12" cy="12" r="10" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              <i class="fas fa-bullseye"></i>
             </div>
             <div class="track-info">
               <div class="track-name">{{ track.title }}</div>
@@ -241,14 +180,7 @@
               </div>
             </div>
             <div class="play-count">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                width="16"
-                height="16"
-              >
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
+              <i class="fas fa-play"></i>
               {{ (track.noOfPlays || 0).toLocaleString() }} plays
             </div>
           </div>
@@ -291,14 +223,7 @@
               </div>
             </div>
             <div class="play-count">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                width="16"
-                height="16"
-              >
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
+              <i class="fas fa-play"></i>
               {{ (artist.totalPlays || 0).toLocaleString() }} plays
             </div>
           </div>
@@ -308,16 +233,7 @@
 
     <!-- Refresh Button -->
     <button class="refresh-btn" @click="loadStats" :disabled="loading">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        :class="{ spinning: loading }"
-      >
-        <polyline points="23 4 23 10 17 10" />
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-      </svg>
+      <i class="fas fa-sync" :class="{ 'fa-spin': loading }"></i>
       {{ loading ? "Loading..." : "Refresh Stats" }}
     </button>
   </div>
