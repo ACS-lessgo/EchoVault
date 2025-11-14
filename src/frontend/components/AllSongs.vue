@@ -45,7 +45,7 @@
     </div>
 
     <!-- List View -->
-    <div v-if="viewMode === 'list'" class="list-view">
+    <!-- <div v-if="viewMode === 'list'" class="list-view">
       <table class="track-table">
         <thead>
           <tr>
@@ -91,7 +91,15 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </div> -->
+
+    <TrackList
+      v-if="viewMode === 'list'"
+      :tracks="filteredTracks"
+      :currentTrack="player.currentTrack"
+      :formatDuration="formatDuration"
+      @select="playCurrentTrack"
+    />
 
     <!-- Grid View -->
     <div v-else class="grid-view">
@@ -138,6 +146,7 @@
 import { ref, computed, onMounted, nextTick } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
+import TrackList from "./TrackList.vue"
 
 const tracks = ref([])
 const viewMode = ref("list")
@@ -292,97 +301,6 @@ function playCurrentTrack(track) {
 }
 
 /* ────────────────────────────────
-   List View Styles
-──────────────────────────────── */
-.list-view {
-  width: 100%;
-}
-
-/* Table wrapper for tracks */
-.track-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-/* Table header */
-.track-table thead {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.track-table th {
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted-text);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Column widths */
-.num-col {
-  width: 50px;
-}
-
-.title-col {
-  width: 45%;
-}
-
-.album-col {
-  width: 35%;
-  text-align: left;
-}
-
-.duration-col {
-  width: 100px;
-  text-align: left;
-}
-
-/* Table row styling */
-.track-row {
-  transition: background 0.2s;
-  cursor: pointer;
-}
-
-.track-row td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Track info layout */
-.track-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Album cover thumbnail */
-.track-cover {
-  width: 48px;
-  height: 48px;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-/* Track text info */
-.track-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.track-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.track-artist {
-  font-size: 13px;
-  color: var(--muted-text);
-}
-
-/* ────────────────────────────────
   Grid View Styles
 ──────────────────────────────── */
 .grid-view {
@@ -481,28 +399,6 @@ function playCurrentTrack(track) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* ────────────────────────────────
-   State & Alternate Row Colors
-──────────────────────────────── */
-.track-table tbody tr:nth-child(odd) {
-  background-color: var(--side-nav-bg);
-}
-
-.track-table tbody tr:nth-child(even) {
-  background-color: transparent;
-}
-
-.track-table tbody tr.track-row:hover {
-  background: var(--hover-bg);
-}
-
-/* Currently playing row (list view) */
-.track-row.playing {
-  background: var(--hover-bg);
-  transition: background 0.3s;
-  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 /* Currently playing card (grid view) */
