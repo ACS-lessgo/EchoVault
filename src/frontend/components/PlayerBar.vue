@@ -195,16 +195,37 @@ import {
   X,
 } from "../assets/icons/icons"
 
-const volume = ref(50)
+import {
+  formatTime,
+  useVolumeControl,
+  useProgressBar,
+  usePlaybackControls,
+  useQueueManagement,
+  useTrackLike,
+  getVolumeIcon,
+} from "../utils/playerUtils.js"
+
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
 const showQueue = ref(false)
-const hoverTimeVisible = ref(false)
-const hoverTime = ref(0)
-const hoverX = ref(0)
+
+const { volume, onVolumeChange, toggleMute } = useVolumeControl(player)
+const {
+  hoverTimeVisible,
+  hoverTime,
+  hoverX,
+  showHoverTime,
+  hideHoverTime,
+  seek,
+} = useProgressBar(player)
+const { togglePlay, playPreviousTrack, playNextTrack } =
+  usePlaybackControls(player)
+const { displayedQueue, playSongFromQueue, removeFromQueue } =
+  useQueueManagement(player)
+const { toggleLikedSong } = useTrackLike(player)
 
 const currentVolumeIcon = computed(() =>
-  volume.value === 0 ? VolumeMute : Volume
+  getVolumeIcon(volume.value, { Volume, VolumeMute })
 )
 
 watch(volume, (newVal) => {
@@ -214,104 +235,9 @@ watch(volume, (newVal) => {
   }
 })
 
-const togglePlay = async () => {
-  await player.togglePlay()
-}
-
-const playPreviousTrack = async () => {
-  if (!player.hasPrevious) return
-  await player.playPrevious()
-}
-
-const playNextTrack = async () => {
-  console.log("Checking next", player.hasNext)
-  if (!player.hasNext) return
-  await player.playNext()
-}
-
-const toggleLikedSong = async () => {
-  // notify listeners
-  player.notifyLikedChange()
-
-  const track = player.currentTrack
-  if (!track?.id) return
-
-  const newStatus = !track.isLiked
-
-  // change the like status for UI
-  track.isLiked = newStatus
-
-  // send same to db
-  await window.api.toggleLike(track.id, newStatus)
-  console.log(`Track ${track.title} like status updated: ${newStatus}`)
-}
-
-const onVolumeChange = () => {
-  player.setVolume(volume.value / 100)
-}
-
-const toggleMute = () => {
-  if (volume.value === 0) {
-    volume.value = player.volume * 100 || 50
-  } else {
-    volume.value = 0
-  }
-  player.setVolume(volume.value / 100)
-}
-
 const togglePlayListQueueView = () => {
   showQueue.value = !showQueue.value
 }
-
-const removeFromQueue = (index) => {
-  player.queue.splice(index, 1)
-}
-
-function formatTime(seconds) {
-  if (!seconds) return "--:--"
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, "0")}`
-}
-
-function showHoverTime(event) {
-  const bar = event.currentTarget
-  const rect = bar.getBoundingClientRect()
-  const ratio = (event.clientX - rect.left) / rect.width
-  hoverTime.value = player.duration * ratio
-  hoverX.value = event.clientX - rect.left
-  hoverTimeVisible.value = true
-}
-
-function hideHoverTime() {
-  hoverTimeVisible.value = false
-}
-
-const seek = (event) => {
-  const bar = event.currentTarget
-  const rect = bar.getBoundingClientRect()
-  const ratio = (event.clientX - rect.left) / rect.width
-  const targetTime = player.duration * Math.max(0, Math.min(1, ratio))
-  player.seekTo(targetTime)
-}
-
-const playSongFromQueue = async (track, index) => {
-  if (player.shuffleEnabled && player.shuffleOrder?.length) {
-    player.currentIndex = index // index in shuffled order
-  } else {
-    player.currentIndex = index
-  }
-  await player.setTrack(track, false)
-}
-
-const displayedQueue = computed(() => {
-  if (player.shuffleEnabled && player.shuffleOrder?.length) {
-    // Map shuffled indices to actual tracks
-    return player.shuffleOrder.map((i) => player.queue[i])
-  }
-  // Default — normal order
-  return player.queue
-})
 </script>
 
 <style scoped>
