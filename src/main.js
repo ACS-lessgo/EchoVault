@@ -79,15 +79,6 @@ function createWindow() {
   }
 }
 
-// performance improvements
-
-app.commandLine.appendSwitch(
-  "disable-features",
-  "CalculateNativeWinOcclusion,MediaSessionService,HardwareMediaKeyHandling"
-)
-app.commandLine.appendSwitch("disable-gpu-process-crash-limit")
-app.commandLine.appendSwitch("js-flags", "--max-old-space-size=512") // cap V8 heap to 512 MB
-
 app.whenReady().then(() => {
   console.log("Registering echovault protocol...")
 
