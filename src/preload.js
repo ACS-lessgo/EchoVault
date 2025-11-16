@@ -47,4 +47,10 @@ contextBridge.exposeInMainWorld("api", {
   // Search
   searchTracks: (payload) => ipcRenderer.invoke("search:tracks", payload),
   searchArtists: (query) => ipcRenderer.invoke("search:artists", query),
+
+  // window bar
+  minimize: () => ipcRenderer.send("win:minimize"),
+  maximize: () => ipcRenderer.send("win:maximize"),
+  close: () => ipcRenderer.send("win:close"),
+  isMaximized: () => ipcRenderer.invoke("win:isMaximized"),
 })
