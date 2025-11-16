@@ -42,20 +42,37 @@ export const UPSERT_TRACK = `
     duration=excluded.duration,
     cover=excluded.cover
 `
-// queries.ts
+// queries
 
 export const GET_ORDERED_TRACKS = `
   SELECT * FROM tracks 
   ORDER BY title ASC 
   LIMIT ?
 `
-export const SEARCH_TRACKS_FTS = `
-  SELECT t.* 
-  FROM tracks_fts fts
-  JOIN tracks t ON t.id = fts.rowid
-  WHERE tracks_fts MATCH ?
-  ORDER BY rank
-  LIMIT ?
+export const SEARCH_TRACKS = `
+  SELECT *
+  FROM tracks
+  WHERE LOWER(title) LIKE ?
+     OR LOWER(artist) LIKE ?
+     OR LOWER(album) LIKE ?
+  ORDER BY LOWER(title)
+`
+export const SEARCH_TRACKS_BY_ARTIST = `
+  SELECT *
+  FROM tracks
+  WHERE artist_id = ?
+    AND (
+      LOWER(title) LIKE ?
+      OR LOWER(artist) LIKE ?
+      OR LOWER(album) LIKE ?
+    )
+  ORDER BY LOWER(title)
+`
+export const SEARCH_ARTISTS = `
+  SELECT *
+  FROM artists
+  WHERE LOWER(name) LIKE ?
+  ORDER BY LOWER(name)
 `
 
 //  Artists

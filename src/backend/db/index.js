@@ -33,6 +33,12 @@ export function initDB() {
         path TEXT UNIQUE
       );
 
+      CREATE TABLE IF NOT EXISTS artists (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE,
+        cover TEXT
+      );
+
       CREATE TABLE IF NOT EXISTS tracks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         folder_id INTEGER,
@@ -40,62 +46,35 @@ export function initDB() {
         file_path TEXT UNIQUE,
         title TEXT,
         album TEXT,
+        artist TEXT,
         duration REAL,
         cover TEXT,
+        isLiked INTEGER DEFAULT 0,
+        noOfPlays INTEGER DEFAULT 0,
         FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
         FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
-      );
-
-      CREATE TABLE IF NOT EXISTS artists (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE,
-        cover TEXT
       );
     `
   }
 
   db.exec(schema)
 
-  // Creating indexes for performance
-  db.prepare(
-    `
-    CREATE INDEX IF NOT EXISTS idx_tracks_file_path ON tracks(file_path);
-  `
-  ).run()
+  const indexStatements = [
+    `CREATE INDEX IF NOT EXISTS idx_tracks_title_lower ON tracks(LOWER(title));`,
+    `CREATE INDEX IF NOT EXISTS idx_tracks_artist_lower ON tracks(LOWER(artist));`,
+    `CREATE INDEX IF NOT EXISTS idx_tracks_album_lower ON tracks(LOWER(album));`,
 
-  db.prepare(
-    `
-    CREATE INDEX IF NOT EXISTS idx_tracks_artist_id ON tracks(artist_id);
-  `
-  ).run()
+    `CREATE INDEX IF NOT EXISTS idx_tracks_folder_id ON tracks(folder_id);`,
+    `CREATE INDEX IF NOT EXISTS idx_tracks_artist_id ON tracks(artist_id);`,
+    `CREATE INDEX IF NOT EXISTS idx_tracks_file_path ON tracks(file_path);`,
+    `CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);`,
+    `CREATE INDEX IF NOT EXISTS idx_tracks_plays ON tracks(noOfPlays DESC);`,
+  ]
 
-  db.prepare(
-    `
-    CREATE INDEX IF NOT EXISTS idx_tracks_folder_id ON tracks(folder_id);
-  `
-  ).run()
-
-  db.prepare(
-    `
-    CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);
-  `
-  ).run()
-
-  const columns = db.prepare("PRAGMA table_info(tracks)").all();
-  const hasNoOfPlays = columns.some(c => c.name === "noOfPlays");
-
-  // Create column if missing
-  if (!hasNoOfPlays) {
-    db.prepare("ALTER TABLE tracks ADD COLUMN noOfPlays INTEGER DEFAULT 0").run();
+  for (const stmt of indexStatements) {
+    db.prepare(stmt).run()
   }
 
-  db.prepare(
-    `
-    CREATE INDEX IF NOT EXISTS idx_tracks_plays ON tracks(noOfPlays DESC);
-  `
-  ).run()
-
-  console.log("SQLite DB initialized at:", dbPath)
-  console.log("Indexes verified / created.")
+  console.log("SQLite initialized at:", dbPath)
   return db
 }

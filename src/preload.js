@@ -43,4 +43,8 @@ contextBridge.exposeInMainWorld("api", {
   getArtistByName: (name) => ipcRenderer.invoke("get-artist-by-name", name),
   restoreWindowSize: () => ipcRenderer.invoke("restore-window-size"),
   enableMiniPlayer: () => ipcRenderer.invoke("enable-mini-player"),
+
+  // Search
+  searchTracks: (payload) => ipcRenderer.invoke("search:tracks", payload),
+  searchArtists: (query) => ipcRenderer.invoke("search:artists", query),
 })

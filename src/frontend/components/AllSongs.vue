@@ -21,7 +21,7 @@
     <!-- List View -->
     <TrackList
       v-if="viewMode === 'list'"
-      :tracks="filteredTracks"
+      :tracks="tracks"
       :currentTrack="player.currentTrack"
       :formatDuration="formatDuration"
       @select="playCurrentTrack"
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue"
+import { ref, onMounted, nextTick, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import TrackList from "./TrackList.vue"
@@ -50,33 +50,39 @@ const viewMode = ref("list")
 const search = useSearchStore()
 const player = usePlayerStore()
 
+// watcher for search
+watch(
+  () => search.query,
+  async (q) => {
+    const query = q.trim()
+
+    if (!query) {
+      // Load full tracklist normally
+      const result = await window.api.getTracks()
+      tracks.value = await formatTracks(result)
+      return
+    }
+
+    // DB FTS search
+    const result = await window.api.searchTracks(query)
+    tracks.value = await formatTracks(result)
+  },
+  { immediate: true }
+)
+
 async function loadTracks() {
   const result = await window.api.getTracks()
 
   // For each track, load cover as Base64 and attach it
-  const withCovers = await Promise.all(
-    result.map(async (track) => {
-      if (track.cover) {
-        const url = track.cover.startsWith("/")
-          ? `echovault://${track.cover}`
-          : `echovault:///${track.cover}`
-        return {
-          ...track,
-          coverDataUrl: url,
-        }
-      } else {
-        return { ...track, coverDataUrl: null }
-      }
-    })
-  )
+  const withCovers = await formatTracks(result)
 
   tracks.value = withCovers
 
   if (Object.keys(player.currentTrack).length === 0) {
     player.clearQueue()
-    player.queue = structuredClone(sorted)
+    player.queue = structuredClone(withCovers)
     player.currentIndex = 0
-    player.currentTrack = { ...sorted[0] } || {}
+    player.currentTrack = { ...withCovers[0] } || {}
     player.queueSource = "all"
   }
 
@@ -101,17 +107,20 @@ function formatDuration(seconds) {
 
 onMounted(loadTracks)
 
-const filteredTracks = computed(() => {
-  const q = search.query?.trim().toLowerCase()
-  if (!q) return tracks.value
+// add cover to tracks
+async function attachCover(track) {
+  if (!track.cover) return { ...track, coverDataUrl: null }
 
-  return tracks.value.filter((t) => {
-    const title = t.title?.toLowerCase() || ""
-    const artist = t.artist?.toLowerCase() || ""
-    const album = t.album?.toLowerCase() || ""
-    return title.includes(q) || artist.includes(q) || album.includes(q)
-  })
-})
+  const url = track.cover.startsWith("/")
+    ? `echovault://${track.cover}`
+    : `echovault:///${track.cover}`
+
+  return { ...track, coverDataUrl: url }
+}
+
+async function formatTracks(list) {
+  return Promise.all(list.map((t) => attachCover(t)))
+}
 
 // Send to store for Player component
 function playCurrentTrack(track) {
