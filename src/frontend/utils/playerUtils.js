@@ -98,12 +98,23 @@ export function usePlaybackControls(player) {
 // Queue Management
 export function useQueueManagement(player) {
   const displayedQueue = computed(() => {
-    if (player.shuffleEnabled && player.shuffleOrder?.length) {
-      // Map shuffled indices to actual tracks
-      return player.shuffleOrder.map((i) => player.queue[i])
-    }
-    // Default — normal order
-    return player.queue
+    // shuffled / normal
+    const baseList =
+      player.shuffleEnabled && player.shuffleOrder?.length
+        ? player.shuffleOrder.map((i) => player.queue[i])
+        : player.queue
+
+    if (!baseList.length) return baseList
+
+    // get currently playing track in displayed list
+    const currentIndex = baseList.findIndex(
+      (t) => t.file_path === player.currentTrack?.file_path
+    )
+
+    if (currentIndex <= 0) return baseList
+
+    //current track is always at top
+    return [...baseList.slice(currentIndex), ...baseList.slice(0, currentIndex)]
   })
 
   const playSongFromQueue = async (track, index) => {
