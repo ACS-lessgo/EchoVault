@@ -1,5 +1,5 @@
 <template>
-  <aside class="side-nav">
+  <aside class="side-nav" :class="{ collapsed: collapsed }">
     <nav>
       <router-link to="/" class="nav-item">
         <i class="fas fa-home nav-icon"></i>
@@ -29,6 +29,15 @@
   </aside>
 </template>
 
+<script setup>
+defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
+
 <style scoped>
 /* Sidebar navigation – layout, nav items, icons, and responsive collapse */
 
@@ -42,6 +51,25 @@
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
+}
+
+/* Collapsed state when queue is open */
+.side-nav.collapsed {
+  width: 60px;
+  padding: 1rem 0.5rem;
+}
+
+.side-nav.collapsed .nav-item {
+  justify-content: center;
+  gap: 0;
+}
+
+.side-nav.collapsed .nav-item span {
+  display: none;
+}
+
+.side-nav.collapsed .nav-icon {
+  margin: 0 auto;
 }
 
 /* Navigation list */
@@ -82,6 +110,7 @@ nav {
   width: 20px;
   height: 20px;
   filter: invert(100%) brightness(200%);
+  flex-shrink: 0;
 }
 
 /* Dark theme: light icons */

@@ -30,7 +30,7 @@
     <!-- Grid View -->
     <TrackGrid
       v-else
-      :tracks="filteredTracks"
+      :tracks="tracks"
       :currentTrack="player.currentTrack"
       @select="playCurrentTrack"
     />

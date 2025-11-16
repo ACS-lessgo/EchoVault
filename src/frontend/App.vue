@@ -2,25 +2,38 @@
   <div id="app">
     <TopBar />
 
-    <div class="main-layout">
-      <SideNav />
+    <div class="main-layout" :class="{ 'queue-open': showQueue }">
+      <SideNav :collapsed="showQueue" />
       <main class="content-area">
         <router-view />
       </main>
+      <QueueSidebar :showQueue="showQueue" @close="closeQueue" />
     </div>
 
-    <PlayerBar />
+    <PlayerBar @toggle-queue="toggleQueue" />
     <MiniPlayer />
     <Toast />
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue"
 import TopBar from "./components/TopBar.vue"
 import SideNav from "./components/SideNav.vue"
 import PlayerBar from "./components/PlayerBar.vue"
+import QueueSidebar from "./components/QueueSidebar.vue"
 import Toast from "./components/Toast.vue"
 import MiniPlayer from "./components/MiniPlayer.vue"
+
+const showQueue = ref(false)
+
+const toggleQueue = () => {
+  showQueue.value = !showQueue.value
+}
+
+const closeQueue = () => {
+  showQueue.value = false
+}
 </script>
 
 <style>
@@ -45,6 +58,7 @@ body,
   background-color: var(--bg-color);
   overflow: hidden;
   max-height: 100vh;
+  transition: all 0.3s ease;
 }
 
 /* Content area */
@@ -54,6 +68,7 @@ body,
   overflow-y: auto;
   background-color: var(--content-bg);
   color: var(--text-color);
+  transition: all 0.3s ease;
 }
 
 /* Dark theme scrollbar */
@@ -92,5 +107,12 @@ body,
 
 :root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
   background-color: #999;
+}
+
+/* Mobile: overlay queue instead of push */
+@media (max-width: 768px) {
+  .main-layout.queue-open .content-area {
+    filter: brightness(0.5);
+  }
 }
 </style>
