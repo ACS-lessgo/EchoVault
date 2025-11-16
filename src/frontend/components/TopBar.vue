@@ -1,71 +1,94 @@
 <template>
   <header class="top-bar">
-    <div class="search-bar">
-      <img :src="Search" alt="Search" class="search-icon" :style="iconFilter" />
-      <input
-        v-model="localQuery"
-        type="text"
-        placeholder="Search..."
-        class="search-input"
-      />
-    </div>
-
-    <div class="actions">
-      <!-- Theme Button -->
-      <button title="Theme" @click="toggleTheme" class="icon-btn">
-        <img
-          class="topbar-icon-class"
-          :src="isDarkMode ? Light : Dark"
-          :style="iconFilter"
-          alt="Theme"
-        />
+    <!-- Window controls row - sits at top -->
+    <div class="window-controls">
+      <button class="win-btn" @click="winMinimize">
+        <img :src="Minimize" :style="iconFilter" />
       </button>
 
-      <!-- Settings Button -->
-      <div class="settings-dropdown-wrapper">
-        <button title="Settings" class="icon-btn" @click="toggleDropdown">
+      <button class="win-btn" @click="winMaximize">
+        <img :src="Maximize" :style="iconFilter" />
+      </button>
+
+      <button class="win-btn close-btn" @click="winClose">
+        <img :src="X" :style="iconFilter" />
+      </button>
+    </div>
+
+    <!-- Main content row - search and actions below controls -->
+    <div class="main-content">
+      <div class="search-bar">
+        <img
+          :src="Search"
+          alt="Search"
+          class="search-icon"
+          :style="iconFilter"
+        />
+        <input
+          v-model="localQuery"
+          type="text"
+          placeholder="Search..."
+          class="search-input"
+        />
+      </div>
+
+      <div class="actions">
+        <!-- Theme Button -->
+        <button title="Theme" @click="toggleTheme" class="icon-btn">
           <img
             class="topbar-icon-class"
-            :src="Settings"
+            :src="isDarkMode ? Light : Dark"
             :style="iconFilter"
-            alt="Settings"
+            alt="Theme"
           />
         </button>
 
-        <!-- Dropdown -->
-        <transition name="dropdown-fade">
-          <div v-if="showDropdown" class="settings-dropdown">
-            <div class="dropdown-section">
-              <div class="dropdown-title">Color Scheme</div>
-              <div class="color-options">
-                <div
-                  v-for="color in accentColors"
-                  :key="color.name"
-                  class="color-circle"
-                  :class="{ active: activeAccent === color.value }"
-                  :style="{ background: color.value }"
-                  @click="setAccent(color.value)"
-                >
-                  <i
-                    v-if="activeAccent === color.value"
-                    class="fa-solid fa-check"
-                    style="color: white; font-size: 14px"
-                  ></i>
+        <!-- Settings Button -->
+        <div class="settings-dropdown-wrapper">
+          <button title="Settings" class="icon-btn" @click="toggleDropdown">
+            <img
+              class="topbar-icon-class"
+              :src="Settings"
+              :style="iconFilter"
+              alt="Settings"
+            />
+          </button>
+
+          <!-- Dropdown -->
+          <transition name="dropdown-fade">
+            <div v-if="showDropdown" class="settings-dropdown">
+              <div class="dropdown-section">
+                <div class="dropdown-title">Color Scheme</div>
+                <div class="color-options">
+                  <div
+                    v-for="color in accentColors"
+                    :key="color.name"
+                    class="color-circle"
+                    :class="{ active: activeAccent === color.value }"
+                    :style="{ background: color.value }"
+                    @click="setAccent(color.value)"
+                  >
+                    <i
+                      v-if="activeAccent === color.value"
+                      class="fa-solid fa-check"
+                      style="color: white; font-size: 14px"
+                    ></i>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Future scope -->
-            <div class="dropdown-section disabled">
-              <div class="dropdown-title">Equalizer</div>
-              <div class="dropdown-note">Coming soon...</div>
+              <!-- Future scope -->
+              <div class="dropdown-section disabled">
+                <div class="dropdown-title">Equalizer</div>
+                <div class="dropdown-note">Coming soon...</div>
+              </div>
+              <div class="dropdown-section disabled">
+                <div class="dropdown-title">Keyboard Shortcuts</div>
+                <div class="dropdown-note">Coming soon...</div>
+              </div>
             </div>
-            <div class="dropdown-section disabled">
-              <div class="dropdown-title">Keyboard Shortcuts</div>
-              <div class="dropdown-note">Coming soon...</div>
-            </div>
-          </div>
-        </transition>
+          </transition>
+        </div>
       </div>
     </div>
   </header>
@@ -73,7 +96,15 @@
 
 <script setup>
 import { ref, watch, onMounted, computed, onBeforeUnmount } from "vue"
-import { Dark, Light, Settings, Search } from "../assets/icons/icons.js"
+import {
+  Dark,
+  Light,
+  Settings,
+  Search,
+  Maximize,
+  Minimize,
+  X,
+} from "../assets/icons/icons.js"
 import { useSearchStore } from "../store/search.js"
 import { debounce } from "../../backend/utils/debounce.js"
 
@@ -91,6 +122,7 @@ const accentColors = [
   { name: "Teal", value: "#1abc9c" },
 ]
 const activeAccent = ref(localStorage.getItem("accentColor") || "#8e44ad")
+let isMax = ref(false)
 
 const updateSearch = debounce((val) => {
   searchStore.setQuery(val.trim())
@@ -164,6 +196,19 @@ const handleClickOutside = (e) => {
   }
 }
 
+const winMinimize = () => {
+  window.api.minimize()
+}
+
+const winMaximize = async () => {
+  isMax = await window.api.isMaximized()
+  window.api.maximize()
+}
+
+const winClose = () => {
+  window.api.close()
+}
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside)
 })
@@ -174,57 +219,61 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Top bar – header layout with search, actions, and settings dropdown */
+/* Top bar – header layout with window controls on top, search and actions below */
 
-/* Layout and base styling */
+/* Main container - flexible column layout */
 .top-bar {
   background-color: var(--topbar-bg);
   color: var(--text-color);
-  height: 70px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  -webkit-app-region: drag; /* make whole topbar draggable */
+}
+
+/* Window controls - positioned at top right like native apps */
+.window-controls {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+  -webkit-app-region: no-drag;
+  height: 32px;
+}
+
+.win-btn {
+  width: 46px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win-btn img {
+  width: 15px;
+  height: 15px;
+}
+
+.win-btn:hover {
+  background: var(--search-bar-color);
+}
+
+.close-btn:hover {
+  background: #e81123 !important;
+}
+
+/* Main content row - contains search bar and action buttons */
+.main-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
-  border-bottom: 2px solid var(--border-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Action buttons group */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.actions button {
-  margin-left: 0.5rem;
-  background: transparent;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-/* Icon buttons */
-.icon-btn {
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  justify-content: center;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: scale(1.05);
-}
-
-.topbar-icon-class {
-  width: 18px;
-  height: 18px;
-  filter: invert(100%) brightness(200%);
+  padding: 0.5rem 1rem 0.75rem 1rem;
+  -webkit-app-region: no-drag;
 }
 
 /* Search bar */
@@ -236,8 +285,8 @@ onBeforeUnmount(() => {
   color: var(--text-color);
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  width: 50%;
-  margin: 0 auto;
+  flex: 1;
+  max-width: 500px;
 }
 
 .search-icon {
@@ -258,6 +307,39 @@ onBeforeUnmount(() => {
 
 .search-input::placeholder {
   color: var(--muted-text);
+}
+
+/* Action buttons group - positioned on the right */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+/* Icon buttons */
+.icon-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  justify-content: center;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+  -webkit-app-region: no-drag;
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.topbar-icon-class {
+  width: 18px;
+  height: 18px;
+  filter: invert(100%) brightness(200%);
 }
 
 /* Settings dropdown container */

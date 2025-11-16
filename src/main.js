@@ -43,6 +43,8 @@ function createWindow() {
     width: 1280,
     minWidth: 350,
     minHeight: 634,
+    titleBarStyle: "hidden",
+    frame: false,
   })
 
   mainWindow.once("ready-to-show", () => {
@@ -120,8 +122,8 @@ app.whenReady().then(() => {
   })
 
   const db = initDB()
-  registerAllHandlers(mainWindow, db)
   createWindow()
+  registerAllHandlers(mainWindow, db)
 })
 
 app.on("window-all-closed", () => {
