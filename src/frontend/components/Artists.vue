@@ -37,7 +37,7 @@
 
       <TrackList
         v-if="viewMode === 'list'"
-        :tracks="filteredTracks"
+        :tracks="artistTracks"
         :currentTrack="player.currentTrack"
         :formatDuration="formatDuration"
         @select="playCurrentTrack"
@@ -47,19 +47,36 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue"
+import { ref, computed, onMounted, watch, nextTick } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import TrackList from "./TrackList.vue"
 
 const artists = ref([])
-const artistTracks = ref([])
+const filteredArtists = ref([])
+const artistTracks = ref([]) // current tracks shown in artist view
 const selectedArtist = ref(null)
 const isArtistView = ref(true)
 const viewMode = ref("list")
 
 const search = useSearchStore()
 const player = usePlayerStore()
+
+// --- Reusable cover attach helpers ---
+function formatTrack(track) {
+  if (!track) return { ...track }
+  if (!track.cover) return { ...track, coverDataUrl: null }
+
+  const url = track.cover.startsWith("/")
+    ? `echovault://${track.cover}`
+    : `echovault:///${track.cover}`
+  return { ...track, coverDataUrl: url }
+}
+
+async function formatTracks(list) {
+  // keep in Promise.all so parallel processing
+  return Promise.all((list || []).map((t) => Promise.resolve(formatTrack(t))))
+}
 
 // --- Lifecycle ---
 onMounted(() => {
@@ -69,59 +86,29 @@ onMounted(() => {
 // --- Load Artists ---
 async function loadArtists() {
   const result = await window.api.getArtists()
-  const withCovers = await Promise.all(
-    result.map(async (artist) => {
-      if (artist.cover) {
-        const url = artist.cover.startsWith("/")
-          ? `echovault://${artist.cover}`
-          : `echovault:///${artist.cover}`
-        return {
-          ...artist,
-          coverDataUrl: url,
-        }
-      } else {
-        return { ...artist, coverDataUrl: null }
-      }
-    })
-  )
-  artists.value = withCovers
+  artists.value = await formatTracks(result)
+  filteredArtists.value = artists.value
 }
 
 // --- When Artist Clicked ---
 async function openArtist(artistId) {
   const artist = artists.value.find((a) => a.id === artistId)
   selectedArtist.value = artist
-  const songs = await window.api.getTracksByArtist(artistId)
 
-  // load song cover data
-  const withCovers = await Promise.all(
-    songs.map(async (track) => {
-      if (track.cover) {
-        const url = track.cover.startsWith("/")
-          ? `echovault://${track.cover}`
-          : `echovault:///${track.cover}`
-        return {
-          ...track,
-          coverDataUrl: url,
-        }
-      } else {
-        return { ...track, coverDataUrl: null }
-      }
-    })
-  )
+  // If there's a current search query, use the DB search constrained to this artist
+  const q = (search.query || "").trim()
+  if (q) {
+    const result = await window.api.searchTracks({ query: q, artistId })
+    artistTracks.value = await formatTracks(result)
+  } else {
+    // No search → load all tracks for artist (existing API)
+    const songs = await window.api.getTracksByArtist(artistId)
+    artistTracks.value = await formatTracks(songs)
+  }
 
-  artistTracks.value = withCovers
   isArtistView.value = false
-
   await nextTick()
 }
-
-// --- Filter Artists ---
-const filteredArtists = computed(() => {
-  const q = search.query?.trim().toLowerCase()
-  if (!q) return artists.value
-  return artists.value.filter((a) => a.name?.toLowerCase().includes(q))
-})
 
 // --- Format Duration ---
 function formatDuration(seconds) {
@@ -140,7 +127,7 @@ function formatDuration(seconds) {
   }
 }
 
-// --- Stub for Playing Track ---
+// --- Playing Track ---
 function playCurrentTrack(track) {
   if (player.queueSource !== "artist") {
     player.clearQueue()
@@ -157,17 +144,42 @@ function playCurrentTrack(track) {
   }
 }
 
-const filteredTracks = computed(() => {
-  const q = search.query?.trim().toLowerCase()
-  if (!q) return artistTracks.value
+// artist search watcher
+watch(
+  () => search.query,
+  async (q) => {
+    const query = (q || "").trim()
 
-  return artistTracks.value.filter((t) => {
-    const title = t.title?.toLowerCase() || ""
-    const artist = t.artist?.toLowerCase() || ""
-    const album = t.album?.toLowerCase() || ""
-    return title.includes(q) || artist.includes(q) || album.includes(q)
-  })
-})
+    // Artist list view
+    if (!selectedArtist.value) {
+      if (!query) {
+        filteredArtists.value = artists.value
+        return
+      }
+      const result = await window.api.searchArtists(query)
+      filteredArtists.value = await formatTracks(result)
+      return
+    }
+
+    // Artist detail view (songs)
+    if (isArtistView.value === true) {
+      return // don't update artistTracks in artist list view
+    }
+
+    if (!query) {
+      const songs = await window.api.getTracksByArtist(selectedArtist.value.id)
+      artistTracks.value = await formatTracks(songs)
+      return
+    }
+
+    const result = await window.api.searchTracks({
+      query,
+      artistId: selectedArtist.value.id,
+    })
+    artistTracks.value = await formatTracks(result)
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
