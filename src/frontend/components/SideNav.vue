@@ -106,7 +106,7 @@ nav {
 
 /* FIX: Prevent icons from taking accent color */
 .nav-item:hover .nav-icon,
-.nav-item.router-link-active .nav-icon {
+.nav-icon {
   color: var(--text-color) !important;
   filter: inherit; /* keeps dark or light theme */
 }

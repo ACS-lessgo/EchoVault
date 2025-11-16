@@ -160,9 +160,21 @@ const setAccent = (color) => {
     "--accent-hover",
     adjustBrightness(color, 1.15)
   )
+  document.documentElement.style.setProperty(
+    "--hover-bg",
+    hexToRgba(color, 0.2)
+  )
   localStorage.setItem("accentColor", color)
   activeAccent.value = color
   showDropdown.value = false
+}
+
+function hexToRgba(hex, alpha = 0.25) {
+  const c = hex.replace("#", "")
+  const r = parseInt(c.substring(0, 2), 16)
+  const g = parseInt(c.substring(2, 4), 16)
+  const b = parseInt(c.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
 // Load previous accent color
