@@ -110,12 +110,7 @@ async function openArtist(artistId) {
     })
   )
 
-  // sort by title
-  const sorted = withCovers.sort((a, b) =>
-    a.title?.localeCompare(b.title, undefined, { sensitivity: "base" })
-  )
-
-  artistTracks.value = sorted
+  artistTracks.value = withCovers
   isArtistView.value = false
 
   await nextTick()

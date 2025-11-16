@@ -45,12 +45,7 @@ async function loadTracks() {
     })
   )
 
-  // sort by title
-  const sorted = withCovers.sort((a, b) =>
-    a.title?.localeCompare(b.title, undefined, { sensitivity: "base" })
-  )
-
-  tracks.value = sorted
+  tracks.value = withCovers
 }
 
 function formatDuration(seconds) {
