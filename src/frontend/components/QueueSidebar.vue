@@ -1,6 +1,11 @@
 <template>
   <transition name="slide-fade">
-    <div v-if="showQueue" class="queue-panel">
+    <div
+      v-if="showQueue"
+      class="queue-panel"
+      :style="{ width: panelWidth + 'px' }"
+    >
+      <div class="resize-handle" @mousedown="startResize"></div>
       <div class="queue-header">
         <h3>
           Play Queue
@@ -47,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
+import { ref, onMounted, onBeforeUnmount } from "vue"
 import { usePlayerStore } from "../store/player.js"
 import { X } from "../assets/icons/icons"
 import { formatTime, useQueueManagement } from "../utils/playerUtils.js"
@@ -68,6 +73,45 @@ const { displayedQueue, playSongFromQueue, removeFromQueue } =
 const closeQueue = () => {
   emit("close")
 }
+
+// Resizing logic
+const panelWidth = ref(340)
+const isResizing = ref(false)
+const minWidth = 280
+const maxWidth = 600
+
+const startResize = (e) => {
+  isResizing.value = true
+  document.body.style.cursor = "ew-resize"
+  document.body.style.userSelect = "none"
+  e.preventDefault()
+}
+
+const handleResize = (e) => {
+  if (!isResizing.value) return
+
+  const newWidth = window.innerWidth - e.clientX
+
+  if (newWidth >= minWidth && newWidth <= maxWidth) {
+    panelWidth.value = newWidth
+  }
+}
+
+const stopResize = () => {
+  isResizing.value = false
+  document.body.style.cursor = ""
+  document.body.style.userSelect = ""
+}
+
+onMounted(() => {
+  document.addEventListener("mousemove", handleResize)
+  document.addEventListener("mouseup", stopResize)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener("mousemove", handleResize)
+  document.removeEventListener("mouseup", stopResize)
+})
 </script>
 
 <style scoped>
@@ -81,11 +125,47 @@ const closeQueue = () => {
   display: flex;
   flex-direction: column;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Resize handle */
+.resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  background: transparent;
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.resize-handle:hover {
+  background: var(--accent);
+}
+
+.resize-handle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 40px;
+  background: var(--border-color);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.resize-handle:hover::before {
+  opacity: 1;
 }
 
 /* Queue header */
 .queue-header {
-  height: 30px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: space-between;

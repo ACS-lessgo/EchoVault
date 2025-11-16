@@ -68,7 +68,7 @@ body,
   overflow-y: auto;
   background-color: var(--content-bg);
   color: var(--text-color);
-  transition: all 0.5s ease;
+  transition: all 0.3s ease;
 }
 
 /* Dark theme scrollbar */
