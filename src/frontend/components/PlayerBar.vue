@@ -481,7 +481,7 @@ const togglePlayListQueueView = () => {
 
 /* Queue header */
 .queue-header {
-  height: 38px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: space-between;
