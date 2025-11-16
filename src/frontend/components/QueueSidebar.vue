@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue"
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue"
 import { usePlayerStore } from "../store/player.js"
 import { X } from "../assets/icons/icons"
 import { formatTime, useQueueManagement } from "../utils/playerUtils.js"
@@ -112,6 +112,17 @@ onBeforeUnmount(() => {
   document.removeEventListener("mousemove", handleResize)
   document.removeEventListener("mouseup", stopResize)
 })
+
+watch(
+  () => props.showQueue,
+  async (val) => {
+    if (val) {
+      await nextTick()
+      const list = document.querySelector(".queue-list")
+      if (list) list.scrollTop = 0
+    }
+  }
+)
 </script>
 
 <style scoped>
