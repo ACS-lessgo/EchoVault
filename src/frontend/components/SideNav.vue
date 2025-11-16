@@ -95,21 +95,27 @@ nav {
 
 .nav-item:hover {
   background-color: var(--hover-bg);
-  color: var(--accent-hover);
 }
 
-/* Active route link */
+/* Active route */
 .nav-item.router-link-active {
   background-color: var(--hover-bg);
   color: var(--accent);
   font-weight: 600;
 }
 
+/* FIX: Prevent icons from taking accent color */
+.nav-item:hover .nav-icon,
+.nav-item.router-link-active .nav-icon {
+  color: var(--text-color) !important;
+  filter: inherit; /* keeps dark or light theme */
+}
+
 /* Navigation icons */
 .nav-icon {
   width: 20px;
   height: 20px;
-  filter: invert(100%) brightness(200%);
+  color: var(--text-color) !important;
   flex-shrink: 0;
 }
 
