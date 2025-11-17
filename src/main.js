@@ -38,7 +38,6 @@ function createWindow() {
       devTools: isDev,
     },
     center: true,
-    opacity: 0,
     height: 700,
     width: 1280,
     minWidth: 350,
@@ -50,15 +49,6 @@ function createWindow() {
   mainWindow.once("ready-to-show", () => {
     // mainWindow.maximize()
     mainWindow.show()
-
-    let opacity = 0
-    const interval = setInterval(() => {
-      opacity += 0.05
-      mainWindow.setOpacity(opacity)
-      if (opacity >= 1) {
-        clearInterval(interval)
-      }
-    }, 16)
 
     // force close devTools if somehow opened
     if (!isDev && mainWindow.webContents.isDevToolsOpened()) {
