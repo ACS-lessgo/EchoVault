@@ -2,6 +2,7 @@ import { app, BrowserWindow, protocol } from "electron"
 import path from "node:path"
 import fs from "node:fs"
 import started from "electron-squirrel-startup"
+import log from "./logger.js"
 import { initDB } from "./backend/db/index.js"
 import { registerAllHandlers } from "./backend/main/ipcHandlers.js"
 
@@ -49,6 +50,7 @@ function createWindow() {
   mainWindow.once("ready-to-show", () => {
     // mainWindow.maximize()
     mainWindow.show()
+    log.info("Main window shown")
 
     // force close devTools if somehow opened
     if (!isDev && mainWindow.webContents.isDevToolsOpened()) {
@@ -58,21 +60,26 @@ function createWindow() {
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+    log.info(`Loading dev server: ${MAIN_WINDOW_VITE_DEV_SERVER_URL}`)
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+    const indexPath = path.join(
+      __dirname,
+      `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
     )
+    mainWindow.loadFile(indexPath)
+    log.info(`Loading production file: ${indexPath}`)
   }
 
   if (!isDev) {
     mainWindow.webContents.on("devtools-opened", () => {
       mainWindow.webContents.closeDevTools()
+      log.warn("DevTools opened in production - closing")
     })
   }
 }
 
 app.whenReady().then(() => {
-  console.log("Registering echovault protocol...")
+  log.info("Registering echovault protocol...")
 
   protocol.registerBufferProtocol("echovault", (request, callback) => {
     try {
@@ -87,6 +94,7 @@ app.whenReady().then(() => {
       filePath = decodeURIComponent(filePath)
 
       if (!fs.existsSync(filePath)) {
+        log.error(`File not found: ${filePath}`)
         return callback({ error: -6 })
       }
 
@@ -106,7 +114,7 @@ app.whenReady().then(() => {
         data: data,
       })
     } catch (err) {
-      console.error("[echovault] Error:", err)
+      log.error("[echovault] Protocol error:", err)
       callback({ error: -2 })
     }
   })
@@ -118,12 +126,13 @@ app.whenReady().then(() => {
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
+    log.info("All windows closed - quitting app")
     app.quit()
     app.exit(0)
   }
 })
 
 app.on("before-quit", () => {
-  // Force close all windows and cleanup
+  log.info("App quitting - cleaning up windows")
   BrowserWindow.getAllWindows().forEach((win) => win.destroy())
 })

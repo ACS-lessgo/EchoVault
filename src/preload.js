@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron"
+import log from "electron-log/renderer"
 
 contextBridge.exposeInMainWorld("api", {
   // library
@@ -53,4 +54,10 @@ contextBridge.exposeInMainWorld("api", {
   maximize: () => ipcRenderer.send("win:maximize"),
   close: () => ipcRenderer.send("win:close"),
   isMaximized: () => ipcRenderer.invoke("win:isMaximized"),
+
+  // logs
+  info: (message) => log.info(message),
+  error: (message) => log.error(message),
+  warn: (message) => log.warn(message),
+  debug: (message) => log.debug(message),
 })
