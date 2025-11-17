@@ -65,7 +65,7 @@ export const usePlayerStore = defineStore("player", {
       if (track.id) {
         try {
           await window.api.incrementPlayCount(track.id)
-          console.log(`Play count incremented for: ${track.title}`)
+          window.api.info(`Play count incremented for: ${track.title}`)
         } catch (err) {
           console.warn("Failed to increment play count:", err)
         }
@@ -75,7 +75,7 @@ export const usePlayerStore = defineStore("player", {
     async playTrack(filePath) {
       // CRITICAL: Stop and clear previous track FIRST
       if (currentSource) {
-        console.log("Stopping previous track")
+        window.api.info("Stopping previous track")
         try {
           currentSource.onended = null
           currentSource.stop()
@@ -89,18 +89,18 @@ export const usePlayerStore = defineStore("player", {
 
       // Clear old buffer BEFORE loading new one
       if (currentAudioBuffer) {
-        console.log("Clearing previous AudioBuffer")
+        window.api.info("Clearing previous AudioBuffer")
         currentAudioBuffer = null
       }
 
       try {
-        console.log("Playing track:", filePath)
+        window.api.info("Playing track:", filePath)
 
         let audioBuffer
 
         // Get file size
         const fileSize = await window.api.getFileSize(filePath)
-        console.log("File size:", fileSize, "bytes")
+        window.api.info("File size:", fileSize, "bytes")
 
         // Stream file in chunks
         const chunkSize = fileSize > 10 * 1024 * 1024 ? 512 * 1024 : 256 * 1024
@@ -129,7 +129,7 @@ export const usePlayerStore = defineStore("player", {
         }
 
         // Decode audio
-        console.log("Decoding audio buffer...")
+        window.api.info("Decoding audio buffer...")
         audioBuffer = await audioCtx.decodeAudioData(combinedBuffer)
 
         // Store buffer reference for memory tracking
@@ -137,7 +137,7 @@ export const usePlayerStore = defineStore("player", {
 
         // Stop previous track if playing
         if (currentSource) {
-          console.log("Stopping previous track")
+          window.api.info("Stopping previous track")
           try {
             // prevent auto-triggering of onended during manual stop
             currentSource.onended = null
@@ -165,7 +165,7 @@ export const usePlayerStore = defineStore("player", {
 
         // Handle track end
         source.onended = () => {
-          console.log("Track ended")
+          window.api.info("Track ended")
 
           // Try to play next track
           const hasNext = this.playNext()
@@ -173,7 +173,7 @@ export const usePlayerStore = defineStore("player", {
           // Only set to false if no next track
           if (!hasNext) {
             this.isPlaying = false
-            console.log("Queue finished")
+            window.api.info("Queue finished")
           }
         }
       } catch (err) {
@@ -190,7 +190,7 @@ export const usePlayerStore = defineStore("player", {
         const hasNext = await this.playNext()
         if (!hasNext) {
           this.isPlaying = false
-          console.log("No playable tracks left in queue.")
+          window.api.info("No playable tracks left in queue.")
         }
       }
     },
@@ -222,7 +222,7 @@ export const usePlayerStore = defineStore("player", {
         return true
       }
 
-      console.log("No previous track")
+      window.api.info("No previous track")
       return false
     },
 
@@ -254,7 +254,7 @@ export const usePlayerStore = defineStore("player", {
         return true
       }
 
-      console.log("No next track")
+      window.api.info("No next track")
       return false
     },
 
@@ -343,7 +343,7 @@ export const usePlayerStore = defineStore("player", {
       this.shuffleEnabled = !this.shuffleEnabled
 
       if (this.shuffleEnabled) {
-        console.log("Shuffle enabled")
+        window.api.info("Shuffle enabled")
 
         // Build an array of indices [0, 1, 2, ...]
         this.originalOrder = [...Array(this.queue.length).keys()]
@@ -361,7 +361,7 @@ export const usePlayerStore = defineStore("player", {
         const newPos = this.shuffleOrder.indexOf(currentIndexInOriginal)
         this.currentIndex = newPos >= 0 ? newPos : 0
       } else {
-        console.log("Shuffle disabled")
+        window.api.info("Shuffle disabled")
 
         // Restore original order
         const currentFile = this.currentTrack?.file_path
@@ -379,24 +379,24 @@ export const usePlayerStore = defineStore("player", {
       const modes = ["off", "all", "one"]
       const currentIdx = modes.indexOf(this.repeatMode)
       this.repeatMode = modes[(currentIdx + 1) % modes.length]
-      console.log("Repeat mode:", this.repeatMode)
+      window.api.info("Repeat mode:", this.repeatMode)
     },
 
     checkAudioMemory() {
-      console.log("=== Audio Memory Check ===")
+      window.api.info("=== Audio Memory Check ===")
 
       // Check AudioContext state
-      console.log("AudioContext state:", audioCtx.state)
-      console.log("AudioContext sample rate:", audioCtx.sampleRate)
-      console.log(
+      window.api.info("AudioContext state:", audioCtx.state)
+      window.api.info("AudioContext sample rate:", audioCtx.sampleRate)
+      window.api.info(
         "AudioContext current time:",
         audioCtx.currentTime.toFixed(2),
         "s"
       )
 
       // Check if source exists
-      console.log("Current source exists:", !!currentSource)
-      console.log("Current buffer exists:", !!currentAudioBuffer)
+      window.api.info("Current source exists:", !!currentSource)
+      window.api.info("Current buffer exists:", !!currentAudioBuffer)
 
       // Estimate buffer size if exists
       if (currentAudioBuffer) {
@@ -409,35 +409,35 @@ export const usePlayerStore = defineStore("player", {
         const sizeInBytes = channels * length * 4
         const sizeInMB = Math.round(sizeInBytes / 1024 / 1024)
 
-        console.log("AudioBuffer details:")
-        console.log("  Channels:", channels)
-        console.log("  Length:", length.toLocaleString(), "samples")
-        console.log("  Sample rate:", sampleRate, "Hz")
-        console.log("  Duration:", Math.round(duration), "seconds")
-        console.log("  Estimated size:", sizeInMB, "MB")
+        window.api.info("AudioBuffer details:")
+        window.api.info("  Channels:", channels)
+        window.api.info("  Length:", length.toLocaleString(), "samples")
+        window.api.info("  Sample rate:", sampleRate, "Hz")
+        window.api.info("  Duration:", Math.round(duration), "seconds")
+        window.api.info("  Estimated size:", sizeInMB, "MB")
       }
 
       // Check performance memory
       if (performance.memory) {
-        console.log("Performance memory:")
-        console.log(
+        window.api.info("Performance memory:")
+        window.api.info(
           "  JS Heap Used:",
           Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
           "MB"
         )
-        console.log(
+        window.api.info(
           "  JS Heap Total:",
           Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
           "MB"
         )
-        console.log(
+        window.api.info(
           "  JS Heap Limit:",
           Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024),
           "MB"
         )
       }
 
-      console.log("======================")
+      window.api.info("======================")
     },
 
     startProgressUpdater() {

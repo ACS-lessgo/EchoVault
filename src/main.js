@@ -2,9 +2,16 @@ import { app, BrowserWindow, protocol } from "electron"
 import path from "node:path"
 import fs from "node:fs"
 import started from "electron-squirrel-startup"
-import log from "./logger.js"
+import log from "electron-log/main"
 import { initDB } from "./backend/db/index.js"
 import { registerAllHandlers } from "./backend/main/ipcHandlers.js"
+
+// logger init
+log.initialize()
+log.transports.file.level = "info"
+log.transports.console.level = "debug"
+log.transports.file.format = "[{y}-{m}-{d} {h}:{i}:{s}] [{level}] {text}"
+log.transports.file.maxSize = 5 * 1024 * 1024
 
 if (started) app.quit()
 

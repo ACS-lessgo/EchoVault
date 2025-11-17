@@ -2,6 +2,7 @@ import { app } from "electron"
 import fs from "fs"
 import path from "path"
 import Database from "better-sqlite3"
+import log from "../../logger"
 
 export function initDB() {
   const dbPath = path.join(app.getPath("userData"), "sonicbox.db")
@@ -9,7 +10,7 @@ export function initDB() {
   db.pragma("journal_mode = WAL") // Write-Ahead Logging
   db.pragma("foreign_keys = ON") // Enforce foreign key constraints
 
-  console.log("Foreign keys:", db.pragma("foreign_keys", { simple: true }))
+  log.info("Foreign keys:", db.pragma("foreign_keys", { simple: true }))
 
   const possibleSchemaPaths = [
     path.join(process.resourcesPath, "schema.sql"), // for packaged app
@@ -75,6 +76,6 @@ export function initDB() {
     db.prepare(stmt).run()
   }
 
-  console.log("SQLite initialized at:", dbPath)
+  log.info("SQLite initialized at:", dbPath)
   return db
 }

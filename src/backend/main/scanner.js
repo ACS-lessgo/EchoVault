@@ -13,6 +13,7 @@ import {
   CHECK_TRACK_EXISTS,
   UPSERT_TRACK,
 } from "../db/queries.js"
+import log from "../../logger.js"
 
 /**
  * Extracts metadata and writes cover image if embedded.
@@ -49,7 +50,7 @@ export async function extractMetadata(filePath) {
  * TODO: Make this recursive to scan subfolders
  */
 export async function scanFolder(db, folderPath) {
-  console.log("Scanning folder:", folderPath)
+  log.info("Scanning folder:", folderPath)
 
   // Insert or get folder
   db.prepare(INSERT_FOLDER_IF_NOT_EXISTS).run(folderPath)
@@ -128,5 +129,5 @@ export async function scanFolder(db, folderPath) {
     }
   }
 
-  console.log(`Folder scanned: ${folderPath}`)
+  log.info(`Folder scanned: ${folderPath}`)
 }

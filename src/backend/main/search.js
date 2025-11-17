@@ -5,6 +5,7 @@ import {
   SEARCH_TRACKS_BY_ARTIST,
   SEARCH_ARTISTS,
 } from "../db/queries.js"
+import log from "../../logger.js"
 
 export function registerSearchHandlers(mainWindow, db) {
   ipcMain.handle("search:tracks", (event, payload) => {
@@ -35,7 +36,7 @@ export function registerSearchHandlers(mainWindow, db) {
     const like = `%${q}%`
 
     if (artistId) {
-      console.log("artistId searched with query", artistId + " " + q)
+      log.info("artistId searched with query", artistId + " " + q)
       return db.prepare(SEARCH_TRACKS_BY_ARTIST).all(artistId, like, like, like)
     }
 

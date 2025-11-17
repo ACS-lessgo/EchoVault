@@ -1,3 +1,5 @@
+import log from "../../logger"
+
 function isLyricsTag(tagId, format) {
   const lyricsTagIds = [
     "USLT",
@@ -72,14 +74,14 @@ function extractLyricsText(value) {
 }
 
 function extractSynchronizedLyrics(value) {
-  console.log("Extracting synchronized lyrics:", {
+  log.info("Extracting synchronized lyrics:", {
     type: typeof value,
     isArray: Array.isArray(value),
     keys: typeof value === "object" && value ? Object.keys(value) : null,
   })
 
   if (!value || typeof value !== "object") {
-    console.log("Synchronized lyrics value is invalid")
+    log.info("Synchronized lyrics value is invalid")
     return null
   }
 
@@ -89,11 +91,11 @@ function extractSynchronizedLyrics(value) {
 
     if (Array.isArray(value.synchronizedText)) {
       // Standard SYLT format
-      console.log(
+      log.info(
         `Standard SYLT format, number of synchronized texts: ${value.synchronizedText.length}`
       )
       for (const item of value.synchronizedText) {
-        console.log("SYLT item:", {
+        log.info("SYLT item:", {
           text: item.text,
           timeStamp: item.timeStamp,
         })
@@ -107,11 +109,11 @@ function extractSynchronizedLyrics(value) {
       }
     } else if (value.text && value.timeStamps) {
       // Other possible formats
-      console.log("Text + timestamps format")
+      log.info("Text + timestamps format")
       const textLines = value.text.split("\n")
       const timeStamps = Array.isArray(value.timeStamps) ? value.timeStamps : []
 
-      console.log(
+      log.info(
         `Number of text lines: ${textLines.length}, Number of timestamps: ${timeStamps.length}`
       )
 
@@ -126,7 +128,7 @@ function extractSynchronizedLyrics(value) {
       text = value.text
     } else if (Array.isArray(value)) {
       // Some formats might be an array directly
-      console.log(`Array format, length: ${value.length}`)
+      log.info(`Array format, length: ${value.length}`)
       for (const item of value) {
         if (
           item &&
@@ -143,11 +145,11 @@ function extractSynchronizedLyrics(value) {
       }
     } else {
       // Trying other possible property names
-      console.log("Checking other possible synchronized lyrics formats")
+      log.info("Checking other possible synchronized lyrics formats")
       const possibleKeys = ["lyrics", "lines", "entries", "items"]
       for (const key of possibleKeys) {
         if (Array.isArray(value[key])) {
-          console.log(`Found ${key} array, length: ${value[key].length}`)
+          log.info(`Found ${key} array, length: ${value[key].length}`)
           for (const item of value[key]) {
             if (item && typeof item === "object") {
               const timeKey =
@@ -186,10 +188,10 @@ function extractSynchronizedLyrics(value) {
       }
     }
 
-    console.log(`Extracted ${timestamps.length} timestamps`)
+    log.info(`Extracted ${timestamps.length} timestamps`)
     if (timestamps.length > 0) {
       const sortedTimestamps = timestamps.sort((a, b) => a.time - b.time)
-      console.log(
+      log.info(
         `Synchronized lyrics time range: ${sortedTimestamps[0].time}s - ${sortedTimestamps[sortedTimestamps.length - 1].time}s`
       )
       return {
@@ -204,7 +206,7 @@ function extractSynchronizedLyrics(value) {
     )
   }
 
-  console.log("No valid synchronized lyrics found")
+  log.info("No valid synchronized lyrics found")
   return null
 }
 
@@ -296,7 +298,7 @@ export function extractEmbeddedLyrics(metadata) {
 }
 
 export function extractEmbeddedLyricsDebug(metadata) {
-  console.log("extractEmbeddedLyrics: Starting lyric extraction.")
+  log.info("extractEmbeddedLyrics: Starting lyric extraction.")
 
   if (!metadata || !metadata.native) {
     console.warn(
@@ -306,7 +308,7 @@ export function extractEmbeddedLyricsDebug(metadata) {
   }
 
   // Log all available native formats at the start
-  console.log(
+  log.info(
     `extractEmbeddedLyrics: Found native metadata. Checking formats: [${Object.keys(metadata.native).join(", ")}]`
   )
 
@@ -325,14 +327,14 @@ export function extractEmbeddedLyricsDebug(metadata) {
       continue
     }
 
-    console.log(`extractEmbeddedLyrics: Found ${tags.length} tags.`)
+    log.info(`extractEmbeddedLyrics: Found ${tags.length} tags.`)
 
     for (const tag of tags) {
       const tagId = tag.id ? tag.id.toUpperCase() : ""
 
       // We only log tags that are identified as potential lyric tags
       if (isLyricsTag(tagId, format)) {
-        console.log(
+        log.info(
           `extractEmbeddedLyrics: Found potential lyrics tag. ID: '${tagId}'`
         )
 
@@ -345,12 +347,12 @@ export function extractEmbeddedLyricsDebug(metadata) {
           tagId === "©LYR" ||
           tagId === "LYR"
         ) {
-          console.log(
+          log.info(
             `extractEmbeddedLyrics: Matched USLT-type tag. Attempting to extract text.`
           )
           const lyricsText = extractLyricsText(tag.value)
           if (lyricsText) {
-            console.log(
+            log.info(
               "extractEmbeddedLyrics: SUCCESS - Extracted unsynchronized lyrics."
             )
             embeddedLyrics = {
@@ -374,12 +376,12 @@ export function extractEmbeddedLyricsDebug(metadata) {
           tagId === "SYNCHRONIZED LYRICS" ||
           tagId === "SYNCEDLYRICS"
         ) {
-          console.log(
+          log.info(
             `extractEmbeddedLyrics: Matched SYLT-type tag. Attempting to extract text.`
           )
           const syncLyrics = extractSynchronizedLyrics(tag.value)
           if (syncLyrics) {
-            console.log(
+            log.info(
               "extractEmbeddedLyrics: SUCCESS - Extracted synchronized lyrics."
             )
             embeddedLyrics = {
@@ -400,7 +402,7 @@ export function extractEmbeddedLyricsDebug(metadata) {
 
           // Check for TXXX (User-defined)
         } else if (tagId === "TXXX" && tag.value?.description) {
-          console.log(
+          log.info(
             `extractEmbeddedLyrics: Matched TXXX tag with description: '${tag.value.description}'`
           )
           const desc = tag.value.description.toUpperCase()
@@ -409,7 +411,7 @@ export function extractEmbeddedLyricsDebug(metadata) {
             desc.includes("歌词") ||
             desc.includes("LYRICS")
           ) {
-            console.log(
+            log.info(
               "extractEmbeddedLyrics: TXXX description matches lyrics keywords."
             )
             const lyricsText = tag.value.text
@@ -418,7 +420,7 @@ export function extractEmbeddedLyricsDebug(metadata) {
               typeof lyricsText === "string" &&
               lyricsText.trim()
             ) {
-              console.log(
+              log.info(
                 "extractEmbeddedLyrics: SUCCESS - Extracted TXXX lyrics."
               )
               embeddedLyrics = {
@@ -440,7 +442,7 @@ export function extractEmbeddedLyricsDebug(metadata) {
     } // End tag loop
 
     if (embeddedLyrics) {
-      console.log(
+      log.info(
         `extractEmbeddedLyrics: Lyrics found in format ${format}. Stopping search.`
       )
       console.groupEnd() // Close group before breaking
@@ -451,12 +453,12 @@ export function extractEmbeddedLyricsDebug(metadata) {
   } // End format loop
 
   if (embeddedLyrics) {
-    console.log(
+    log.info(
       "extractEmbeddedLyrics: Finished. Returning embedded lyrics object:",
       embeddedLyrics
     )
   } else {
-    console.log(
+    log.info(
       "extractEmbeddedLyrics: Finished. No embedded lyrics were found after checking all formats."
     )
   }
