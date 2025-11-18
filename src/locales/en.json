@@ -1,0 +1,102 @@
+{
+  "app": {
+    "name": "EchoVault"
+  },
+
+  "tracks": {
+    "all": "All Tracks",
+    "listView": "List view",
+    "gridView": "Grid view",
+    "count": "{count} track | {count} tracks"
+  },
+
+  "viewToggle": {
+    "ariaList": "Switch to list view",
+    "ariaGrid": "Switch to grid view"
+  },
+
+  "home": {
+    "welcome": "Welcome to {appName}",
+    "import": {
+      "heading": "Import Your Music",
+      "addFolder": "Add Folder"
+    },
+    "yourCollection": "Your Music Collection",
+    "rescan": "Rescan Library",
+    "emptyCollection": "No music found. Add a folder to get started."
+  },
+
+  "table": {
+    "folderPath": "Folder Path",
+    "actions": "Actions",
+    "trackCountLabel": "{count} track | {count} tracks",
+    "removeFolder": "Remove folder"
+  },
+
+  "buttons": {
+    "accent": "Add Folder",
+    "remove": "Remove",
+    "rescan": "Rescan Library",
+    "loading": "Loading...",
+    "refreshStats": "Refresh Stats"
+  },
+
+  "liked": {
+    "title": "Liked Songs"
+  },
+
+  "queue": {
+    "title": "Play Queue",
+    "shuffled": "Shuffled"
+  },
+
+  "nav": {
+    "home": "Home",
+    "allSongs": "All Songs",
+    "artists": "Artists",
+    "library": "Library Info",
+    "playlists": "Playlists"
+  },
+
+  "stats": {
+    "title": "Library Statistics",
+
+    "totalTracks": "Total Tracks",
+    "artists": "Artists",
+    "likedSongs": "Liked Songs",
+    "storageUsed": "Storage Used",
+    "folders": "Folders",
+    "totalDuration": "Total Duration",
+    "listeningTime": "Listening Time",
+
+    "top": {
+      "title": "Top Statistics",
+      "mostLikedArtist": "Most Liked Artist",
+      "likedCount": "liked songs",
+      "avgDurationTitle": "Average Song Duration",
+      "collectionSize": "Collection Size",
+      "totalPlays": "Total Plays",
+
+      "topTracksTitle": "Top 10 Most Played Songs",
+      "noPlaysTracks": "No plays recorded yet. Start listening to see your top tracks!",
+
+      "topArtistsTitle": "Top 10 Most Played Artists",
+      "noPlaysArtists": "No plays recorded yet. Start listening to see your top artists!",
+      "trackCountInLibrary": "{count} tracks in library"
+    }
+  },
+
+  "alt": {
+    "trackCover": "Cover of {title}",
+    "artistCover": "Artist image for {name}"
+  },
+
+  "labels": {
+    "perTrack": "per track",
+    "uniqueAlbums": "unique albums",
+    "allTime": "all time",
+    "unknownArtist": "Unknown Artist",
+    "plays": "plays",
+    "noTrackSelected": "No track selected"
+  }
+}

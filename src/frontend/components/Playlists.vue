@@ -1,6 +1,6 @@
 <template>
   <div class="placeholder">
-    <h2>Liked Songs</h2>
+    <h2>{{ t('liked.title') }}</h2>
     <TrackList
       v-if="viewMode === 'list'"
       :tracks="filteredTracks"
@@ -16,7 +16,9 @@ import { ref, computed, onMounted, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import TrackList from "./TrackList.vue"
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const tracks = ref([])
 const viewMode = ref("list")
 

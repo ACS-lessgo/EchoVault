@@ -8,9 +8,9 @@
       <div class="resize-handle" @mousedown="startResize"></div>
       <div class="queue-header">
         <h3>
-          Play Queue
+          {{ t('queue.title') }}
           <small v-if="player.shuffleEnabled" style="opacity: 0.7"
-            >(Shuffled)</small
+            >({{ t('queue.shuffled') }})</small
           >
         </h3>
         <button class="close-btn" @click="closeQueue">
@@ -56,7 +56,9 @@ import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue"
 import { usePlayerStore } from "../store/player.js"
 import { X } from "../assets/icons/icons"
 import { formatTime, useQueueManagement } from "../utils/playerUtils.js"
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const props = defineProps({
   showQueue: {
     type: Boolean,

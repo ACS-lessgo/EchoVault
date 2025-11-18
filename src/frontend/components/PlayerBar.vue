@@ -30,8 +30,10 @@
       <img v-else src="../assets/images/default-cover.svg" alt="Album Art" />
 
       <div class="song-details">
-        <p>{{ player.currentTrack?.title || "No track selected" }}</p>
-        <small>{{ player.currentTrack?.artist || "" }}</small>
+        <p>{{ player.currentTrack?.title || t("labels.noTrackSelected") }}</p>
+        <small>{{
+          player.currentTrack?.artist || t("labels.unknownArtist")
+        }}</small>
       </div>
     </div>
 
@@ -155,7 +157,9 @@ import {
   useTrackLike,
   getVolumeIcon,
 } from "../utils/playerUtils.js"
+import { useI18n } from "vue-i18n"
 
+const { t } = useI18n()
 const emit = defineEmits(["toggle-queue"])
 
 const player = usePlayerStore()
