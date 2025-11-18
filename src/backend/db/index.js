@@ -5,12 +5,16 @@ import Database from "better-sqlite3"
 import log from "../../logger"
 
 export function initDB() {
+  log.info("InitDB :: Start")
   const dbPath = path.join(app.getPath("userData"), "sonicbox.db")
   const db = new Database(dbPath)
   db.pragma("journal_mode = WAL") // Write-Ahead Logging
   db.pragma("foreign_keys = ON") // Enforce foreign key constraints
 
-  log.info("Foreign keys:", db.pragma("foreign_keys", { simple: true }))
+  log.info(
+    "InitDB :: Foreign keys:",
+    db.pragma("foreign_keys", { simple: true })
+  )
 
   const possibleSchemaPaths = [
     path.join(process.resourcesPath, "schema.sql"), // for packaged app
@@ -76,6 +80,6 @@ export function initDB() {
     db.prepare(stmt).run()
   }
 
-  log.info("SQLite initialized at:", dbPath)
+  log.info("InitDB :: SQLite initialized at :: End :: ", dbPath)
   return db
 }

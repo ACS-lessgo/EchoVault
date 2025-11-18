@@ -14,6 +14,7 @@ import log from "../../logger.js"
 let watcher = null
 
 export function watchFolders(db) {
+  log.info("watchFolders :: Start")
   if (watcher) watcher.close()
 
   const folders = db
@@ -71,4 +72,5 @@ export function watchFolders(db) {
     .on("unlink", (filePath) => {
       db.prepare(DELETE_TRACK_BY_PATH).run(filePath)
     })
+  log.info("watchFolders :: End")
 }
