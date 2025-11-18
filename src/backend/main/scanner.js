@@ -20,9 +20,9 @@ import log from "../../logger.js"
  */
 export async function extractMetadata(filePath) {
   try {
-    log.info("extractMetadata :: Start")
+    // log.info("extractMetadata :: Start")
     const metadata = await parseFile(filePath)
-    log.info("extractMetadata :: metadata parsed")
+    // log.info("extractMetadata :: metadata parsed")
     const { common, format } = metadata
 
     let coverPath = null
@@ -33,7 +33,7 @@ export async function extractMetadata(filePath) {
       coverPath = path.join(coverDir, path.basename(filePath) + ".jpg")
       fs.writeFileSync(coverPath, img.data)
     }
-    log.info("extractMetadata :: coverPath :: End", coverPath)
+    // log.info("extractMetadata :: coverPath :: End", coverPath)
 
     return {
       title: common.title || path.basename(filePath),
@@ -52,8 +52,25 @@ export async function extractMetadata(filePath) {
  * Scans a folder, extracts track metadata, and updates the DB.
  * TODO: Make this recursive to scan subfolders
  */
-export async function scanFolder(db, folderPath) {
-  log.info("scanFolder :: Scanning folder :: Start :: ", folderPath)
+
+function getFoldersRecursive(dirPath, currentLevel, maxLevel = 3, result = []) {
+  if (currentLevel > maxLevel) return
+  const items = fs.readdirSync(dirPath)
+
+  for (const item of items) {
+    const itemPath = path.join(dirPath, item)
+    const stats = fs.statSync(itemPath)
+
+    if (stats.isDirectory()) {
+      result.push(itemPath)
+      getFoldersRecursive(itemPath, currentLevel + 1, maxLevel, result)
+    }
+  }
+  return result
+}
+
+async function readTracksFromFoldersAndSetInDB(db, folderPath) {
+  log.info("readTracksFromFoldersAndSetInDB :: Start :: ", folderPath)
 
   // Insert or get folder
   db.prepare(INSERT_FOLDER_IF_NOT_EXISTS).run(folderPath)
@@ -65,7 +82,7 @@ export async function scanFolder(db, folderPath) {
     .filter((f) => /\.(mp3|flac|m4a|wav|ogg|aac)$/i.test(f))
     .map((f) => path.join(folderPath, f))
 
-  log.info("scanFolder :: fetched all music files")
+  log.info("readTracksFromFoldersAndSetInDB :: fetched all music files")
 
   // Remove missing tracks
   const existingTracks = db
@@ -78,7 +95,10 @@ export async function scanFolder(db, folderPath) {
     const del = db.prepare(DELETE_TRACK_BY_PATH)
     for (const file of missing) del.run(file)
   }
-  log.info("scanFolder :: remove deleted music files from db :: ", missing)
+  log.info(
+    "readTracksFromFoldersAndSetInDB :: remove deleted music files from db :: ",
+    missing
+  )
 
   // Prepare statements
   const insertArtist = db.prepare(INSERT_ARTIST_IF_NOT_EXISTS)
@@ -88,7 +108,9 @@ export async function scanFolder(db, folderPath) {
   const upsertTrack = db.prepare(UPSERT_TRACK)
 
   // Scan files
-  log.info("scanFolder :: get meta data for each music file :: START")
+  log.info(
+    "readTracksFromFoldersAndSetInDB :: get meta data for each music file :: START"
+  )
   for (const filePath of filesOnDisk) {
     const exists = checkTrackExists.get(filePath)
     if (exists) continue
@@ -132,9 +154,36 @@ export async function scanFolder(db, folderPath) {
         coverData
       )
     } catch (err) {
-      console.warn("Metadata read failed for:", filePath, err.message)
+      console.warn(
+        "readTracksFromFoldersAndSetInDB :: Metadata read failed for:",
+        filePath,
+        err.message
+      )
     }
   }
-  log.info("scanFolder :: get meta data for each music file :: End")
-  log.info(`Folder scanned: ${folderPath}`)
+  log.info(
+    "readTracksFromFoldersAndSetInDB :: get meta data for each music file :: End"
+  )
+  log.info(`readTracksFromFoldersAndSetInDB :: Folder scanned: ${folderPath}`)
+}
+
+export async function scanFolder(db, folderPath) {
+  log.info("scanFolder :: Scanning folder :: Start :: ", folderPath) // get all folders inside folderPath (current recursion limit is 3 levels)
+
+  const folderPaths = getFoldersRecursive(folderPath, 1)
+  // add the root folder as well as it might have songs files
+  folderPaths.push(folderPath)
+  log.info("scanFolder :: folderPaths :: ", folderPaths)
+
+  const readPromises = folderPaths.map(async (path) => {
+    try {
+      return await readTracksFromFoldersAndSetInDB(db, path)
+    } catch (error) {
+      log.error(`scanFolder :: Failed to scan folder ${path}:`, error.message)
+      return undefined
+    }
+  })
+
+  await Promise.all(readPromises)
+  log.info("scanFolder :: Scanning folder :: End")
 }
