@@ -153,7 +153,7 @@ export function useTrackLike(player) {
 
     // send same to db
     await window.api.toggleLike(track.id, newStatus)
-    console.log(`Track ${track.title} like status updated: ${newStatus}`)
+    window.api.info(`Track ${track.title} like status updated: ${newStatus}`)
   }
 
   return { toggleLikedSong }

@@ -5,9 +5,11 @@ import {
   SEARCH_TRACKS_BY_ARTIST,
   SEARCH_ARTISTS,
 } from "../db/queries.js"
+import log from "../../logger.js"
 
 export function registerSearchHandlers(mainWindow, db) {
   ipcMain.handle("search:tracks", (event, payload) => {
+    log.info("Search track :: Start :: ", payload)
     let query = ""
     let artistId = null
 
@@ -19,6 +21,7 @@ export function registerSearchHandlers(mainWindow, db) {
     }
 
     const q = (query || "").trim().toLowerCase()
+    log.info("Search track :: Start :: query", q)
 
     if (!q) {
       // if artistId provided, return tracks for that artist
@@ -35,10 +38,11 @@ export function registerSearchHandlers(mainWindow, db) {
     const like = `%${q}%`
 
     if (artistId) {
-      console.log("artistId searched with query", artistId + " " + q)
+      log.info("artistId searched with query", artistId + " " + q)
       return db.prepare(SEARCH_TRACKS_BY_ARTIST).all(artistId, like, like, like)
     }
 
+    log.info("Search track :: End")
     return db.prepare(SEARCH_TRACKS).all(like, like, like)
   })
 

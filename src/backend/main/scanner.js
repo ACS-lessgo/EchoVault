@@ -13,13 +13,16 @@ import {
   CHECK_TRACK_EXISTS,
   UPSERT_TRACK,
 } from "../db/queries.js"
+import log from "../../logger.js"
 
 /**
  * Extracts metadata and writes cover image if embedded.
  */
 export async function extractMetadata(filePath) {
   try {
+    log.info("extractMetadata :: Start")
     const metadata = await parseFile(filePath)
+    log.info("extractMetadata :: metadata parsed")
     const { common, format } = metadata
 
     let coverPath = null
@@ -30,6 +33,7 @@ export async function extractMetadata(filePath) {
       coverPath = path.join(coverDir, path.basename(filePath) + ".jpg")
       fs.writeFileSync(coverPath, img.data)
     }
+    log.info("extractMetadata :: coverPath :: End", coverPath)
 
     return {
       title: common.title || path.basename(filePath),
@@ -39,7 +43,7 @@ export async function extractMetadata(filePath) {
       cover: coverPath,
     }
   } catch (err) {
-    console.warn("Metadata error:", err.message)
+    log.debug("Metadata error:", err.message)
     return null
   }
 }
@@ -49,7 +53,7 @@ export async function extractMetadata(filePath) {
  * TODO: Make this recursive to scan subfolders
  */
 export async function scanFolder(db, folderPath) {
-  console.log("Scanning folder:", folderPath)
+  log.info("scanFolder :: Scanning folder :: Start :: ", folderPath)
 
   // Insert or get folder
   db.prepare(INSERT_FOLDER_IF_NOT_EXISTS).run(folderPath)
@@ -60,6 +64,8 @@ export async function scanFolder(db, folderPath) {
     .readdirSync(folderPath)
     .filter((f) => /\.(mp3|flac|m4a|wav|ogg|aac)$/i.test(f))
     .map((f) => path.join(folderPath, f))
+
+  log.info("scanFolder :: fetched all music files")
 
   // Remove missing tracks
   const existingTracks = db
@@ -72,6 +78,7 @@ export async function scanFolder(db, folderPath) {
     const del = db.prepare(DELETE_TRACK_BY_PATH)
     for (const file of missing) del.run(file)
   }
+  log.info("scanFolder :: remove deleted music files from db :: ", missing)
 
   // Prepare statements
   const insertArtist = db.prepare(INSERT_ARTIST_IF_NOT_EXISTS)
@@ -81,6 +88,7 @@ export async function scanFolder(db, folderPath) {
   const upsertTrack = db.prepare(UPSERT_TRACK)
 
   // Scan files
+  log.info("scanFolder :: get meta data for each music file :: START")
   for (const filePath of filesOnDisk) {
     const exists = checkTrackExists.get(filePath)
     if (exists) continue
@@ -127,6 +135,6 @@ export async function scanFolder(db, folderPath) {
       console.warn("Metadata read failed for:", filePath, err.message)
     }
   }
-
-  console.log(`Folder scanned: ${folderPath}`)
+  log.info("scanFolder :: get meta data for each music file :: End")
+  log.info(`Folder scanned: ${folderPath}`)
 }
