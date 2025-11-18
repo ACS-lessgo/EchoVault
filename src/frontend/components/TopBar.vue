@@ -58,6 +58,30 @@
           <transition name="dropdown-fade">
             <div v-if="showDropdown" class="settings-dropdown">
               <div class="dropdown-section">
+                <div class="dropdown-title">Language</div>
+                <div class="language-switch">
+                  <span
+                    class="lang-option"
+                    :class="{ active: currentLocale === 'en' }"
+                    @click="setLanguage('en')"
+                  >
+                    English
+                  </span>
+                  <div class="switch-toggle" @click="toggleLanguage">
+                    <div
+                      class="switch-slider"
+                      :class="{ ja: currentLocale === 'ja' }"
+                    ></div>
+                  </div>
+                  <span
+                    class="lang-option"
+                    :class="{ active: currentLocale === 'ja' }"
+                    @click="setLanguage('ja')"
+                  >
+                    日本語
+                  </span>
+                </div>
+
                 <div class="dropdown-title">Color Scheme</div>
                 <div class="color-options">
                   <div
@@ -107,6 +131,7 @@ import {
 } from "../assets/icons/icons.js"
 import { useSearchStore } from "../store/search.js"
 import { debounce } from "../../backend/utils/debounce.js"
+import { useI18n } from "vue-i18n"
 
 const isDarkMode = ref(true)
 const showDropdown = ref(false)
@@ -123,12 +148,26 @@ const accentColors = [
 ]
 const activeAccent = ref(localStorage.getItem("accentColor") || "#8e44ad")
 let isMax = ref(false)
+const { locale } = useI18n()
+const currentLocale = ref(localStorage.getItem("locale") || "en")
 
 const updateSearch = debounce((val) => {
   searchStore.setQuery(val.trim())
 }, 400)
 
 watch(localQuery, (val) => updateSearch(val))
+
+// Language switching
+const setLanguage = (lang) => {
+  locale.value = lang
+  currentLocale.value = lang
+  localStorage.setItem("locale", lang)
+}
+
+const toggleLanguage = () => {
+  const newLang = currentLocale.value === "en" ? "ja" : "en"
+  setLanguage(newLang)
+}
 
 // Theme toggling
 const toggleTheme = () => {
@@ -179,6 +218,12 @@ function hexToRgba(hex, alpha = 0.25) {
 
 // Load previous accent color
 onMounted(() => {
+  // language
+  const savedLang = localStorage.getItem("locale")
+  if (savedLang) {
+    setLanguage(savedLang)
+  }
+  // accent color
   const savedColor = localStorage.getItem("accentColor")
   if (savedColor) setAccent(savedColor)
 })
@@ -392,6 +437,61 @@ onBeforeUnmount(() => {
   color: var(--muted-text);
   text-transform: uppercase;
   margin-bottom: 0.5rem;
+}
+
+/* Language Switch Styles */
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  margin-bottom: 8px;
+}
+
+.lang-option {
+  font-size: 0.85rem;
+  color: var(--muted-text);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.lang-option.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lang-option:hover {
+  color: var(--text-color);
+}
+
+.switch-toggle {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  background: var(--search-bar-color);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.switch-toggle:hover {
+  background: var(--border-color);
+}
+
+.switch-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.switch-slider.ja {
+  transform: translateX(22px);
 }
 
 /* Color theme options */

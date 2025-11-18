@@ -1,6 +1,6 @@
 <template>
   <div class="stats-container">
-    <h1 class="stats-title">Library Statistics</h1>
+    <h1 class="stats-title">{{ t("stats.title") }}</h1>
 
     <div class="stats-grid">
       <!-- Total Tracks -->
@@ -10,7 +10,7 @@
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedTracks }}</div>
-          <div class="stat-label">Total Tracks</div>
+          <div class="stat-label">{{ t("stats.totalTracks") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -22,7 +22,7 @@
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedArtists }}</div>
-          <div class="stat-label">Artists</div>
+          <div class="stat-label">{{ t("stats.artists") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -34,7 +34,7 @@
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedLiked }}</div>
-          <div class="stat-label">Liked Songs</div>
+          <div class="stat-label">{{ t("stats.likedSongs") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -46,7 +46,7 @@
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ formatStorage(stats.storageUsed) }}</div>
-          <div class="stat-label">Storage Used</div>
+          <div class="stat-label">{{ t("stats.storageUsed") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -58,7 +58,7 @@
         </div>
         <div class="stat-content">
           <div class="stat-value">{{ animatedFolders }}</div>
-          <div class="stat-label">Folders</div>
+          <div class="stat-label">{{ t("stats.folders") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -72,7 +72,7 @@
           <div class="stat-value">
             {{ formatDuration(stats.totalDuration) }}
           </div>
-          <div class="stat-label">Total Duration</div>
+          <div class="stat-label">{{ t("stats.totalDuration") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -86,7 +86,7 @@
           <div class="stat-value">
             {{ formatListeningTime(animatedListeningTime) }}
           </div>
-          <div class="stat-label">Listening Time</div>
+          <div class="stat-label">{{ t("stats.listeningTime") }}</div>
         </div>
         <div class="stat-sparkle"></div>
       </div>
@@ -94,18 +94,18 @@
 
     <!-- Additional Info Section -->
     <div class="info-section">
-      <h2 class="section-title">Top Statistics</h2>
+      <h2 class="section-title">{{ t("stats.top.title") }}</h2>
 
       <div class="info-grid">
         <!-- Most Liked Artist -->
         <div class="info-card" v-if="stats.topArtist">
           <div class="info-header">
             <i class="fas fa-star info-icon"></i>
-            <span class="info-title">Most Liked Artist</span>
+            <span class="info-title">{{ t("stats.top.mostLikedArtist") }}</span>
           </div>
           <div class="info-value">{{ stats.topArtist.name }}</div>
           <div class="info-sub">
-            {{ stats.topArtist.likedCount }} liked songs
+            {{ stats.topArtist.likedCount }} , {{ t("stats.top.likedCount") }}
           </div>
         </div>
 
@@ -113,27 +113,29 @@
         <div class="info-card">
           <div class="info-header">
             <i class="fas fa-clock info-icon"></i>
-            <span class="info-title">Average Song Duration</span>
+            <span class="info-title">{{
+              t("stats.top.avgDurationTitle")
+            }}</span>
           </div>
           <div class="info-value">{{ formatTime(stats.avgDuration) }}</div>
-          <div class="info-sub">per track</div>
+          <div class="info-sub">{{ t("labels.perTrack") }}</div>
         </div>
 
         <!-- Library Growth -->
         <div class="info-card">
           <div class="info-header">
             <i class="fas fa-chart-line info-icon"></i>
-            <span class="info-title">Collection Size</span>
+            <span class="info-title">{{ t("stats.top.collectionSize") }}</span>
           </div>
           <div class="info-value">{{ stats.totalAlbums }}</div>
-          <div class="info-sub">unique albums</div>
+          <div class="info-sub">{{ t("labels.uniqueAlbums") }}</div>
         </div>
 
         <!-- Total Plays -->
         <div class="info-card">
           <div class="info-header">
             <i class="fas fa-headphones info-icon"></i>
-            <span class="info-title">Total Plays</span>
+            <span class="info-title">{{ t("stats.top.totalPlays") }}</span>
           </div>
           <div class="info-value">
             {{ (stats.totalPlays || 0).toLocaleString() }}
@@ -148,12 +150,12 @@
       <div class="top-list">
         <h2 class="section-title">
           <i class="fas fa-fire title-icon"></i>
-          Top 10 Most Played Songs
+          {{ t("stats.top.topTracksTitle") }}
         </h2>
         <div class="top-list-container">
           <div v-if="stats.topTracks.length === 0" class="empty-state">
             <p>
-              No plays recorded yet. Start listening to see your top tracks!
+              {{ t("stats.top.noPlaysTracks") }}
             </p>
           </div>
           <div
@@ -191,12 +193,12 @@
       <div class="top-list">
         <h2 class="section-title">
           <i class="fas fa-crown title-icon"></i>
-          Top 10 Most Played Artists
+          {{ t("stats.top.topArtistsTitle") }}
         </h2>
         <div class="top-list-container">
           <div v-if="stats.topArtists.length === 0" class="empty-state">
             <p>
-              No plays recorded yet. Start listening to see your top artists!
+              {{ t("stats.top.noPlaysArtists") }}
             </p>
           </div>
           <div
@@ -234,14 +236,16 @@
     <!-- Refresh Button -->
     <button class="refresh-btn" @click="loadStats" :disabled="loading">
       <i class="fas fa-sync" :class="{ 'fa-spin': loading }"></i>
-      {{ loading ? "Loading..." : "Refresh Stats" }}
+      {{ loading ? t("buttons.loading") : t("buttons.refreshStats") }}
     </button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue"
+import { useI18n } from "vue-i18n"
 
+const { t } = useI18n()
 const stats = ref({
   totalTracks: 0,
   totalArtists: 0,

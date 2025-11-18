@@ -8,7 +8,17 @@ import App from "./frontend/App.vue"
 import router from "./frontend/router"
 import "./frontend/assets/index.css"
 import "@fortawesome/fontawesome-free/css/all.css"
+import { createI18n } from "vue-i18n"
+import en from "./locales/en.json"
+import ja from "./locales/ja.json"
+
+const i18n = createI18n({
+  legacy: false,
+  locale: "en", // default
+  fallbackLocale: "en",
+  messages: { en, ja },
+})
 
 const pinia = createPinia()
 
-createApp(App).use(router).use(pinia).mount("#app")
+createApp(App).use(router).use(pinia).use(i18n).mount("#app")

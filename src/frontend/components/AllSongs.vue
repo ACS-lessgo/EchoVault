@@ -1,7 +1,7 @@
 <template>
   <div class="music-container">
     <div class="header">
-      <h2>All Tracks</h2>
+      <h2>{{ $t('tracks.all') }}</h2>
       <div class="view-toggle">
         <button
           :class="['toggle-btn', { active: viewMode === 'list' }]"
@@ -41,9 +41,11 @@
 import { ref, onMounted, nextTick, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
+import { useI18n } from 'vue-i18n'
 import TrackList from "./TrackList.vue"
 import TrackGrid from "./TrackGrid.vue"
 
+const { t } = useI18n()
 const tracks = ref([])
 const viewMode = ref("list")
 
