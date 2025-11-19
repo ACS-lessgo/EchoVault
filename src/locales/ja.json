@@ -99,5 +99,84 @@
     "unknownArtist": "不明なアーティスト",
     "plays": "回再生",
     "noTrackSelected": "曲が選択されていません"
+  },
+
+  "settings": {
+    "title": "設定",
+    "close": "閉じる",
+    "comingSoon": "近日対応",
+    "tabs": {
+      "appearance": "外観",
+      "language": "言語・地域",
+      "audio": "オーディオ",
+      "shortcuts": "ショートカット",
+      "about": "情報"
+    },
+    "appearance": {
+      "title": "外観",
+      "description": "音楽プレーヤーの見た目をカスタマイズします",
+      "themeMode": {
+        "title": "テーマモード",
+        "description": "ライトモードとダークモードを切り替えます",
+        "light": "ライト",
+        "dark": "ダーク"
+      },
+      "accent": {
+        "title": "アクセントカラー",
+        "description": "好みのアクセントカラーを選択してください",
+        "accentNames": {
+          "purple": "パープル",
+          "blue": "ブルー",
+          "green": "グリーン",
+          "orange": "オレンジ",
+          "pink": "ピンク",
+          "red": "レッド",
+          "teal": "ティール",
+          "indigo": "インディゴ"
+        }
+      }
+    },
+    "language": {
+      "title": "言語・地域",
+      "description": "表示言語の設定を行います",
+      "displayLanguage": {
+        "title": "表示言語",
+        "description": "好みの表示言語を選択してください"
+      },
+      "languages": {
+        "en": { "name": "English", "native": "English" },
+        "ja": { "name": "Japanese", "native": "日本語" }
+      }
+    },
+    "audio": {
+      "title": "オーディオ設定",
+      "description": "再生とイコライザの設定を行います",
+      "equalizer": {
+        "title": "イコライザ",
+        "description": "音域を調整して好みの音にします"
+      },
+      "normalization": {
+        "title": "正規化",
+        "description": "トラック間の音量を正規化します"
+      }
+    },
+    "shortcuts": {
+      "title": "キーボードショートカット",
+      "description": "ショートカットの表示・カスタマイズ",
+      "playback": {
+        "title": "再生操作",
+        "description": "再生・一時停止・スキップなどのショートカット"
+      },
+      "navigation": {
+        "title": "ナビゲーションショートカット",
+        "description": "各セクションへのクイックアクセス"
+      }
+    },
+    "about": {
+      "title": "情報",
+      "description": "この音楽プレーヤーについて",
+      "version": "バージョン {version}",
+      "appDescription": "Electron で構築された、モダンで高音質な音楽プレーヤー"
+    }
   }
 }

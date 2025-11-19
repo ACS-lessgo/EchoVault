@@ -60,7 +60,6 @@
 
   "stats": {
     "title": "Library Statistics",
-
     "totalTracks": "Total Tracks",
     "artists": "Artists",
     "likedSongs": "Liked Songs",
@@ -68,18 +67,15 @@
     "folders": "Folders",
     "totalDuration": "Total Duration",
     "listeningTime": "Listening Time",
-
     "top": {
       "title": "Top Statistics",
       "mostLikedArtist": "Most Liked Artist",
-      "likedCount": "liked songs",
+      "likedCount": "{count} liked songs",
       "avgDurationTitle": "Average Song Duration",
       "collectionSize": "Collection Size",
       "totalPlays": "Total Plays",
-
       "topTracksTitle": "Top 10 Most Played Songs",
       "noPlaysTracks": "No plays recorded yet. Start listening to see your top tracks!",
-
       "topArtistsTitle": "Top 10 Most Played Artists",
       "noPlaysArtists": "No plays recorded yet. Start listening to see your top artists!",
       "trackCountInLibrary": "{count} tracks in library"
@@ -98,5 +94,84 @@
     "unknownArtist": "Unknown Artist",
     "plays": "plays",
     "noTrackSelected": "No track selected"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "close": "Close",
+    "comingSoon": "Coming Soon",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language & Region",
+      "audio": "Audio",
+      "shortcuts": "Shortcuts",
+      "about": "About"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the look and feel of your music player",
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose between light and dark mode",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "accent": {
+        "title": "Accent Color",
+        "description": "Select your preferred accent color",
+        "accentNames": {
+          "purple": "Purple",
+          "blue": "Blue",
+          "green": "Green",
+          "orange": "Orange",
+          "pink": "Pink",
+          "red": "Red",
+          "teal": "Teal",
+          "indigo": "Indigo"
+        }
+      }
+    },
+    "language": {
+      "title": "Language & Region",
+      "description": "Configure your language preferences",
+      "displayLanguage": {
+        "title": "Display Language",
+        "description": "Choose your preferred language"
+      },
+      "languages": {
+        "en": { "name": "English", "native": "English" },
+        "ja": { "name": "Japanese", "native": "日本語" }
+      }
+    },
+    "audio": {
+      "title": "Audio Settings",
+      "description": "Configure audio playback and equalizer",
+      "equalizer": {
+        "title": "Equalizer",
+        "description": "Adjust audio frequencies to your preference"
+      },
+      "normalization": {
+        "title": "Normalization",
+        "description": "Normalize volume levels across tracks"
+      }
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "description": "View and customize keyboard shortcuts",
+      "playback": {
+        "title": "Playback Controls",
+        "description": "Shortcuts for play, pause, skip, and more"
+      },
+      "navigation": {
+        "title": "Navigation Shortcuts",
+        "description": "Quick access to different sections"
+      }
+    },
+    "about": {
+      "title": "About",
+      "description": "Information about this music player",
+      "version": "Version {version}",
+      "appDescription": "A modern, high-fidelity music player built with Electron"
+    }
   }
 }
