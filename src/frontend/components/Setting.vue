@@ -4,8 +4,13 @@
       <div class="settings-container">
         <!-- Header -->
         <div class="settings-header">
-          <h1 class="settings-title">Settings</h1>
-          <button @click="$emit('close')" class="close-button">
+          <h1 class="settings-title">{{ t("settings.title") }}</h1>
+          <button
+            @click="$emit('close')"
+            class="close-button"
+            :aria-label="t('settings.close')"
+            title="t('settings.close')"
+          >
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -22,7 +27,7 @@
               :class="{ active: activeTab === tab.id }"
             >
               <i :class="tab.icon"></i>
-              <span>{{ tab.label }}</span>
+              <span>{{ t(tab.labelKey) }}</span>
             </button>
           </div>
 
@@ -30,9 +35,11 @@
           <div class="settings-main">
             <!-- Appearance Tab -->
             <div v-if="activeTab === 'appearance'" class="tab-content">
-              <h2 class="section-title">Appearance</h2>
+              <h2 class="section-title">
+                {{ t("settings.appearance.title") }}
+              </h2>
               <p class="section-description">
-                Customize the look and feel of your music player
+                {{ t("settings.appearance.description") }}
               </p>
 
               <!-- Theme Mode -->
@@ -40,8 +47,8 @@
                 <div class="setting-label">
                   <i class="fa-solid fa-moon"></i>
                   <div>
-                    <h3>Theme Mode</h3>
-                    <p>Choose between light and dark mode</p>
+                    <h3>{{ t("settings.appearance.themeMode.title") }}</h3>
+                    <p>{{ t("settings.appearance.themeMode.description") }}</p>
                   </div>
                 </div>
                 <div class="theme-toggle">
@@ -51,7 +58,7 @@
                     :class="{ active: !isDarkMode }"
                   >
                     <i class="fa-solid fa-sun"></i>
-                    <span>Light</span>
+                    <span>{{ t("settings.appearance.themeMode.light") }}</span>
                   </button>
 
                   <button
@@ -60,7 +67,7 @@
                     :class="{ active: isDarkMode }"
                   >
                     <i class="fa-solid fa-moon"></i>
-                    <span>Dark</span>
+                    <span>{{ t("settings.appearance.themeMode.dark") }}</span>
                   </button>
                 </div>
               </div>
@@ -70,14 +77,14 @@
                 <div class="setting-label">
                   <i class="fa-solid fa-palette"></i>
                   <div>
-                    <h3>Accent Color</h3>
-                    <p>Select your preferred accent color</p>
+                    <h3>{{ t("settings.appearance.accent.title") }}</h3>
+                    <p>{{ t("settings.appearance.accent.description") }}</p>
                   </div>
                 </div>
                 <div class="color-grid">
                   <div
                     v-for="color in accentColors"
-                    :key="color.name"
+                    :key="color.key"
                     @click="setAccent(color.value)"
                     class="color-swatch"
                     :class="{ active: activeAccent === color.value }"
@@ -94,17 +101,19 @@
 
             <!-- Language Tab -->
             <div v-if="activeTab === 'language'" class="tab-content">
-              <h2 class="section-title">Language & Region</h2>
+              <h2 class="section-title">{{ t("settings.language.title") }}</h2>
               <p class="section-description">
-                Configure your language preferences
+                {{ t("settings.language.description") }}
               </p>
 
               <div class="setting-group">
                 <div class="setting-label">
                   <i class="fa-solid fa-language"></i>
                   <div>
-                    <h3>Display Language</h3>
-                    <p>Choose your preferred language</p>
+                    <h3>{{ t("settings.language.displayLanguage.title") }}</h3>
+                    <p>
+                      {{ t("settings.language.displayLanguage.description") }}
+                    </p>
                   </div>
                 </div>
                 <div class="language-selector">
@@ -115,8 +124,12 @@
                   >
                     <span class="flag">🇬🇧</span>
                     <div>
-                      <div class="lang-name">English</div>
-                      <div class="lang-native">English</div>
+                      <div class="lang-name">
+                        {{ t("settings.language.languages.en.name") }}
+                      </div>
+                      <div class="lang-native">
+                        {{ t("settings.language.languages.en.native") }}
+                      </div>
                     </div>
                     <i
                       v-if="currentLocale === 'en'"
@@ -130,8 +143,12 @@
                   >
                     <span class="flag">🇯🇵</span>
                     <div>
-                      <div class="lang-name">Japanese</div>
-                      <div class="lang-native">日本語</div>
+                      <div class="lang-name">
+                        {{ t("settings.language.languages.ja.name") }}
+                      </div>
+                      <div class="lang-native">
+                        {{ t("settings.language.languages.ja.native") }}
+                      </div>
                     </div>
                     <i
                       v-if="currentLocale === 'ja'"
@@ -144,94 +161,92 @@
 
             <!-- Audio Tab -->
             <div v-if="activeTab === 'audio'" class="tab-content">
-              <h2 class="section-title">Audio Settings</h2>
+              <h2 class="section-title">{{ t("settings.audio.title") }}</h2>
               <p class="section-description">
-                Configure audio playback and equalizer
+                {{ t("settings.audio.description") }}
               </p>
 
               <div class="setting-group disabled">
                 <div class="setting-label">
                   <i class="fa-solid fa-sliders"></i>
                   <div>
-                    <h3>Equalizer</h3>
-                    <p>Adjust audio frequencies to your preference</p>
+                    <h3>{{ t("settings.audio.equalizer.title") }}</h3>
+                    <p>{{ t("settings.audio.equalizer.description") }}</p>
                   </div>
                 </div>
-                <div class="coming-soon-badge">Coming Soon</div>
+                <div class="coming-soon-badge">
+                  {{ t("settings.comingSoon") }}
+                </div>
               </div>
 
               <div class="setting-group disabled">
                 <div class="setting-label">
                   <i class="fa-solid fa-volume-high"></i>
                   <div>
-                    <h3>Normalization</h3>
-                    <p>Normalize volume levels across tracks</p>
+                    <h3>{{ t("settings.audio.normalization.title") }}</h3>
+                    <p>{{ t("settings.audio.normalization.description") }}</p>
                   </div>
                 </div>
-                <div class="coming-soon-badge">Coming Soon</div>
+                <div class="coming-soon-badge">
+                  {{ t("settings.comingSoon") }}
+                </div>
               </div>
             </div>
 
             <!-- Shortcuts Tab -->
             <div v-if="activeTab === 'shortcuts'" class="tab-content">
-              <h2 class="section-title">Keyboard Shortcuts</h2>
+              <h2 class="section-title">{{ t("settings.shortcuts.title") }}</h2>
               <p class="section-description">
-                View and customize keyboard shortcuts
+                {{ t("settings.shortcuts.description") }}
               </p>
 
               <div class="setting-group disabled">
                 <div class="setting-label">
                   <i class="fa-solid fa-keyboard"></i>
                   <div>
-                    <h3>Playback Controls</h3>
-                    <p>Shortcuts for play, pause, skip, and more</p>
+                    <h3>{{ t("settings.shortcuts.playback.title") }}</h3>
+                    <p>{{ t("settings.shortcuts.playback.description") }}</p>
                   </div>
                 </div>
-                <div class="coming-soon-badge">Coming Soon</div>
+                <div class="coming-soon-badge">
+                  {{ t("settings.comingSoon") }}
+                </div>
               </div>
 
               <div class="setting-group disabled">
                 <div class="setting-label">
                   <i class="fa-solid fa-arrow-pointer"></i>
                   <div>
-                    <h3>Navigation Shortcuts</h3>
-                    <p>Quick access to different sections</p>
+                    <h3>{{ t("settings.shortcuts.navigation.title") }}</h3>
+                    <p>{{ t("settings.shortcuts.navigation.description") }}</p>
                   </div>
                 </div>
-                <div class="coming-soon-badge">Coming Soon</div>
+                <div class="coming-soon-badge">
+                  {{ t("settings.comingSoon") }}
+                </div>
               </div>
             </div>
 
             <!-- About Tab -->
             <div v-if="activeTab === 'about'" class="tab-content">
-              <h2 class="section-title">About</h2>
+              <h2 class="section-title">{{ t("settings.about.title") }}</h2>
               <p class="section-description">
-                Information about this music player
+                {{ t("settings.about.description") }}
               </p>
 
               <div class="about-card">
                 <div class="app-icon">
                   <i class="fa-solid fa-music"></i>
                 </div>
-                <h3>Music Player</h3>
-                <p class="version">Version 1.0.0</p>
+                <h3>{{ t("app.name") }}</h3>
+                <p class="version">
+                  {{ t("settings.about.version", { version }) }}
+                </p>
                 <p class="description">
-                  A modern, feature-rich music player built with Vue.js and
-                  Electron
+                  {{ t("settings.about.appDescription") }}
                 </p>
                 <div class="about-links">
-                  <button class="link-button">
-                    <i class="fa-solid fa-globe"></i>
-                    Website
-                  </button>
-                  <button class="link-button">
-                    <i class="fa-brands fa-github"></i>
-                    GitHub
-                  </button>
-                  <button class="link-button">
-                    <i class="fa-solid fa-file-lines"></i>
-                    License
-                  </button>
+                  <!-- placeholder for future links -->
                 </div>
               </div>
             </div>
@@ -256,7 +271,7 @@ const props = defineProps({
 
 const emit = defineEmits(["close"])
 const themeStore = useThemeStore()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 const activeTab = ref("appearance")
 
@@ -268,23 +283,41 @@ const currentLocale = ref(localStorage.getItem("locale") || "en")
 const activeAccent = ref(localStorage.getItem("accentColor") || "#8e44ad")
 
 const tabs = [
-  { id: "appearance", label: "Appearance", icon: "fa-solid fa-palette" },
-  { id: "language", label: "Language", icon: "fa-solid fa-language" },
-  { id: "audio", label: "Audio", icon: "fa-solid fa-sliders" },
-  { id: "shortcuts", label: "Shortcuts", icon: "fa-solid fa-keyboard" },
-  { id: "about", label: "About", icon: "fa-solid fa-circle-info" },
+  {
+    id: "appearance",
+    labelKey: "settings.tabs.appearance",
+    icon: "fa-solid fa-palette",
+  },
+  {
+    id: "language",
+    labelKey: "settings.tabs.language",
+    icon: "fa-solid fa-language",
+  },
+  { id: "audio", labelKey: "settings.tabs.audio", icon: "fa-solid fa-sliders" },
+  {
+    id: "shortcuts",
+    labelKey: "settings.tabs.shortcuts",
+    icon: "fa-solid fa-keyboard",
+  },
+  {
+    id: "about",
+    labelKey: "settings.tabs.about",
+    icon: "fa-solid fa-circle-info",
+  },
 ]
 
 const accentColors = [
-  { name: "Purple", value: "#8e44ad" },
-  { name: "Blue", value: "#3498db" },
-  { name: "Green", value: "#27ae60" },
-  { name: "Orange", value: "#e67e22" },
-  { name: "Pink", value: "#e84393" },
-  { name: "Red", value: "#c0392b" },
-  { name: "Teal", value: "#1abc9c" },
-  { name: "Indigo", value: "#6c5ce7" },
+  { key: "purple", value: "#8e44ad" },
+  { key: "blue", value: "#3498db" },
+  { key: "green", value: "#27ae60" },
+  { key: "orange", value: "#e67e22" },
+  { key: "pink", value: "#e84393" },
+  { key: "red", value: "#c0392b" },
+  { key: "teal", value: "#1abc9c" },
+  { key: "indigo", value: "#6c5ce7" },
 ]
+
+const version = "1.0.0-beta"
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)
@@ -574,7 +607,7 @@ onMounted(() => {
 
 .color-swatch {
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 24px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
