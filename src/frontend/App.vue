@@ -1,34 +1,46 @@
 <template>
   <div id="app">
-    <TopBar />
+    <TopBar @toggle-setting-menu="toggleSettingMenu" />
 
     <div class="main-layout" :class="{ 'queue-open': showQueue }">
-      <SideNav :collapsed="showQueue" />
+      <SideNav :collapsed="showQueue" v-if="showMainViews" />
       <main class="content-area">
-        <router-view />
+        <Setting :showSettingMenu="showSettingMenu" @close="closeSettingMenu" />
+        <router-view v-if="showMainViews" />
       </main>
       <QueueSidebar :showQueue="showQueue" @close="closeQueue" />
     </div>
 
-    <PlayerBar @toggle-queue="toggleQueue" />
+    <PlayerBar @toggle-queue="toggleQueue" v-if="showMainViews" />
     <MiniPlayer />
     <Toast />
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import TopBar from "./components/TopBar.vue"
 import SideNav from "./components/SideNav.vue"
 import PlayerBar from "./components/PlayerBar.vue"
 import QueueSidebar from "./components/QueueSidebar.vue"
 import Toast from "./components/Toast.vue"
 import MiniPlayer from "./components/MiniPlayer.vue"
+import Setting from "./components/Setting.vue"
 
 const showQueue = ref(false)
+const showSettingMenu = ref(false)
+const showMainViews = computed(() => !showSettingMenu.value)
 
 const toggleQueue = () => {
   showQueue.value = !showQueue.value
+}
+
+const toggleSettingMenu = () => {
+  showSettingMenu.value = !showSettingMenu.value
+}
+
+const closeSettingMenu = () => {
+  showSettingMenu.value = false
 }
 
 const closeQueue = () => {
