@@ -1,26 +1,51 @@
 <template>
   <div id="app">
-    <TopBar />
+    <TopBar @toggle-setting-menu="toggleSettingMenu" />
 
-    <div class="main-layout">
-      <SideNav />
+    <div class="main-layout" :class="{ 'queue-open': showQueue }">
+      <SideNav :collapsed="showQueue" v-if="showMainViews" />
       <main class="content-area">
-        <router-view />
+        <Setting :showSettingMenu="showSettingMenu" @close="closeSettingMenu" />
+        <router-view v-if="showMainViews" />
       </main>
+      <QueueSidebar :showQueue="showQueue" @close="closeQueue" />
     </div>
 
-    <PlayerBar />
+    <PlayerBar @toggle-queue="toggleQueue" v-if="showMainViews" />
     <MiniPlayer />
     <Toast />
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from "vue"
 import TopBar from "./components/TopBar.vue"
 import SideNav from "./components/SideNav.vue"
 import PlayerBar from "./components/PlayerBar.vue"
+import QueueSidebar from "./components/QueueSidebar.vue"
 import Toast from "./components/Toast.vue"
 import MiniPlayer from "./components/MiniPlayer.vue"
+import Setting from "./components/Setting.vue"
+
+const showQueue = ref(false)
+const showSettingMenu = ref(false)
+const showMainViews = computed(() => !showSettingMenu.value)
+
+const toggleQueue = () => {
+  showQueue.value = !showQueue.value
+}
+
+const toggleSettingMenu = () => {
+  showSettingMenu.value = !showSettingMenu.value
+}
+
+const closeSettingMenu = () => {
+  showSettingMenu.value = false
+}
+
+const closeQueue = () => {
+  showQueue.value = false
+}
 </script>
 
 <style>
@@ -45,6 +70,7 @@ body,
   background-color: var(--bg-color);
   overflow: hidden;
   max-height: 100vh;
+  transition: all 0.3s ease;
 }
 
 /* Content area */
@@ -54,6 +80,7 @@ body,
   overflow-y: auto;
   background-color: var(--content-bg);
   color: var(--text-color);
+  transition: all 0.3s ease;
 }
 
 /* Dark theme scrollbar */
@@ -92,5 +119,12 @@ body,
 
 :root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
   background-color: #999;
+}
+
+/* Mobile: overlay queue instead of push */
+@media (max-width: 768px) {
+  .main-layout.queue-open .content-area {
+    filter: brightness(0.5);
+  }
 }
 </style>

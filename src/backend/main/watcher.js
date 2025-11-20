@@ -9,10 +9,12 @@ import {
   DELETE_TRACK_BY_PATH,
   UPSERT_TRACK,
 } from "../db/queries.js"
+import log from "../../logger.js"
 
 let watcher = null
 
 export function watchFolders(db) {
+  log.info("watchFolders :: Start")
   if (watcher) watcher.close()
 
   const folders = db
@@ -20,7 +22,7 @@ export function watchFolders(db) {
     .all()
     .map((f) => f.path)
 
-  console.log("watchFolders watching these folders:", folders)
+  log.info("watchFolders watching these folders:", folders)
 
   // watch folders
   watcher = chokidar.watch(folders, { ignoreInitial: false })
@@ -70,4 +72,5 @@ export function watchFolders(db) {
     .on("unlink", (filePath) => {
       db.prepare(DELETE_TRACK_BY_PATH).run(filePath)
     })
+  log.info("watchFolders :: End")
 }

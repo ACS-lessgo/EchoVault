@@ -1,182 +1,103 @@
 <template>
   <div class="music-container">
     <div class="header">
-      <h2>All Tracks</h2>
+      <h2>{{ $t('tracks.all') }}</h2>
       <div class="view-toggle">
         <button
           :class="['toggle-btn', { active: viewMode === 'list' }]"
           @click="viewMode = 'list'"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <line x1="8" y1="6" x2="21" y2="6"></line>
-            <line x1="8" y1="12" x2="21" y2="12"></line>
-            <line x1="8" y1="18" x2="21" y2="18"></line>
-            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-          </svg>
+          <i class="fas fa-bars"></i>
         </button>
         <button
           :class="['toggle-btn', { active: viewMode === 'grid' }]"
           @click="viewMode = 'grid'"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
+          <i class="fas fa-th-large"></i>
         </button>
       </div>
     </div>
 
     <!-- List View -->
-    <div v-if="viewMode === 'list'" class="list-view">
-      <table class="track-table">
-        <thead>
-          <tr>
-            <th class="num-col">#</th>
-            <th class="title-col">Title</th>
-            <th class="album-col">Album</th>
-            <th class="duration-col">Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(track, index) in filteredTracks"
-            :key="track.id"
-            class="track-row"
-            :class="{
-              playing: player.currentTrack?.file_path === track.file_path,
-            }"
-            @click="playCurrentTrack(track)"
-          >
-            <td class="num-col">{{ index + 1 }}</td>
-            <td class="title-col">
-              <div class="track-info">
-                <img
-                  v-if="track.coverDataUrl"
-                  :src="track.coverDataUrl"
-                  :alt="track.title"
-                  class="track-cover"
-                />
-                <img
-                  v-else
-                  src="../assets/images/default-cover.svg"
-                  :alt="track.title"
-                  class="track-cover"
-                />
-                <div class="track-details">
-                  <div class="track-title">{{ track.title }}</div>
-                  <div class="track-artist">{{ track.artist }}</div>
-                </div>
-              </div>
-            </td>
-            <td class="album-col">{{ track.album }}</td>
-            <td class="duration-col">{{ formatDuration(track.duration) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <TrackList
+      v-if="viewMode === 'list'"
+      :tracks="tracks"
+      :currentTrack="player.currentTrack"
+      :formatDuration="formatDuration"
+      :playlists="playlists"
+      :currentPlaylistId="null"
+      @select="playCurrentTrack"
+      @add-to-playlist="handleAddToPlaylist"
+    />
 
     <!-- Grid View -->
-    <div v-else class="grid-view">
-      <div
-        v-for="track in filteredTracks"
-        :key="track.id"
-        class="track-card"
-        :class="{ playing: player.currentTrack?.file_path === track.file_path }"
-      >
-        <div class="card-cover">
-          <img
-            v-if="track.coverDataUrl"
-            :src="track.coverDataUrl"
-            :alt="track.title"
-          />
-          <img
-            v-else
-            src="../assets/images/default-cover.svg"
-            :alt="track.title"
-          />
-          <div class="play-overlay">
-            <button class="play-btn" @click="playCurrentTrack(track)">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="card-info">
-          <div class="card-title">{{ track.title }}</div>
-          <div class="card-artist">{{ track.artist }}</div>
-        </div>
-      </div>
-    </div>
+    <TrackGrid
+      v-else
+      :tracks="tracks"
+      :currentTrack="player.currentTrack"
+      @select="playCurrentTrack"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue"
+import { ref, onMounted, nextTick, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
+import { useI18n } from "vue-i18n"
+import TrackList from "./TrackList.vue"
+import TrackGrid from "./TrackGrid.vue"
 
+const { t } = useI18n()
 const tracks = ref([])
+const playlists = ref([])
 const viewMode = ref("list")
 
 const search = useSearchStore()
 const player = usePlayerStore()
 
+// watcher for search
+watch(
+  () => search.query,
+  async (q) => {
+    const query = q.trim()
+
+    if (!query) {
+      // Load full tracklist normally
+      const result = await window.api.getTracks()
+      tracks.value = await formatTracks(result)
+      return
+    }
+
+    // DB FTS search
+    const result = await window.api.searchTracks(query)
+    tracks.value = await formatTracks(result)
+  },
+  { immediate: true }
+)
+
+async function loadPlaylists() {
+  playlists.value = await window.api.getPlaylists()
+}
+
+async function handleAddToPlaylist({ track, playlistId }) {
+  await window.api.addTrackToPlaylist(playlistId, track.id)
+  await loadPlaylists()
+}
+
 async function loadTracks() {
   const result = await window.api.getTracks()
 
   // For each track, load cover as Base64 and attach it
-  const withCovers = await Promise.all(
-    result.map(async (track) => {
-      if (track.cover) {
-        const url = track.cover.startsWith("/")
-          ? `echovault://${track.cover}`
-          : `echovault:///${track.cover}`
-        return {
-          ...track,
-          coverDataUrl: url,
-        }
-      } else {
-        return { ...track, coverDataUrl: null }
-      }
-    })
-  )
+  const withCovers = await formatTracks(result)
 
-  // sort by title
-  const sorted = withCovers.sort((a, b) =>
-    a.title?.localeCompare(b.title, undefined, { sensitivity: "base" })
-  )
-
-  tracks.value = sorted
+  tracks.value = withCovers
 
   if (Object.keys(player.currentTrack).length === 0) {
     player.clearQueue()
-    player.queue = structuredClone(sorted)
+    player.queue = structuredClone(withCovers)
     player.currentIndex = 0
-    player.currentTrack = { ...sorted[0] } || {}
+    player.currentTrack = { ...withCovers[0] } || {}
     player.queueSource = "all"
   }
 
@@ -199,19 +120,25 @@ function formatDuration(seconds) {
   }
 }
 
-onMounted(loadTracks)
-
-const filteredTracks = computed(() => {
-  const q = search.query?.trim().toLowerCase()
-  if (!q) return tracks.value
-
-  return tracks.value.filter((t) => {
-    const title = t.title?.toLowerCase() || ""
-    const artist = t.artist?.toLowerCase() || ""
-    const album = t.album?.toLowerCase() || ""
-    return title.includes(q) || artist.includes(q) || album.includes(q)
-  })
+onMounted(async () => {
+  await loadTracks()
+  await loadPlaylists()
 })
+
+// add cover to tracks
+async function attachCover(track) {
+  if (!track.cover) return { ...track, coverDataUrl: null }
+
+  const url = track.cover.startsWith("/")
+    ? `echovault://${track.cover}`
+    : `echovault:///${track.cover}`
+
+  return { ...track, coverDataUrl: url }
+}
+
+async function formatTracks(list) {
+  return Promise.all(list.map((t) => attachCover(t)))
+}
 
 // Send to store for Player component
 function playCurrentTrack(track) {
@@ -229,8 +156,6 @@ function playCurrentTrack(track) {
     player.setTrack(track)
   }
 }
-
-// TODO : Add pagination OR Virtual scroll list
 </script>
 
 <style scoped>
@@ -289,226 +214,5 @@ function playCurrentTrack(track) {
 .toggle-btn.active {
   background: var(--accent);
   color: white;
-}
-
-/* ────────────────────────────────
-   List View Styles
-──────────────────────────────── */
-.list-view {
-  width: 100%;
-}
-
-/* Table wrapper for tracks */
-.track-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-/* Table header */
-.track-table thead {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.track-table th {
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted-text);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Column widths */
-.num-col {
-  width: 50px;
-}
-
-.title-col {
-  width: 45%;
-}
-
-.album-col {
-  width: 35%;
-  text-align: left;
-}
-
-.duration-col {
-  width: 100px;
-  text-align: left;
-}
-
-/* Table row styling */
-.track-row {
-  transition: background 0.2s;
-  cursor: pointer;
-}
-
-.track-row td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Track info layout */
-.track-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Album cover thumbnail */
-.track-cover {
-  width: 48px;
-  height: 48px;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-/* Track text info */
-.track-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.track-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.track-artist {
-  font-size: 13px;
-  color: var(--muted-text);
-}
-
-/* ────────────────────────────────
-  Grid View Styles
-──────────────────────────────── */
-.grid-view {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
-
-/* Individual track card */
-.track-card {
-  background: var(--side-nav-bg);
-  border-radius: 8px;
-  padding: 16px;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-
-.track-card:hover {
-  background: var(--topbar-bg);
-  transform: translateY(-4px);
-}
-
-/* Album art container */
-.card-cover {
-  position: relative;
-  margin-bottom: 16px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.card-cover img {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  display: block;
-}
-
-/* Play overlay (on hover) */
-.play-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.track-card:hover .play-overlay {
-  opacity: 1;
-}
-
-/* Play button inside overlay */
-.play-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none;
-  color: var(--text-color);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.play-btn:hover {
-  background: var(--accent-hover);
-  transform: scale(1.1);
-}
-
-/* Card info text */
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-artist {
-  font-size: 13px;
-  color: var(--muted-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ────────────────────────────────
-   State & Alternate Row Colors
-──────────────────────────────── */
-.track-table tbody tr:nth-child(odd) {
-  background-color: var(--side-nav-bg);
-}
-
-.track-table tbody tr:nth-child(even) {
-  background-color: transparent;
-}
-
-.track-table tbody tr.track-row:hover {
-  background: var(--hover-bg);
-}
-
-/* Currently playing row (list view) */
-.track-row.playing {
-  background: var(--hover-bg);
-  transition: background 0.3s;
-  box-shadow: inset 2px 0 0 var(--accent);
-}
-
-/* Currently playing card (grid view) */
-.track-card.playing {
-  outline: 2px solid var(--accent);
-  background: var(--hover-bg);
-  transition: background 0.3s;
 }
 </style>

@@ -3,9 +3,14 @@
     <div v-if="showMiniPlayer" class="mini-player-overlay">
       <!-- Falling Stars Background -->
       <div class="stars-container">
-        <div v-for="n in 50" :key="n" class="star" :style="getStarStyle(n)"></div>
+        <div
+          v-for="n in 50"
+          :key="n"
+          class="star"
+          :style="getStarStyle(n)"
+        ></div>
       </div>
-      
+
       <div class="mini-player">
         <!-- Header -->
         <div class="mini-header">
@@ -96,7 +101,7 @@
 
           <button
             class="control-btn"
-            @click="player.playPrevious"
+            @click="playPreviousTrack"
             :disabled="!player.hasPrevious"
             title="Previous"
           >
@@ -105,7 +110,7 @@
 
           <button
             class="control-btn play-btn"
-            @click="player.togglePlay"
+            @click="togglePlay"
             title="Play/Pause"
           >
             <img
@@ -117,7 +122,7 @@
 
           <button
             class="control-btn"
-            @click="player.playNext"
+            @click="playNextTrack"
             :disabled="!player.hasNext"
             title="Next"
           >
@@ -176,13 +181,17 @@ import {
   Playlist,
   X,
 } from "../assets/icons/icons"
+import {
+  formatTime,
+  useVolumeControl,
+  useProgressBar,
+  usePlaybackControls,
+  getVolumeIcon,
+  getStarStyle,
+} from "../utils/playerUtils.js"
 
 const player = usePlayerStore()
 const showMiniPlayer = ref(false)
-const volume = ref(50)
-const hoverTimeVisible = ref(false)
-const hoverTime = ref(0)
-const hoverX = ref(0)
 let resizingFromCode = false
 let resizeTimeout = null
 let isMiniActive = false
@@ -190,27 +199,22 @@ let isMiniActive = false
 const currentIndex = computed(() => player.currentIndex)
 const queueLength = computed(() => player.queue.length)
 
-const volumeIcon = computed(() => {
-  if (volume.value === 0) return "fas fa-volume-mute"
-  if (volume.value < 50) return "fas fa-volume-down"
-  return "fas fa-volume-up"
-})
+// Use from utils
+const { volume, onVolumeChange, toggleMute } = useVolumeControl(player)
+const {
+  hoverTimeVisible,
+  hoverTime,
+  hoverX,
+  showHoverTime,
+  hideHoverTime,
+  seek,
+} = useProgressBar(player)
+const { togglePlay, playPreviousTrack, playNextTrack } =
+  usePlaybackControls(player)
 
-// generate random star styles
-function getStarStyle(index) {
-  const left = Math.random() * 100
-  const animationDuration = 2 + Math.random() * 4 // 2-6 seconds
-  const animationDelay = Math.random() * 5 // 0-5 seconds delay
-  const size = 1 + Math.random() * 2 // 1-3px star size
-  
-  return {
-    left: `${left}%`,
-    animationDuration: `${animationDuration}s`,
-    animationDelay: `${animationDelay}s`,
-    width: `${size}px`,
-    height: `${size}px`,
-  }
-}
+const volumeIconComponent = computed(() =>
+  getVolumeIcon(volume.value, { Volume, VolumeMute })
+)
 
 // Check window size
 function checkWindowSize() {
@@ -224,9 +228,10 @@ function checkWindowSize() {
     const miniThresholdW = 600
     const miniThresholdH = 700
 
-    // Check if EITHER width OR height crosses threshold
+    // Check if either width or height crosses threshold
     const shouldActivateMini = width < miniThresholdW || height < miniThresholdH
-    const shouldDeactivateMini = width >= miniThresholdW && height >= miniThresholdH
+    const shouldDeactivateMini =
+      width >= miniThresholdW && height >= miniThresholdH
 
     if (!isMiniActive && shouldActivateMini) {
       isMiniActive = true
@@ -236,9 +241,9 @@ function checkWindowSize() {
       setTimeout(() => (resizingFromCode = false), 600)
     } else if (isMiniActive && shouldDeactivateMini) {
       // Only deactivate if window is significantly larger to prevent bouncing
-      const hasSignificantMargin = 
+      const hasSignificantMargin =
         width > miniThresholdW + 50 && height > miniThresholdH + 50
-      
+
       if (hasSignificantMargin) {
         isMiniActive = false
         resizingFromCode = true
@@ -260,52 +265,6 @@ function closeMiniPlayer() {
   isMiniActive = false
   showMiniPlayer.value = false
   window.api.restoreWindowSize?.()
-}
-
-function toggleMute() {
-  if (volume.value === 0) {
-    volume.value = player.volume * 100 || 50
-  } else {
-    volume.value = 0
-  }
-  player.setVolume(volume.value / 100)
-}
-
-const volumeIconComponent = computed(() => {
-  if (volume.value === 0) return VolumeMute
-  return Volume
-})
-
-function onVolumeChange() {
-  player.setVolume(volume.value / 100)
-}
-
-function formatTime(seconds) {
-  if (!seconds) return "0:00"
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, "0")}`
-}
-
-function seek(event) {
-  const bar = event.currentTarget
-  const rect = bar.getBoundingClientRect()
-  const ratio = (event.clientX - rect.left) / rect.width
-  const targetTime = player.duration * Math.max(0, Math.min(1, ratio))
-  player.seekTo(targetTime)
-}
-
-function showHoverTime(event) {
-  const bar = event.currentTarget
-  const rect = bar.getBoundingClientRect()
-  const ratio = (event.clientX - rect.left) / rect.width
-  hoverTime.value = player.duration * ratio
-  hoverX.value = event.clientX - rect.left
-  hoverTimeVisible.value = true
-}
-
-function hideHoverTime() {
-  hoverTimeVisible.value = false
 }
 
 onMounted(() => {

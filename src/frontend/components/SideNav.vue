@@ -1,33 +1,45 @@
 <template>
-  <aside class="side-nav">
+  <aside class="side-nav" :class="{ collapsed: collapsed }">
     <nav>
       <router-link to="/" class="nav-item">
         <i class="fas fa-home nav-icon"></i>
-        <span>Home</span>
+        <span>{{ t('nav.home') }}</span>
       </router-link>
 
       <router-link to="/songs" class="nav-item">
         <i class="fas fa-music nav-icon"></i>
-        <span>All Songs</span>
+        <span>{{ t('nav.allSongs') }}</span>
       </router-link>
 
       <router-link to="/artists" class="nav-item">
         <i class="fas fa-user nav-icon"></i>
-        <span>Artists</span>
+        <span>{{ t('nav.artists') }}</span>
       </router-link>
 
       <router-link to="/library" class="nav-item">
         <i class="fas fa-database nav-icon"></i>
-        <span>Library Info</span>
+        <span>{{ t('nav.library') }}</span>
       </router-link>
 
       <router-link to="/playlists" class="nav-item">
         <i class="fas fa-list nav-icon"></i>
-        <span>Playlists</span>
+        <span>{{ t('nav.playlists') }}</span>
       </router-link>
     </nav>
   </aside>
 </template>
+
+<script setup>
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
 
 <style scoped>
 /* Sidebar navigation – layout, nav items, icons, and responsive collapse */
@@ -42,6 +54,25 @@
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
+}
+
+/* Collapsed state when queue is open */
+.side-nav.collapsed {
+  width: 60px;
+  padding: 1rem 0.5rem;
+}
+
+.side-nav.collapsed .nav-item {
+  justify-content: center;
+  gap: 0;
+}
+
+.side-nav.collapsed .nav-item span {
+  display: none;
+}
+
+.side-nav.collapsed .nav-icon {
+  margin: 0 auto;
 }
 
 /* Navigation list */
@@ -67,21 +98,28 @@ nav {
 
 .nav-item:hover {
   background-color: var(--hover-bg);
-  color: var(--accent-hover);
 }
 
-/* Active route link */
+/* Active route */
 .nav-item.router-link-active {
   background-color: var(--hover-bg);
   color: var(--accent);
   font-weight: 600;
 }
 
+/* FIX: Prevent icons from taking accent color */
+.nav-item:hover .nav-icon,
+.nav-icon {
+  color: var(--text-color) !important;
+  filter: inherit; /* keeps dark or light theme */
+}
+
 /* Navigation icons */
 .nav-icon {
   width: 20px;
   height: 20px;
-  filter: invert(100%) brightness(200%);
+  color: var(--text-color) !important;
+  flex-shrink: 0;
 }
 
 /* Dark theme: light icons */

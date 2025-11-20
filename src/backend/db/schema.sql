@@ -1,3 +1,7 @@
+-- ============================
+-- MAIN TABLES
+-- ============================
+
 CREATE TABLE IF NOT EXISTS folders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   path TEXT UNIQUE
@@ -17,11 +21,30 @@ CREATE TABLE IF NOT EXISTS tracks (
   noOfPlays INTEGER DEFAULT 0,
   FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
   FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
-  -- UNIQUE(title, artist_id, album)
 );
 
 CREATE TABLE IF NOT EXISTS artists (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT UNIQUE,
   cover TEXT    
+);
+
+-- ============================
+-- PLAYLIST TABLES
+-- ============================
+
+CREATE TABLE IF NOT EXISTS playlists (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  cover TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS playlist_tracks (
+  playlist_id INTEGER NOT NULL,
+  track_id INTEGER NOT NULL,
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (playlist_id, track_id),
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
+  FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE
 );

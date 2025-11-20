@@ -18,8 +18,8 @@ export const GET_FOLDER_ID_BY_PATH = `
 `
 
 //  Tracks
-export const GET_TRACKS = `SELECT * FROM tracks`
-export const GET_LIKED_TRACKS = `SELECT * FROM tracks WHERE isLiked=1`
+export const GET_TRACKS = `SELECT * FROM tracks ORDER BY LOWER(title)`
+export const GET_LIKED_TRACKS = `SELECT * FROM tracks WHERE isLiked=1 ORDER BY LOWER(title)`
 export const UPDATE_LIKE = `UPDATE tracks SET isLiked = ? WHERE id = ?`
 export const DELETE_TRACK_BY_PATH = `DELETE FROM tracks WHERE file_path=?`
 export const GET_TRACK_PATHS_BY_FOLDER = `
@@ -41,6 +41,38 @@ export const UPSERT_TRACK = `
     artist=excluded.artist,
     duration=excluded.duration,
     cover=excluded.cover
+`
+// queries
+
+export const GET_ORDERED_TRACKS = `
+  SELECT * FROM tracks 
+  ORDER BY title ASC 
+  LIMIT ?
+`
+export const SEARCH_TRACKS = `
+  SELECT *
+  FROM tracks
+  WHERE LOWER(title) LIKE ?
+     OR LOWER(artist) LIKE ?
+     OR LOWER(album) LIKE ?
+  ORDER BY LOWER(title)
+`
+export const SEARCH_TRACKS_BY_ARTIST = `
+  SELECT *
+  FROM tracks
+  WHERE artist_id = ?
+    AND (
+      LOWER(title) LIKE ?
+      OR LOWER(artist) LIKE ?
+      OR LOWER(album) LIKE ?
+    )
+  ORDER BY LOWER(title)
+`
+export const SEARCH_ARTISTS = `
+  SELECT *
+  FROM artists
+  WHERE LOWER(name) LIKE ?
+  ORDER BY LOWER(name)
 `
 
 //  Artists

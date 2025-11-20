@@ -1,0 +1,195 @@
+{
+  "app": {
+    "name": "EchoVault"
+  },
+
+  "tracks": {
+    "all": "All Songs",
+    "listView": "List view",
+    "gridView": "Grid view",
+    "count": "{count} track | {count} tracks"
+  },
+
+  "viewToggle": {
+    "ariaList": "Switch to list view",
+    "ariaGrid": "Switch to grid view"
+  },
+
+  "home": {
+    "welcome": "Welcome to {appName}",
+    "import": {
+      "heading": "Import Your Music",
+      "addFolder": "Add Folder"
+    },
+    "yourCollection": "Your Music Collection",
+    "rescan": "Rescan Library",
+    "emptyCollection": "No music found. Add a folder to get started."
+  },
+
+  "table": {
+    "folderPath": "Folder Path",
+    "actions": "Actions",
+    "trackCountLabel": "{count} track | {count} tracks",
+    "removeFolder": "Remove folder"
+  },
+
+  "buttons": {
+    "accent": "Add Folder",
+    "remove": "Remove",
+    "rescan": "Rescan Library",
+    "loading": "Loading...",
+    "refreshStats": "Refresh Stats"
+  },
+
+  "liked": {
+    "title": "Liked Songs"
+  },
+
+  "queue": {
+    "title": "Play Queue",
+    "shuffled": "Shuffled"
+  },
+
+  "nav": {
+    "home": "Home",
+    "allSongs": "All Songs",
+    "artists": "Artists",
+    "library": "Library Info",
+    "playlists": "Playlists"
+  },
+
+  "stats": {
+    "title": "Library Statistics",
+    "totalTracks": "Total Tracks",
+    "artists": "Artists",
+    "likedSongs": "Liked Songs",
+    "storageUsed": "Storage Used",
+    "folders": "Folders",
+    "totalDuration": "Total Duration",
+    "listeningTime": "Listening Time",
+    "top": {
+      "title": "Top Statistics",
+      "mostLikedArtist": "Most Liked Artist",
+      "likedCount": "{count} liked songs",
+      "avgDurationTitle": "Average Song Duration",
+      "collectionSize": "Collection Size",
+      "totalPlays": "Total Plays",
+      "topTracksTitle": "Top 10 Most Played Songs",
+      "noPlaysTracks": "No plays recorded yet. Start listening to see your top tracks!",
+      "topArtistsTitle": "Top 10 Most Played Artists",
+      "noPlaysArtists": "No plays recorded yet. Start listening to see your top artists!",
+      "trackCountInLibrary": "{count} tracks in library"
+    }
+  },
+
+  "alt": {
+    "trackCover": "Cover of {title}",
+    "artistCover": "Artist image for {name}"
+  },
+
+  "labels": {
+    "perTrack": "per track",
+    "uniqueAlbums": "unique albums",
+    "allTime": "all time",
+    "unknownArtist": "Unknown Artist",
+    "plays": "plays",
+    "noTrackSelected": "No track selected"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "close": "Close",
+    "comingSoon": "Coming Soon",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language & Region",
+      "audio": "Audio",
+      "shortcuts": "Shortcuts",
+      "about": "About"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the look and feel of your music player",
+      "themeMode": {
+        "title": "Theme Mode",
+        "description": "Choose between light and dark mode",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "accent": {
+        "title": "Accent Color",
+        "description": "Select your preferred accent color",
+        "accentNames": {
+          "purple": "Purple",
+          "blue": "Blue",
+          "green": "Green",
+          "orange": "Orange",
+          "pink": "Pink",
+          "red": "Red",
+          "teal": "Teal",
+          "indigo": "Indigo"
+        }
+      }
+    },
+    "language": {
+      "title": "Language & Region",
+      "description": "Configure your language preferences",
+      "displayLanguage": {
+        "title": "Display Language",
+        "description": "Choose your preferred language"
+      },
+      "languages": {
+        "en": { "name": "English", "native": "English" },
+        "ja": { "name": "Japanese", "native": "日本語" }
+      }
+    },
+    "audio": {
+      "title": "Audio Settings",
+      "description": "Configure audio playback and equalizer",
+      "equalizer": {
+        "title": "Equalizer",
+        "description": "Adjust audio frequencies to your preference"
+      },
+      "normalization": {
+        "title": "Normalization",
+        "description": "Normalize volume levels across tracks"
+      }
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "description": "View and customize keyboard shortcuts",
+      "playback": {
+        "title": "Playback Controls",
+        "description": "Shortcuts for play, pause, skip, and more"
+      },
+      "navigation": {
+        "title": "Navigation Shortcuts",
+        "description": "Quick access to different sections"
+      }
+    },
+    "about": {
+      "title": "About",
+      "description": "Information about this music player",
+      "version": "Version {version}",
+      "appDescription": "A modern, high-fidelity music player built with Electron"
+    }
+  },
+
+  "playlist": {
+    "create": "Create Playlist",
+    "createNew": "Create New Playlist",
+    "namePlaceholder": "Enter playlist name...",
+    "tracks": "tracks",
+    "confirmDelete": "Are you sure you want to delete this playlist?",
+    "type": {
+      "liked": "Liked Songs Playlist",
+      "playlist": "Playlist"
+    }
+  },
+
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "back": "Back"
+  }
+}

@@ -2,7 +2,9 @@
   <div class="home-page">
     <div class="hero-card">
       <div class="hero-text">
-        <h1>Welcome to <span class="highlight">EchoVault</span></h1>
+        <h1>
+          {{ t("home.welcome") }}<span class="highlight"> EchoVault</span>
+        </h1>
       </div>
       <div class="wave">
         <div class="bar" v-for="n in 10" :key="n"></div>
@@ -11,18 +13,20 @@
 
     <div class="content-card">
       <div class="add-section">
-        <h2>Import Your Music</h2>
+        <h2>{{ t("home.import.heading") }}</h2>
         <div class="button-group">
-          <button class="accent-btn" @click="addFolder">Add Folder</button>
+          <button class="accent-btn" @click="addFolder">
+            {{ t("home.import.addFolder") }}
+          </button>
         </div>
       </div>
 
       <div class="table-section">
-        <h2>Your Music Collection</h2>
+        <h2>{{ t("home.yourCollection") }}</h2>
         <table class="folder-table">
           <thead>
             <tr>
-              <th>Folder Path</th>
+              <th>{{ t("table.folderPath") }}</th>
               <th></th>
             </tr>
           </thead>
@@ -31,9 +35,11 @@
               <td>
                 <div class="folder-info">
                   <span class="folder-path">{{ folder.path }}</span>
-                  <span class="track-count"
-                    >{{ folder.trackCount || 0 }} tracks</span
-                  >
+                  <span class="track-count">{{
+                    t("table.trackCountLabel", {
+                      count: folder.trackCount || 0,
+                    })
+                  }}</span>
                 </div>
               </td>
               <td class="remove-cell">
@@ -42,13 +48,16 @@
                 </button>
               </td>
             </tr>
+            <tr v-if="folders.length === 0">
+              <td colspan="2">{{ t("home.emptyCollection") }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <div class="rescan-section">
         <button class="rescan-btn" @click="rescanLibrary">
-          Rescan Library
+          {{ t("home.rescan") }}
         </button>
       </div>
     </div>
@@ -57,7 +66,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue"
+import { useI18n } from "vue-i18n"
 
+const { t } = useI18n()
 const folders = ref([])
 
 async function loadFolders() {
@@ -135,6 +146,7 @@ onMounted(() => {
 .hero-text .highlight {
   color: var(--accent-hover);
   text-shadow: 0 0 10px rgb(255, 255, 255);
+  margin-right: 10px;
 }
 
 .hero-text p {

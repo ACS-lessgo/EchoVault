@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron"
+import log from "electron-log/renderer"
 
 contextBridge.exposeInMainWorld("api", {
   // library
@@ -43,4 +44,34 @@ contextBridge.exposeInMainWorld("api", {
   getArtistByName: (name) => ipcRenderer.invoke("get-artist-by-name", name),
   restoreWindowSize: () => ipcRenderer.invoke("restore-window-size"),
   enableMiniPlayer: () => ipcRenderer.invoke("enable-mini-player"),
+
+  // Search
+  searchTracks: (payload) => ipcRenderer.invoke("search:tracks", payload),
+  searchArtists: (query) => ipcRenderer.invoke("search:artists", query),
+
+  // window bar
+  minimize: () => ipcRenderer.send("win:minimize"),
+  maximize: () => ipcRenderer.send("win:maximize"),
+  close: () => ipcRenderer.send("win:close"),
+  isMaximized: () => ipcRenderer.invoke("win:isMaximized"),
+
+  // logs
+  info: (message) => log.info(message),
+  error: (message) => log.error(message),
+  warn: (message) => log.warn(message),
+  debug: (message) => log.debug(message),
+
+  // playlist
+  getPlaylists: () => ipcRenderer.invoke("get-playlists"),
+  createPlaylist: (name) => ipcRenderer.invoke("create-playlist", name),
+  getPlaylistTracks: (playlistId) =>
+    ipcRenderer.invoke("get-playlist-tracks", playlistId),
+  addTrackToPlaylist: (playlistId, trackId) =>
+    ipcRenderer.invoke("add-track-to-playlist", playlistId, trackId),
+  removeTrackFromPlaylist: (playlistId, trackId) =>
+    ipcRenderer.invoke("remove-track-from-playlist", playlistId, trackId),
+  deletePlaylist: (playlistId) =>
+    ipcRenderer.invoke("delete-playlist", playlistId),
+  updatePlaylist: (playlistId, name) =>
+    ipcRenderer.invoke("update-playlist", playlistId, name),
 })
