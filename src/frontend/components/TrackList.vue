@@ -235,15 +235,6 @@ onUnmounted(() => {
   transition: background 0.2s;
 }
 
-.track-row:hover {
-  background: var(--hover-bg);
-}
-
-.track-row.playing {
-  background: var(--hover-bg);
-  box-shadow: inset 2px 0 0 var(--accent);
-}
-
 /* Track Info */
 .track-info {
   display: flex;
@@ -347,5 +338,31 @@ onUnmounted(() => {
 
 .has-sub:hover .sub-menu {
   display: block;
+}
+
+/* Alternating row backgrounds */
+.track-table tbody tr:nth-child(odd) {
+  background-color: var(--side-nav-bg);
+}
+
+.track-table tbody tr:nth-child(even) {
+  background-color: transparent;
+}
+
+/* Hover and active states */
+.track-table tbody tr.track-row:hover {
+  background: var(--hover-bg);
+}
+
+.track-row.playing {
+  background: var(--hover-bg);
+  transition: background 0.3s;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.track-card.playing {
+  outline: 2px solid var(--accent);
+  background: var(--hover-bg);
+  transition: background 0.3s;
 }
 </style>

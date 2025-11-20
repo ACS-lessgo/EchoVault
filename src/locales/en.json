@@ -4,7 +4,7 @@
   },
 
   "tracks": {
-    "all": "All Tracks",
+    "all": "All Songs",
     "listView": "List view",
     "gridView": "Grid view",
     "count": "{count} track | {count} tracks"
