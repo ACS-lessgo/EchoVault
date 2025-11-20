@@ -31,20 +31,30 @@
     <!-- Songs List for Selected Artist -->
     <div v-else class="artist-songs-view">
       <div class="artist-header">
-        <button class="back-btn" @click="isArtistView = true"><</button>
-        <h2>{{ selectedArtist?.name }}</h2>
+        <button class="back-btn" @click="isArtistView = true">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>{{ t("common.back") }}</span>
+        </button>
       </div>
 
-      <TrackList
-        v-if="viewMode === 'list'"
-        :tracks="artistTracks"
-        :currentTrack="player.currentTrack"
-        :formatDuration="formatDuration"
-        :playlists="playlists"
-        :currentPlaylistId="null"
-        @select="playCurrentTrack"
-        @add-to-playlist="handleAddToPlaylist"
-      />
+      <div class="artist-header-title">
+        <h2>
+          {{ selectedArtist?.name }}
+        </h2>
+      </div>
+
+      <div class="playlist-tracks">
+        <TrackList
+          v-if="viewMode === 'list'"
+          :tracks="artistTracks"
+          :currentTrack="player.currentTrack"
+          :formatDuration="formatDuration"
+          :playlists="playlists"
+          :currentPlaylistId="null"
+          @select="playCurrentTrack"
+          @add-to-playlist="handleAddToPlaylist"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -54,7 +64,9 @@ import { ref, computed, onMounted, watch, nextTick } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import TrackList from "./TrackList.vue"
+import { useI18n } from "vue-i18n"
 
+const { t } = useI18n()
 const artists = ref([])
 const filteredArtists = ref([])
 const artistTracks = ref([]) // current tracks shown in artist view
@@ -263,29 +275,37 @@ async function handleAddToPlaylist({ track, playlistId }) {
 
 /* Artist header section */
 .artist-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 0;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--topbar-bg);
+}
+
+.artist-header-title {
+  padding: 0.5rem 2rem;
   border-bottom: 1px solid var(--border-color);
 }
 
 /* Back button styling */
 .back-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--hover-bg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   color: var(--text-color);
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .back-btn:hover {
-  background: var(--accent);
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 0 0 8px var(--accent-hover);
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+
+.playlist-tracks {
+  padding: 2rem;
 }
 </style>

@@ -48,16 +48,16 @@
 
           <!-- Duration + 3 Dots Button -->
           <td class="duration-col">
-            {{ formatDuration(track.duration) }}
+            <div class="duration-wrapper">
+              <span>{{ formatDuration(track.duration) }}</span>
 
-            <!-- 3 Dots -->
-            <button class="more-btn" @click.stop="toggleMenu(track.id, $event)">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="12" cy="5" r="2"></circle>
-                <circle cx="12" cy="12" r="2"></circle>
-                <circle cx="12" cy="19" r="2"></circle>
-              </svg>
-            </button>
+              <button
+                class="more-btn"
+                @click.stop="toggleMenu(track.id, $event)"
+              >
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+            </div>
 
             <!-- DROPDOWN MENU -->
             <div
@@ -220,6 +220,13 @@ onUnmounted(() => {
   width: 120px;
   position: relative;
   white-space: nowrap;
+}
+
+.duration-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 /* Track Row */
