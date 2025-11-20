@@ -4,7 +4,7 @@
   },
 
   "tracks": {
-    "all": "All Tracks",
+    "all": "All Songs",
     "listView": "List view",
     "gridView": "Grid view",
     "count": "{count} track | {count} tracks"
@@ -173,5 +173,23 @@
       "version": "Version {version}",
       "appDescription": "A modern, high-fidelity music player built with Electron"
     }
+  },
+
+  "playlist": {
+    "create": "Create Playlist",
+    "createNew": "Create New Playlist",
+    "namePlaceholder": "Enter playlist name...",
+    "tracks": "tracks",
+    "confirmDelete": "Are you sure you want to delete this playlist?",
+    "type": {
+      "liked": "Liked Songs Playlist",
+      "playlist": "Playlist"
+    }
+  },
+
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "back": "Back"
   }
 }
