@@ -1,5 +1,5 @@
 <template>
-  <div class="list-view">
+  <div class="list-view" @contextmenu.prevent>
     <table class="track-table">
       <thead>
         <tr>
@@ -15,26 +15,26 @@
           v-for="(track, index) in tracks"
           :key="track.id"
           class="track-row"
-          :class="{
-            playing: currentTrack?.file_path === track.file_path,
-          }"
+          :class="{ playing: currentTrack?.file_path === track.file_path }"
           @click="$emit('select', track)"
         >
+          <!-- Index -->
           <td class="num-col">{{ index + 1 }}</td>
 
+          <!-- Title + Cover -->
           <td class="title-col">
             <div class="track-info">
               <img
                 v-if="track.coverDataUrl"
                 :src="track.coverDataUrl"
-                :alt="track.title"
                 class="track-cover"
+                :alt="track.title"
               />
               <img
                 v-else
                 src="../assets/images/default-cover.svg"
-                :alt="track.title"
                 class="track-cover"
+                :alt="track.title"
               />
               <div class="track-details">
                 <div class="track-title">{{ track.title }}</div>
@@ -43,8 +43,64 @@
             </div>
           </td>
 
+          <!-- Album -->
           <td class="album-col">{{ track.album }}</td>
-          <td class="duration-col">{{ formatDuration(track.duration) }}</td>
+
+          <!-- Duration + 3 Dots Button -->
+          <td class="duration-col">
+            {{ formatDuration(track.duration) }}
+
+            <!-- 3 Dots -->
+            <button class="more-btn" @click.stop="toggleMenu(track.id, $event)">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="2"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+                <circle cx="12" cy="19" r="2"></circle>
+              </svg>
+            </button>
+
+            <!-- DROPDOWN MENU -->
+            <div
+              v-if="openMenuId === track.id"
+              class="dropdown-menu"
+              :style="{ top: menuPos.y + 'px', left: menuPos.x + 'px' }"
+            >
+              <!-- Remove from playlist -->
+              <div
+                v-if="currentPlaylistId"
+                class="dropdown-item danger"
+                @click.stop="removeFromPlaylist(track)"
+              >
+                Remove from this playlist
+              </div>
+
+              <!-- Add to playlist -->
+              <div class="dropdown-item has-sub">
+                Add to playlist
+                <svg class="chevron" viewBox="0 0 24 24">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+
+                <div class="sub-menu">
+                  <div
+                    v-for="p in availablePlaylists"
+                    :key="p.id"
+                    class="dropdown-item"
+                    @click.stop="addTrackToPlaylist(track, p.id)"
+                  >
+                    {{ p.name }}
+                  </div>
+
+                  <div
+                    v-if="availablePlaylists.length === 0"
+                    class="dropdown-item disabled"
+                  >
+                    No playlists found
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -52,44 +108,102 @@
 </template>
 
 <script setup>
-defineProps({
+import { ref, computed, onMounted, onUnmounted } from "vue"
+
+const props = defineProps({
   tracks: Array,
   currentTrack: Object,
   formatDuration: Function,
+  playlists: {
+    type: Array,
+    default: () => [],
+  },
+  currentPlaylistId: {
+    type: [Number, String, null],
+    default: null,
+  },
 })
 
-defineEmits(["select"])
+const emit = defineEmits(["select", "add-to-playlist", "remove-from-playlist"])
+
+/* === 3 DOTS MENU STATE === */
+
+const openMenuId = ref(null)
+const menuPos = ref({ x: 0, y: 0 })
+
+// Only show playlists other than current
+const availablePlaylists = computed(() => {
+  if (!props.currentPlaylistId) return props.playlists
+  return props.playlists.filter((p) => p.id !== props.currentPlaylistId)
+})
+
+function toggleMenu(id, event) {
+  if (openMenuId.value === id) {
+    openMenuId.value = null
+    return
+  }
+  openMenuId.value = id
+
+  const rect = event.target.getBoundingClientRect()
+  menuPos.value = {
+    x: rect.left - 150 + rect.width,
+    y: rect.bottom + 6,
+  }
+}
+
+function closeMenu() {
+  openMenuId.value = null
+}
+
+function addTrackToPlaylist(track, playlistId) {
+  emit("add-to-playlist", { track, playlistId })
+  closeMenu()
+}
+
+function removeFromPlaylist(track) {
+  emit("remove-from-playlist", {
+    track,
+    playlistId: props.currentPlaylistId,
+  })
+  closeMenu()
+}
+
+onMounted(() => {
+  document.addEventListener("click", closeMenu)
+})
+
+onUnmounted(() => {
+  document.removeEventListener("click", closeMenu)
+})
 </script>
 
 <style scoped>
-/* Track list table – used for displaying songs in list view */
-
-/* List view container */
+/* Container */
 .list-view {
   width: 100%;
+  position: relative;
 }
 
-/* Table layout */
+/* Table */
 .track-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.track-table thead {
-  border-bottom: 1px solid var(--border-color);
-}
-
 .track-table th {
   text-align: left;
   padding: 12px 16px;
-  font-size: 12px;
-  font-weight: 500;
   color: var(--muted-text);
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-/* Column widths */
+.track-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Columns */
 .num-col {
   width: 50px;
 }
@@ -100,26 +214,30 @@ defineEmits(["select"])
 
 .album-col {
   width: 35%;
-  text-align: left;
 }
 
 .duration-col {
-  width: 100px;
-  text-align: left;
+  width: 120px;
+  position: relative;
+  white-space: nowrap;
 }
 
-/* Table rows */
+/* Track Row */
 .track-row {
-  transition: background 0.2s;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.track-row td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.track-row:hover {
+  background: var(--hover-bg);
 }
 
-/* Track info layout */
+.track-row.playing {
+  background: var(--hover-bg);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* Track Info */
 .track-info {
   display: flex;
   align-items: center;
@@ -129,19 +247,12 @@ defineEmits(["select"])
 .track-cover {
   width: 48px;
   height: 48px;
-  border-radius: 4px;
   object-fit: cover;
-}
-
-.track-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  border-radius: 4px;
 }
 
 .track-title {
   font-size: 15px;
-  font-weight: 500;
   color: var(--text-color);
 }
 
@@ -150,29 +261,84 @@ defineEmits(["select"])
   color: var(--muted-text);
 }
 
-/* Alternating row backgrounds */
-.track-table tbody tr:nth-child(odd) {
-  background-color: var(--side-nav-bg);
+/* === 3 DOTS BUTTON === */
+.more-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 10px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
-.track-table tbody tr:nth-child(even) {
-  background-color: transparent;
+.more-btn:hover {
+  opacity: 1;
 }
 
-/* Hover and active states */
-.track-table tbody tr.track-row:hover {
+.more-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* === DROPDOWN MENU === */
+
+.dropdown-menu {
+  position: fixed;
+  min-width: 180px;
+  background: var(--side-nav-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 6px 0;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.4);
+  z-index: 9999;
+}
+
+.dropdown-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
   background: var(--hover-bg);
 }
 
-.track-row.playing {
-  background: var(--hover-bg);
-  transition: background 0.3s;
-  box-shadow: inset 2px 0 0 var(--accent);
+.dropdown-item.danger {
+  color: #ff4a4a;
 }
 
-.track-card.playing {
-  outline: 2px solid var(--accent);
-  background: var(--hover-bg);
-  transition: background 0.3s;
+.dropdown-item.disabled {
+  color: var(--muted-text);
+  cursor: not-allowed;
+}
+
+/* Submenu */
+.has-sub {
+  position: relative;
+}
+
+.chevron {
+  width: 14px;
+  opacity: 0.6;
+}
+
+.sub-menu {
+  display: none;
+  position: absolute;
+  right: 100%;
+  top: 0;
+  min-width: 180px;
+  background: var(--side-nav-bg);
+  padding: 6px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.4);
+}
+
+.has-sub:hover .sub-menu {
+  display: block;
 }
 </style>

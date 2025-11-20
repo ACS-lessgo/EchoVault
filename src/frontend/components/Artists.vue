@@ -40,7 +40,10 @@
         :tracks="artistTracks"
         :currentTrack="player.currentTrack"
         :formatDuration="formatDuration"
+        :playlists="playlists"
+        :currentPlaylistId="null"
         @select="playCurrentTrack"
+        @add-to-playlist="handleAddToPlaylist"
       />
     </div>
   </div>
@@ -58,6 +61,7 @@ const artistTracks = ref([]) // current tracks shown in artist view
 const selectedArtist = ref(null)
 const isArtistView = ref(true)
 const viewMode = ref("list")
+const playlists = ref([])
 
 const search = useSearchStore()
 const player = usePlayerStore()
@@ -79,8 +83,9 @@ async function formatTracks(list) {
 }
 
 // --- Lifecycle ---
-onMounted(() => {
-  loadArtists()
+onMounted(async () => {
+  await loadArtists()
+  await loadPlaylists()
 })
 
 // --- Load Artists ---
@@ -180,6 +185,15 @@ watch(
   },
   { immediate: true }
 )
+
+async function loadPlaylists() {
+  playlists.value = await window.api.getPlaylists()
+}
+
+async function handleAddToPlaylist({ track, playlistId }) {
+  await window.api.addTrackToPlaylist(playlistId, track.id)
+  await loadPlaylists()
+}
 </script>
 
 <style scoped>

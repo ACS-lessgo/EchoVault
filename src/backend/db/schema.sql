@@ -28,3 +28,23 @@ CREATE TABLE IF NOT EXISTS artists (
   name TEXT UNIQUE,
   cover TEXT    
 );
+
+-- ============================
+-- PLAYLIST TABLES
+-- ============================
+
+CREATE TABLE IF NOT EXISTS playlists (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  cover TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS playlist_tracks (
+  playlist_id INTEGER NOT NULL,
+  track_id INTEGER NOT NULL,
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (playlist_id, track_id),
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
+  FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE
+);

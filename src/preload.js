@@ -60,4 +60,18 @@ contextBridge.exposeInMainWorld("api", {
   error: (message) => log.error(message),
   warn: (message) => log.warn(message),
   debug: (message) => log.debug(message),
+
+  // playlist
+  getPlaylists: () => ipcRenderer.invoke("get-playlists"),
+  createPlaylist: (name) => ipcRenderer.invoke("create-playlist", name),
+  getPlaylistTracks: (playlistId) =>
+    ipcRenderer.invoke("get-playlist-tracks", playlistId),
+  addTrackToPlaylist: (playlistId, trackId) =>
+    ipcRenderer.invoke("add-track-to-playlist", playlistId, trackId),
+  removeTrackFromPlaylist: (playlistId, trackId) =>
+    ipcRenderer.invoke("remove-track-from-playlist", playlistId, trackId),
+  deletePlaylist: (playlistId) =>
+    ipcRenderer.invoke("delete-playlist", playlistId),
+  updatePlaylist: (playlistId, name) =>
+    ipcRenderer.invoke("update-playlist", playlistId, name),
 })

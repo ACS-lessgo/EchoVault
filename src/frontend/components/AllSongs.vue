@@ -24,7 +24,10 @@
       :tracks="tracks"
       :currentTrack="player.currentTrack"
       :formatDuration="formatDuration"
+      :playlists="playlists"
+      :currentPlaylistId="null"
       @select="playCurrentTrack"
+      @add-to-playlist="handleAddToPlaylist"
     />
 
     <!-- Grid View -->
@@ -41,12 +44,13 @@
 import { ref, onMounted, nextTick, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n"
 import TrackList from "./TrackList.vue"
 import TrackGrid from "./TrackGrid.vue"
 
 const { t } = useI18n()
 const tracks = ref([])
+const playlists = ref([])
 const viewMode = ref("list")
 
 const search = useSearchStore()
@@ -71,6 +75,15 @@ watch(
   },
   { immediate: true }
 )
+
+async function loadPlaylists() {
+  playlists.value = await window.api.getPlaylists()
+}
+
+async function handleAddToPlaylist({ track, playlistId }) {
+  await window.api.addTrackToPlaylist(playlistId, track.id)
+  await loadPlaylists()
+}
 
 async function loadTracks() {
   const result = await window.api.getTracks()
@@ -107,7 +120,10 @@ function formatDuration(seconds) {
   }
 }
 
-onMounted(loadTracks)
+onMounted(async () => {
+  await loadTracks()
+  await loadPlaylists()
+})
 
 // add cover to tracks
 async function attachCover(track) {
