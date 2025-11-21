@@ -78,7 +78,8 @@
       "noPlaysTracks": "No plays recorded yet. Start listening to see your top tracks!",
       "topArtistsTitle": "Top 10 Most Played Artists",
       "noPlaysArtists": "No plays recorded yet. Start listening to see your top artists!",
-      "trackCountInLibrary": "{count} tracks in library"
+      "trackCountInLibrary": "{count} tracks in library",
+      "playlists": "Playlists"
     }
   },
 
@@ -93,7 +94,9 @@
     "allTime": "all time",
     "unknownArtist": "Unknown Artist",
     "plays": "plays",
-    "noTrackSelected": "No track selected"
+    "noTrackSelected": "No track selected",
+    "tracks": "tracks",
+    "noPlaylists": "No playlists"
   },
 
   "settings": {
