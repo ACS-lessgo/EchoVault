@@ -2,9 +2,11 @@ name: Linux Build (Ubuntu 20.04)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - release/**
   pull_request:
-    branches: [ main ]
+    branches:
+      - release/**
   workflow_dispatch:
 
 jobs:
