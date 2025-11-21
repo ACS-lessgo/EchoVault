@@ -236,7 +236,11 @@
 
               <div class="about-card">
                 <div class="app-icon">
-                  <i class="fa-solid fa-music"></i>
+                  <img
+                    src="../../frontend/assets/icons/app-icon.png"
+                    alt="App Icon"
+                    class="app-icon"
+                  />
                 </div>
                 <h3>{{ t("app.name") }}</h3>
                 <p class="version">
@@ -246,7 +250,20 @@
                   {{ t("settings.about.appDescription") }}
                 </p>
                 <div class="about-links">
-                  <!-- placeholder for future links -->
+                  <p class="attribution">
+                    Echo dot icon by
+                    <a
+                      href="https://www.flaticon.com/authors/iyahicon"
+                      target="_blank"
+                      >IYAHICON</a
+                    >
+                    from
+                    <a
+                      href="https://www.flaticon.com/free-icons/echo-dot"
+                      target="_blank"
+                      >Flaticon</a
+                    >
+                  </p>
                 </div>
               </div>
             </div>
@@ -711,8 +728,7 @@ onMounted(() => {
 .app-icon {
   width: 80px;
   height: 80px;
-  margin: 0 auto 1.5rem;
-  background: var(--accent);
+  margin: 0 auto 1rem;
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -745,6 +761,16 @@ onMounted(() => {
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+.attribution {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 12px;
+}
+
+.attribution a {
+  color: var(--muted-text);
 }
 
 .link-button {
