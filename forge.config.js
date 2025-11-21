@@ -22,7 +22,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
+        icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.ico"),
       },
     },
 
