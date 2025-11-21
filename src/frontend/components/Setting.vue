@@ -334,7 +334,7 @@ const accentColors = [
   { key: "indigo", value: "#6c5ce7" },
 ]
 
-const version = "1.0.0-beta"
+const version = "1.0.1-beta"
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)
