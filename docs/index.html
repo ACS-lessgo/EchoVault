@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EchoVault - Modern Music Player</title>
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="icon" type="image/png" href="./assests/app-icon.png" />
+    <!-- Lucide Icon Library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">
+        <div class="logo-icon">
+          <img
+            src="./assests/app-icon.png"
+            alt=""
+            srcset=""
+            class="logo-icon"
+          />
+        </div>
+        <span>EchoVault</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="https://github.com/ACS-lessgo/EchoVault/releases"
+          >Update log
+        </a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1>
+          <span class="brand">EchoVault</span><br />
+          Modern, high-fidelity<br />
+          music player
+        </h1>
+
+        <div class="cta-buttons">
+          <a
+            href="https://github.com/ACS-lessgo/EchoVault/releases"
+            class="btn btn-primary"
+            >Download now</a
+          >
+          <a
+            href="https://github.com/ACS-lessgo/EchoVault"
+            class="btn btn-secondary"
+            >View on GitHub</a
+          >
+        </div>
+      </div>
+
+      <div class="hero-image">
+        <div class="app-icon">
+          <div class="wave">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="features" id="features">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="monitor"></i></div>
+          <h3>Cross-platform support</h3>
+          <p>Works seamlessly on Windows and Linux</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="disc-3"></i></div>
+          <h3>Multiformat support</h3>
+          <p>FLAC, MP3, WAV, OGG, M4A, AAC, OPUS and more</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="palette"></i></div>
+          <h3>Beautiful themes</h3>
+          <p>Light & dark modes with custom accent colors</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="volume-2"></i></div>
+          <h3>High-fidelity audio</h3>
+          <p>Built-in equalizer and audio enhancements</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="list-music"></i></div>
+          <h3>Smart playlists</h3>
+          <p>Powerful playlist creation and management tools</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="zap"></i></div>
+          <h3>Lightning fast</h3>
+          <p>Instant library scanning and seamless playback</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="lock"></i></div>
+          <h3>Privacy focused</h3>
+          <p>Offline-first, no analytics, your data stays local</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon"><i data-lucide="settings"></i></div>
+          <h3>Highly customizable</h3>
+          <p>Tweak every part of your music experience</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="screenshots">
+      <h2 class="section-title">App Screenshots</h2>
+
+      <div class="screenshot-gallery">
+        <img src="./assests/screenshots/home.png" alt="Home Screen" />
+        <img src="./assests/screenshots/all-songs.png" alt="All songs" />
+        <img
+          src="./assests/screenshots/colors-n-themes.png"
+          alt="Color theme"
+        />
+        <img src="./assests/screenshots/queue.png" alt="Queue View" />
+        <img src="./assests/screenshots/artists.png" alt="Artists" />
+        <img src="./assests/screenshots/library-view.png" alt="Library" />
+        <img src="./assests//screenshots/playlists.png" alt="playlist" />
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 EchoVault. Built for music lovers.</p>
+    </footer>
+  </body>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="lightbox hidden">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="Preview" />
+  </div>
+
+  <script src="./index.js"></script>
+</html>
