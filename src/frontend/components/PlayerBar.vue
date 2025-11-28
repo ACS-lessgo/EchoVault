@@ -425,7 +425,6 @@ const togglePlayListQueueView = () => {
   height: 6px;
   background: var(--border-color);
   cursor: pointer;
-  z-index: 10000;
 }
 
 .progress-fill {
