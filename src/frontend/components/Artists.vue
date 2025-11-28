@@ -65,6 +65,7 @@ import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import TrackList from "./TrackList.vue"
 import { useI18n } from "vue-i18n"
+import { useRoute } from "vue-router"
 
 const { t } = useI18n()
 const artists = ref([])
@@ -77,6 +78,20 @@ const playlists = ref([])
 
 const search = useSearchStore()
 const player = usePlayerStore()
+const route = useRoute()
+
+watch(
+  () => route.params.id,
+  (artistId) => {
+    if (artistId) {
+      openArtist(artistId)
+      isArtistView.value = false
+    } else {
+      isArtistView.value = true
+    }
+  },
+  { immediate: true }
+)
 
 // --- Reusable cover attach helpers ---
 function formatTrack(track) {

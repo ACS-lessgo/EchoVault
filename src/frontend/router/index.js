@@ -13,6 +13,7 @@ const routes = [
   { path: "/", component: Home },
   { path: "/songs", component: AllSongs },
   { path: "/artists", component: Artists },
+  { path: "/artists/:id", component: Artists },
   { path: "/library", component: LibraryInfo },
   { path: "/playlists", component: Playlists },
 ]
