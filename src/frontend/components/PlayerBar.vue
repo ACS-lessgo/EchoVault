@@ -125,6 +125,7 @@
           v-model="volume"
           @input="onVolumeChange"
           class="volume-slider"
+          :title="`Volume: ${volume}%`"
         />
       </div>
     </div>
