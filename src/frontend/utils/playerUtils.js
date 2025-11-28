@@ -153,7 +153,20 @@ export function useTrackLike(player) {
 
     // send same to db
     await window.api.toggleLike(track.id, newStatus)
-    window.api.info(`Track ${track.title} like status updated: ${newStatus}`)
+
+    // based on status, show toast
+
+    if (newStatus) {
+      window.api.showToast?.(
+        `Track ${track.title} has been added to your liked songs.`,
+        "success"
+      )
+    } else {
+      window.api.showToast?.(
+        `Track ${track.title} has been removed from your liked songs.`,
+        "success"
+      )
+    }
   }
 
   return { toggleLikedSong }

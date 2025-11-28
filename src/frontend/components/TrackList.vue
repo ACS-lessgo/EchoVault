@@ -157,6 +157,11 @@ function closeMenu() {
 
 function addTrackToPlaylist(track, playlistId) {
   emit("add-to-playlist", { track, playlistId })
+  // send add track notif
+  window.api.showToast?.(
+    `"${track.title || "Track"}" has been added to the playlist.`,
+    "success"
+  )
   closeMenu()
 }
 
@@ -165,6 +170,11 @@ function removeFromPlaylist(track) {
     track,
     playlistId: props.currentPlaylistId,
   })
+  // send remove track notif
+  window.api.showToast?.(
+    `"${track.title || "Track"}" has been removed from the playlist.`,
+    "success"
+  )
   closeMenu()
 }
 
