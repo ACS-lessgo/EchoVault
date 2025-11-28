@@ -31,9 +31,9 @@
 
       <div class="song-details">
         <p>{{ player.currentTrack?.title || t("labels.noTrackSelected") }}</p>
-        <small>{{
-          player.currentTrack?.artist || t("labels.unknownArtist")
-        }}</small>
+        <small class="artist-name" @click="openArtistFromPlayer">
+          {{ player.currentTrack?.artist || t("labels.unknownArtist") }}
+        </small>
       </div>
     </div>
 
@@ -134,6 +134,7 @@
 <script setup>
 import { computed, watch } from "vue"
 import { usePlayerStore } from "../store/player.js"
+import { useRouter } from "vue-router"
 import {
   Previous,
   Next,
@@ -164,6 +165,7 @@ const emit = defineEmits(["toggle-queue"])
 
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
+const router = useRouter()
 
 const { volume, onVolumeChange, toggleMute } = useVolumeControl(player)
 const {
@@ -191,6 +193,12 @@ watch(volume, (newVal) => {
 
 const togglePlayListQueueView = () => {
   emit("toggle-queue")
+}
+
+const openArtistFromPlayer = () => {
+  if (!player.currentTrack?.artist_id) return
+
+  router.push(`/artists/${player.currentTrack.artist_id}`)
 }
 </script>
 
@@ -425,7 +433,6 @@ const togglePlayListQueueView = () => {
   height: 6px;
   background: var(--border-color);
   cursor: pointer;
-  z-index: 10000;
 }
 
 .progress-fill {
@@ -446,5 +453,14 @@ const togglePlayListQueueView = () => {
   pointer-events: none;
   white-space: nowrap;
   z-index: 10001;
+}
+
+.artist-name {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.artist-name:hover {
+  opacity: 0.7;
 }
 </style>

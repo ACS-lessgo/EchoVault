@@ -297,7 +297,7 @@ const isDarkMode = computed(() => themeStore.theme === "dark")
 
 // locale + accent
 const currentLocale = ref(localStorage.getItem("locale") || "en")
-const activeAccent = ref(localStorage.getItem("accentColor") || "#8e44ad")
+const activeAccent = ref(localStorage.getItem("accentColor") || "#3498db") // deafult to blue override here
 
 const tabs = [
   {
@@ -324,8 +324,8 @@ const tabs = [
 ]
 
 const accentColors = [
-  { key: "purple", value: "#8e44ad" },
   { key: "blue", value: "#3498db" },
+  { key: "purple", value: "#8e44ad" },
   { key: "green", value: "#27ae60" },
   { key: "orange", value: "#e67e22" },
   { key: "pink", value: "#e84393" },
@@ -334,7 +334,7 @@ const accentColors = [
   { key: "indigo", value: "#6c5ce7" },
 ]
 
-const version = "1.0.0-beta"
+const version = "1.0.1-beta"
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)

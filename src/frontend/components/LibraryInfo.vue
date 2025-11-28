@@ -142,6 +142,24 @@
           </div>
           <div class="info-sub">all time</div>
         </div>
+
+        <!-- Playlist info -->
+        <div class="info-card" v-if="stats.playlistsCount !== undefined">
+          <div class="info-header">
+            <i class="fas fa-list info-icon"></i>
+            <span class="info-title">{{ t("stats.top.playlists") }}</span>
+          </div>
+          <div class="info-value">{{ stats.playlistsCount }}</div>
+          <div class="info-sub">
+            <template v-if="stats.topPlaylist">
+              Top Playlist : {{ stats.topPlaylist.name }} —
+              {{ stats.topPlaylist.track_count }} {{ t("labels.tracks") }}
+            </template>
+            <template v-else>
+              {{ t("labels.noPlaylists") }}
+            </template>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -260,6 +278,8 @@ const stats = ref({
   topTracks: [],
   topArtists: [],
   totalListeningTime: 0,
+  playlistsCount: 0,
+  topPlaylist: null,
 })
 
 const loading = ref(true)
@@ -268,6 +288,7 @@ const animatedArtists = ref(0)
 const animatedLiked = ref(0)
 const animatedFolders = ref(0)
 const animatedListeningTime = ref(0)
+const animatedPlaylists = ref(0)
 
 // Animate numbers
 function animateValue(target, duration = 1500) {
@@ -310,6 +331,9 @@ const updateAnimations = () => {
     animatedListeningTime.value = Math.floor(
       stats.value.totalListeningTime * easeOutQuart
     )
+    animatedPlaylists.value = Math.floor(
+      (stats.value.playlistsCount || 0) * easeOutQuart
+    )
 
     if (progress < 1) {
       requestAnimationFrame(animate)
@@ -338,6 +362,31 @@ async function loadStats() {
     // Get folders
     const folders = await window.api.getFolders()
     stats.value.totalFolders = folders.length
+
+    // Get playlists and populate playlist-related stats
+    try {
+      const playlists = await window.api.getPlaylists()
+      stats.value.playlistsCount = playlists ? playlists.length : 0
+
+      // choose top playlist to show (by track_count or created_at — here by track_count desc)
+      if (playlists && playlists.length > 0) {
+        const sorted = [...playlists].sort(
+          (a, b) => (b.track_count || 0) - (a.track_count || 0)
+        )
+        stats.value.topPlaylist = {
+          id: sorted[0].id,
+          name: sorted[0].name,
+          track_count: sorted[0].track_count || 0,
+          cover: sorted[0].cover || null,
+        }
+      } else {
+        stats.value.topPlaylist = null
+      }
+    } catch (e) {
+      console.warn("Could not get playlists:", e)
+      stats.value.playlistsCount = 0
+      stats.value.topPlaylist = null
+    }
 
     // Calculate storage and duration
     let totalSize = 0

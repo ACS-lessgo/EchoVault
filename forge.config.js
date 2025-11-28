@@ -5,7 +5,7 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses")
 module.exports = {
   // IMP : dont touch the packagerConfig
   packagerConfig: {
-    icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
+    icon: path.join(__dirname, "src/frontend/assets/icons/app-icon"),
     executableName: "echovault",
     asar: {
       unpack: "*.{node,dll}",
@@ -22,7 +22,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.png"),
+        icon: path.join(__dirname, "src/frontend/assets/icons/app-icon.ico"),
       },
     },
 
