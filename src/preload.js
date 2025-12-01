@@ -74,4 +74,15 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("delete-playlist", playlistId),
   updatePlaylist: (playlistId, name) =>
     ipcRenderer.invoke("update-playlist", playlistId, name),
+
+  // media controls
+  updateMediaMetadata: (metadata) =>
+    ipcRenderer.send("update-media-metadata", metadata),
+  updatePlaybackState: (state) =>
+    ipcRenderer.send("update-playback-state", state),
+  getCoverBlobUrl: async (coverUrl) => {
+    const response = await fetch(coverUrl) // coverUrl = echovault://...
+    const blob = await response.blob()
+    return URL.createObjectURL(blob)
+  },
 })

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, protocol } from "electron"
+import { app, BrowserWindow, protocol, ipcMain } from "electron"
 import path from "node:path"
 import fs from "node:fs"
 import started from "electron-squirrel-startup"
@@ -129,6 +129,15 @@ app.whenReady().then(() => {
   const db = initDB()
   createWindow()
   registerAllHandlers(mainWindow, db)
+
+  // Set up media session handlers
+  mainWindow.webContents.on("media-started-playing", () => {
+    // Optionally handle media started
+  })
+
+  mainWindow.webContents.on("media-paused", () => {
+    // Optionally handle media paused
+  })
 })
 
 app.on("window-all-closed", () => {

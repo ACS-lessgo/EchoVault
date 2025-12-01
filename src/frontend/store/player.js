@@ -36,11 +36,92 @@ export const usePlayerStore = defineStore("player", {
     queueLength: (state) => state.queue.length,
   },
   actions: {
+    async updateSystemMediaSession() {
+      if (!("mediaSession" in navigator)) {
+        console.warn("MediaSession API not available")
+        return
+      }
+
+      const track = this.currentTrack
+      let artworkUrl = null
+
+      if (track.coverDataUrl) {
+        try {
+          artworkUrl = await window.api.getCoverBlobUrl(track.coverDataUrl)
+        } catch (e) {
+          console.warn("Failed to convert cover URL:", e)
+        }
+      }
+
+      // Update metadata
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || "Unknown Title",
+        artist: track.artist || "Unknown Artist",
+        album: track.album || "Unknown Album",
+        artwork: artworkUrl
+          ? [{ src: artworkUrl, sizes: "512x512", type: "image/jpeg" }]
+          : [],
+      })
+
+      // Set playback state
+      navigator.mediaSession.playbackState = this.isPlaying
+        ? "playing"
+        : "paused"
+
+      // Set up action handlers (only need to do once)
+      if (!this._mediaSessionInitialized) {
+        navigator.mediaSession.setActionHandler("play", () => {
+          this.togglePlay()
+        })
+
+        navigator.mediaSession.setActionHandler("pause", () => {
+          this.togglePlay()
+        })
+
+        navigator.mediaSession.setActionHandler("previoustrack", () => {
+          this.playPrevious()
+        })
+
+        navigator.mediaSession.setActionHandler("nexttrack", () => {
+          this.playNext()
+        })
+
+        navigator.mediaSession.setActionHandler("seekto", (details) => {
+          if (details.seekTime) {
+            this.seekTo(details.seekTime)
+          }
+        })
+
+        navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+          const skipTime = details.seekOffset || 10
+          this.seekTo(Math.max(0, this.currentTime - skipTime))
+        })
+
+        navigator.mediaSession.setActionHandler("seekforward", (details) => {
+          const skipTime = details.seekOffset || 10
+          this.seekTo(Math.min(this.duration, this.currentTime + skipTime))
+        })
+
+        this._mediaSessionInitialized = true
+      }
+
+      // Update position state
+      navigator.mediaSession.setPositionState({
+        duration: this.duration,
+        playbackRate: 1.0,
+        position: this.currentTime,
+      })
+    },
+
     async setTrack(track, addToQueue = true) {
+      console.log("=== setTrack() received track ===")
+      console.log(track)
+
       const clonedTrack = { ...track } // Make a copy
       this.currentTrack = clonedTrack
       this.lyrics = null // Reset lyrics
       this.isPlaying = true
+      await this.updateSystemMediaSession()
 
       // Add to queue
       if (addToQueue) {
@@ -223,6 +304,9 @@ export const usePlayerStore = defineStore("player", {
       }
 
       window.api.info("No previous track")
+      if (this.currentTrack?.file_path) {
+        await this.updateSystemMediaSession()
+      }
       return false
     },
 
@@ -255,6 +339,9 @@ export const usePlayerStore = defineStore("player", {
       }
 
       window.api.info("No next track")
+      if (this.currentTrack?.file_path) {
+        await this.updateSystemMediaSession()
+      }
       return false
     },
 
@@ -287,6 +374,8 @@ export const usePlayerStore = defineStore("player", {
       if (this.isPlaying) {
         await audioCtx.suspend()
         this.isPlaying = false
+        window.api.updatePlaybackState("paused")
+        await this.updateSystemMediaSession()
         return
       }
 
@@ -294,6 +383,8 @@ export const usePlayerStore = defineStore("player", {
       if (audioCtx.state === "suspended" && currentSource) {
         await audioCtx.resume()
         this.isPlaying = true
+        window.api.updatePlaybackState("playing")
+        await this.updateSystemMediaSession()
         return
       }
 
@@ -302,6 +393,9 @@ export const usePlayerStore = defineStore("player", {
         await this.playTrack(this.currentTrack.file_path)
         this.isPlaying = true
       }
+
+      window.api.updatePlaybackState("playing")
+      await this.updateSystemMediaSession()
     },
 
     setVolume(level) {
@@ -449,6 +543,18 @@ export const usePlayerStore = defineStore("player", {
           this.currentTime = Math.min(elapsed, currentAudioBuffer.duration)
           this.duration = currentAudioBuffer.duration
           this.progress = Math.min(this.currentTime / this.duration, 1)
+
+          if ("mediaSession" in navigator && this.currentTime > 0) {
+            try {
+              navigator.mediaSession.setPositionState({
+                duration: this.duration,
+                playbackRate: 1.0,
+                position: this.currentTime,
+              })
+            } catch (e) {
+              // Ignore errors (happens if position > duration)
+            }
+          }
         }
       }, 200)
     },
@@ -478,6 +584,8 @@ export const usePlayerStore = defineStore("player", {
         this.duration = currentAudioBuffer.duration
         this.progress = t / this.duration
         _playStartTime = audioCtx.currentTime - t
+
+        await this.updateSystemMediaSession()
 
         // restart progress tracking
         this.startProgressUpdater()
