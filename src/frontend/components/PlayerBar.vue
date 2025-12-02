@@ -76,6 +76,17 @@
         >
           <img :src="Playlist" class="playbar-icon-class" alt="Playlist" />
         </button>
+        <button
+          @click="toggleImmersiveMode"
+          class="icon-btn"
+          title="Toggle Immersive Mode"
+        >
+          <img
+            :src="DesktopLyrics"
+            class="playbar-icon-class"
+            alt="DesktopLyrics"
+          />
+        </button>
         <button @click="toggleLikedSong" class="icon-btn" :title="`Like Song`">
           <img
             class="playbar-icon-class"
@@ -125,6 +136,7 @@
           v-model="volume"
           @input="onVolumeChange"
           class="volume-slider"
+          :title="`Volume: ${volume}%`"
         />
       </div>
     </div>
@@ -148,6 +160,7 @@ import {
   Repeat,
   RepeatOne,
   Playlist,
+  DesktopLyrics,
 } from "../assets/icons/icons"
 
 import {
@@ -161,7 +174,14 @@ import {
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
-const emit = defineEmits(["toggle-queue"])
+const emit = defineEmits(["toggle-queue", "toggle-immersive-mode"])
+
+const props = defineProps({
+  isInImmersiveMode: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
@@ -193,6 +213,11 @@ watch(volume, (newVal) => {
 
 const togglePlayListQueueView = () => {
   emit("toggle-queue")
+}
+
+const toggleImmersiveMode = () => {
+  console.log("Toggling immersive mode")
+  emit("toggle-immersive-mode")
 }
 
 const openArtistFromPlayer = () => {
