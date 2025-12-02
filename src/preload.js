@@ -54,6 +54,8 @@ contextBridge.exposeInMainWorld("api", {
   maximize: () => ipcRenderer.send("win:maximize"),
   close: () => ipcRenderer.send("win:close"),
   isMaximized: () => ipcRenderer.invoke("win:isMaximized"),
+  setImmersiveMode: () => ipcRenderer.invoke("win:set-immersive-mode"),
+  resetImmersiveMode: () => ipcRenderer.invoke("win:reset-immersive-mode"),
 
   // logs
   info: (message) => log.info(message),

@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <TopBar @toggle-setting-menu="toggleSettingMenu" />
+  <div id="app" :class="{ 'immersive-active': isImmersiveMode }">
+    <TopBar @toggle-setting-menu="toggleSettingMenu" v-if="!isImmersiveMode" />
 
     <div class="main-layout" :class="{ 'queue-open': showQueue }">
       <SideNav :collapsed="showQueue" v-if="showMainViews" />
@@ -11,7 +11,15 @@
       <QueueSidebar :showQueue="showQueue" @close="closeQueue" />
     </div>
 
-    <PlayerBar @toggle-queue="toggleQueue" v-if="showMainViews" />
+    <PlayerBar
+      @toggle-queue="toggleQueue"
+      @toggle-immersive-mode="toggleImmersiveMode"
+      v-if="showMainViews && !isImmersiveMode"
+    />
+    <ImmersiveMode
+      v-if="isImmersiveMode"
+      @close-immersive-mode="toggleImmersiveMode"
+    />
     <MiniPlayer />
     <Toast />
   </div>
@@ -26,10 +34,12 @@ import QueueSidebar from "./components/QueueSidebar.vue"
 import Toast from "./components/Toast.vue"
 import MiniPlayer from "./components/MiniPlayer.vue"
 import Setting from "./components/Setting.vue"
+import ImmersiveMode from "./components/ImmersiveMode.vue"
 
 const showQueue = ref(false)
 const showSettingMenu = ref(false)
 const showMainViews = computed(() => !showSettingMenu.value)
+const isImmersiveMode = ref(false)
 
 const toggleQueue = () => {
   showQueue.value = !showQueue.value
@@ -45,6 +55,15 @@ const closeSettingMenu = () => {
 
 const closeQueue = () => {
   showQueue.value = false
+}
+
+const toggleImmersiveMode = () => {
+  isImmersiveMode.value = !isImmersiveMode.value
+  if (isImmersiveMode.value) {
+    window.api.setImmersiveMode()
+  } else {
+    window.api.resetImmersiveMode()
+  }
 }
 </script>
 
@@ -81,6 +100,23 @@ body,
   background-color: var(--content-bg);
   color: var(--text-color);
   transition: all 0.3s ease;
+}
+
+#app.immersive-active .main-layout {
+  /* Collapse the main layout when immersive is active */
+  height: 0;
+  flex: 0 0 0;
+}
+
+#app.immersive-active .content-area {
+  /* Hide content area fully */
+  display: none;
+}
+
+/* Also, add a class to the root element for clarity (optional but good practice) */
+#app.immersive-active {
+  /* Ensures nothing overflows the screen when in immersive mode */
+  overflow: hidden;
 }
 
 /* Dark theme scrollbar */
