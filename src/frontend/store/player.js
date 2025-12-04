@@ -18,7 +18,7 @@ export const usePlayerStore = defineStore("player", {
     },
     queue: [], // Track queue
     currentIndex: 0, // curr track index in queue
-    volume: 0.5, // 0 - 1 , default 0.5
+    volume: 1, // 0 - 1 , default 0.5 -> 1
     likedUpdated: 0,
     repeatMode: "off", // 'off', 'all', 'one'
     shuffleEnabled: false,
