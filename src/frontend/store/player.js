@@ -18,7 +18,7 @@ export const usePlayerStore = defineStore("player", {
     },
     queue: [], // Track queue
     currentIndex: 0, // curr track index in queue
-    volume: 0.5, // 0 - 1 , default 0.5
+    volume: 1, // 0 - 1 , default 0.5 -> 1
     likedUpdated: 0,
     repeatMode: "off", // 'off', 'all', 'one'
     shuffleEnabled: false,
@@ -45,7 +45,7 @@ export const usePlayerStore = defineStore("player", {
       // Add to queue
       if (addToQueue) {
         const existingIndex = this.queue.findIndex(
-          (t) => t.file_path === track.file_path
+          (t) => t.file_path === track.file_path,
         )
 
         if (existingIndex === -1) {
@@ -117,7 +117,7 @@ export const usePlayerStore = defineStore("player", {
         // Combine chunks
         const totalLength = chunks.reduce(
           (acc, chunk) => acc + chunk.byteLength,
-          0
+          0,
         )
         const combinedBuffer = new ArrayBuffer(totalLength)
         const combinedView = new Uint8Array(combinedBuffer)
@@ -183,7 +183,7 @@ export const usePlayerStore = defineStore("player", {
         // error toast
         window.api.showToast?.(
           `Track "${this.currentTrack?.title || "Unknown"}" can't be played — unsupported or corrupted format.`,
-          "error"
+          "error",
         )
 
         // next track automatically
@@ -317,7 +317,7 @@ export const usePlayerStore = defineStore("player", {
 
       try {
         const lyrics = await window.api.getEmbeddedLyrics(
-          this.currentTrack.file_path
+          this.currentTrack.file_path,
         )
         this.lyrics = lyrics || "No lyrics found."
       } catch (err) {
@@ -356,7 +356,7 @@ export const usePlayerStore = defineStore("player", {
         // Find current track’s new position
         const currentFile = this.currentTrack?.file_path
         const currentIndexInOriginal = this.queue.findIndex(
-          (t) => t.file_path === currentFile
+          (t) => t.file_path === currentFile,
         )
         const newPos = this.shuffleOrder.indexOf(currentIndexInOriginal)
         this.currentIndex = newPos >= 0 ? newPos : 0
@@ -366,7 +366,7 @@ export const usePlayerStore = defineStore("player", {
         // Restore original order
         const currentFile = this.currentTrack?.file_path
         const currentIndexInOriginal = this.queue.findIndex(
-          (t) => t.file_path === currentFile
+          (t) => t.file_path === currentFile,
         )
         this.shuffleOrder = []
         this.currentIndex =
@@ -391,7 +391,7 @@ export const usePlayerStore = defineStore("player", {
       window.api.info(
         "AudioContext current time:",
         audioCtx.currentTime.toFixed(2),
-        "s"
+        "s",
       )
 
       // Check if source exists
@@ -423,17 +423,17 @@ export const usePlayerStore = defineStore("player", {
         window.api.info(
           "  JS Heap Used:",
           Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
-          "MB"
+          "MB",
         )
         window.api.info(
           "  JS Heap Total:",
           Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
-          "MB"
+          "MB",
         )
         window.api.info(
           "  JS Heap Limit:",
           Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024),
-          "MB"
+          "MB",
         )
       }
 
