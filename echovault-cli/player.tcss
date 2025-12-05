@@ -1,0 +1,54 @@
+Screen {
+    background: $surface;
+}
+
+.section-title {
+    background: $primary;
+    color: $text;
+    padding: 1;
+    text-align: center;
+    text-style: bold;
+}
+
+.input-row {
+    height: auto;
+    padding: 1;
+}
+
+#dir-input {
+    width: 3fr;
+}
+
+.controls {
+    height: auto;
+    padding: 1;
+}
+
+.now-playing {
+    background: $panel;
+    padding: 1;
+    text-align: center;
+    text-style: bold;
+    color: $accent;
+}
+
+.playback-info {
+    background: $panel;
+    padding: 1;
+    text-align: center;
+    color: $text;
+}
+
+DataTable {
+    height: 1fr;
+}
+
+DirectoryManager {
+    height: 35%;
+    border: solid $primary;
+}
+
+MusicPlayer {
+    height: 65%;
+    border: solid $accent;
+}
