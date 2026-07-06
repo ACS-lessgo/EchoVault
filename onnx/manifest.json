@@ -1,0 +1,14 @@
+{
+    "modelVersion": "1.0.0",
+    "downloadUrl": "https://github.com/rohan-prasen/audioreconstruction/blob/main/onnx/exported/model.onnx",
+    "files": {
+        "model.onnx": {
+            "sha256": "",
+            "bytes": 0
+        },
+        "config.json": {
+            "sha256": "",
+            "bytes": 0
+        }
+    }
+}
