@@ -96,7 +96,8 @@
     "plays": "plays",
     "noTrackSelected": "No track selected",
     "tracks": "tracks",
-    "noPlaylists": "No playlists"
+    "noPlaylists": "No playlists",
+    "noLyricsFound": "No lyrics found"
   },
 
   "settings": {
@@ -149,6 +150,24 @@
     "audio": {
       "title": "Audio Settings",
       "description": "Configure audio playback and equalizer",
+      "onlineLyrics": {
+        "title": "Fetch lyrics online",
+        "description": "Automatically look up synced lyrics online when none are found locally"
+      },
+      "lastfm": {
+        "title": "Last.fm Scrobbling",
+        "description": "Connect your Last.fm account to automatically scrobble what you play",
+        "credentialsHint": "Register a free API application at the link below (any application name works, e.g. \"EchoVault\" — the other fields can be left blank):",
+        "apiKeyLabel": "API Key",
+        "apiSecretLabel": "API Secret",
+        "saveAndConnect": "Save",
+        "connect": "Connect",
+        "authorizeHint": "Authorize EchoVault in the browser tab that just opened, then continue",
+        "confirm": "I've authorized, continue",
+        "error": "Couldn't connect: {error}",
+        "connectedAs": "Connected as {username}",
+        "disconnect": "Disconnect"
+      },
       "equalizer": {
         "title": "Equalizer",
         "description": "Adjust audio frequencies to your preference"

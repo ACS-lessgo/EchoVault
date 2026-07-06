@@ -76,6 +76,11 @@
             ></div>
             <div
               v-if="hoverTimeVisible"
+              class="progress-cursor-dot"
+              :style="{ left: hoverX + 'px' }"
+            ></div>
+            <div
+              v-if="hoverTimeVisible"
               class="hover-time"
               :style="{ left: hoverX + 'px' }"
             >
@@ -522,6 +527,20 @@ onUnmounted(() => {
 
 .progress-bar:hover .progress-handle {
   opacity: 1;
+}
+
+.progress-cursor-dot {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border: 1px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .hover-time {

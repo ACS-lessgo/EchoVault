@@ -10,8 +10,8 @@ contextBridge.exposeInMainWorld("api", {
 
   // tracks
   getTracks: () => ipcRenderer.invoke("tracks:get-tracks"),
-  getEmbeddedLyrics: (filePath) =>
-    ipcRenderer.invoke("tracks:get-embedded-lyrics", filePath),
+  getLyrics: (filePath, options) =>
+    ipcRenderer.invoke("tracks:get-lyrics", filePath, options),
   toggleLike: (trackId, isLiked) =>
     ipcRenderer.invoke("tracks:updateLike", trackId, isLiked),
   getLikedTracks: () => ipcRenderer.invoke("tracks:get-liked-tracks"),
@@ -95,4 +95,15 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("delete-playlist", playlistId),
   updatePlaylist: (playlistId, name) =>
     ipcRenderer.invoke("update-playlist", playlistId, name),
+
+  // last.fm
+  lastfmGetStatus: () => ipcRenderer.invoke("lastfm:get-status"),
+  lastfmSaveCredentials: (apiKey, apiSecret) =>
+    ipcRenderer.invoke("lastfm:save-credentials", { apiKey, apiSecret }),
+  lastfmConnect: () => ipcRenderer.invoke("lastfm:connect"),
+  lastfmConfirmAuth: () => ipcRenderer.invoke("lastfm:confirm-auth"),
+  lastfmDisconnect: () => ipcRenderer.invoke("lastfm:disconnect"),
+  lastfmSetEnabled: (enabled) => ipcRenderer.invoke("lastfm:set-enabled", enabled),
+  lastfmNowPlaying: (track) => ipcRenderer.invoke("lastfm:now-playing", track),
+  lastfmScrobble: (track) => ipcRenderer.invoke("lastfm:scrobble", track),
 })
