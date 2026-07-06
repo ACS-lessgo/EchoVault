@@ -1,10 +1,22 @@
 {
+<<<<<<< HEAD
   "mcpServers": {
     "code-review-graph": {
       "command": "uvx",
       "args": ["code-review-graph", "serve"],
       "cwd": "/home/rohan-prasen/Code/EchoVault",
       "type": "stdio"
+=======
+    "mcpServers": {
+        "code-review-graph": {
+            "command": "uvx",
+            "args": [
+                "code-review-graph",
+                "serve"
+            ],
+            "cwd": "/home/rohan-prasen/Code/EchoVault",
+            "type": "stdio"
+        }
+>>>>>>> 3094019 (chore: adding context for ai-assisted coding)
     }
-  }
 }
