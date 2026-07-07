@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "baseUrl": "https://github.com/rohan-prasen/EchoVault/releases/download/enhancer-v1.0.0",
+  "model": {
+    "file": "model.onnx",
+    "sha256": "b08db07825ebb164a927e9ef50dc5e566d1c13c0515af039fc2350b7a523c379",
+    "bytes": 112608277
+  },
+  "config": {
+    "file": "config.json",
+    "sha256": "5368dceb6297a20fb1ea3768ffc132585776a2edc173c0e164d8ce1bc871425a",
+    "bytes": 280
+  },
+  "binary": {
+    "linux": {
+      "file": "echovault-enhancer-linux",
+      "sha256": "697bfb37da0d6de69a0a210b011e9666e97b76ae0e9f3be4ac3a05295e2117e5",
+      "bytes": 95627696
+    },
+    "win32": {
+      "file": "echovault-enhancer-win.exe",
+      "sha256": "",
+      "bytes": 0
+    }
+  }
+}
