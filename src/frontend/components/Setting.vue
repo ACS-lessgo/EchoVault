@@ -197,7 +197,9 @@
                 <template v-if="!lastfmStore.hasCredentials">
                   <p class="section-description">
                     {{ t("settings.audio.lastfm.credentialsHint") }}
-                    <a href="https://www.last.fm/api/account/create" target="_blank"
+                    <a
+                      href="https://www.last.fm/api/account/create"
+                      target="_blank"
                       >last.fm/api/account/create</a
                     >
                   </p>
@@ -215,12 +217,18 @@
                   />
                   <button
                     class="theme-option"
-                    @click="lastfmStore.saveCredentials(lastfmApiKey, lastfmApiSecret)"
+                    @click="
+                      lastfmStore.saveCredentials(lastfmApiKey, lastfmApiSecret)
+                    "
                   >
                     {{ t("settings.audio.lastfm.saveAndConnect") }}
                   </button>
                   <p v-if="lastfmStore.error" class="section-description">
-                    {{ t("settings.audio.lastfm.error", { error: lastfmStore.error }) }}
+                    {{
+                      t("settings.audio.lastfm.error", {
+                        error: lastfmStore.error,
+                      })
+                    }}
                   </p>
                 </template>
                 <template v-else-if="!lastfmStore.connected">
@@ -243,12 +251,20 @@
                     </button>
                   </template>
                   <p v-if="lastfmStore.error" class="section-description">
-                    {{ t("settings.audio.lastfm.error", { error: lastfmStore.error }) }}
+                    {{
+                      t("settings.audio.lastfm.error", {
+                        error: lastfmStore.error,
+                      })
+                    }}
                   </p>
                 </template>
                 <template v-else>
                   <p class="section-description">
-                    {{ t("settings.audio.lastfm.connectedAs", { username: lastfmStore.username }) }}
+                    {{
+                      t("settings.audio.lastfm.connectedAs", {
+                        username: lastfmStore.username,
+                      })
+                    }}
                   </p>
                   <div class="theme-toggle">
                     <button
@@ -260,7 +276,10 @@
                     >
                       <span class="toggle-knob"></span>
                     </button>
-                    <button class="theme-option" @click="lastfmStore.disconnect()">
+                    <button
+                      class="theme-option"
+                      @click="lastfmStore.disconnect()"
+                    >
                       {{ t("settings.audio.lastfm.disconnect") }}
                     </button>
                   </div>
@@ -438,7 +457,7 @@ const tabs = [
   },
 ]
 
-const version = "1.0.1-beta"
+const version = "1.2.0-beta"
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)
