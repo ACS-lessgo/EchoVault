@@ -14,8 +14,8 @@
   "binary": {
     "linux": {
       "file": "echovault-enhancer-linux",
-      "sha256": "6cf830b15b72b3877833dd1473ad67a7fe0e7c9faeade4ed5a53d060192562d7",
-      "bytes": 98272808
+      "sha256": "697bfb37da0d6de69a0a210b011e9666e97b76ae0e9f3be4ac3a05295e2117e5",
+      "bytes": 95627696
     },
     "win32": {
       "file": "echovault-enhancer-win.exe",

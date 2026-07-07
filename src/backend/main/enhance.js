@@ -13,7 +13,8 @@ import {
 } from "../db/queries.js"
 import log from "../../logger.js"
 
-const ENHANCED_SUFFIX = " (Enhanced)"
+const OUTPUT_FILENAME_SUFFIX = "_reconstructed"
+const TITLE_SUFFIX = " (Enhanced)"
 
 /** Maps inference.py's ERROR <CODE> to a user-facing message. */
 const ERROR_MESSAGES = {
@@ -26,7 +27,7 @@ const ERROR_MESSAGES = {
 function enhancedOutputPath(srcPath) {
   const dir = path.dirname(srcPath)
   const base = path.basename(srcPath, path.extname(srcPath))
-  return path.join(dir, `${base}${ENHANCED_SUFFIX}.flac`)
+  return path.join(dir, `${base}${OUTPUT_FILENAME_SUFFIX}.flac`)
 }
 
 /**
@@ -92,7 +93,7 @@ async function addEnhancedTrack(db, sourceTrack, flacPath) {
   const artistId = artistRow?.id || null
 
   const baseTitle = meta.title || sourceTrack.title || path.basename(flacPath)
-  const title = baseTitle.endsWith(ENHANCED_SUFFIX) ? baseTitle : `${baseTitle}${ENHANCED_SUFFIX}`
+  const title = baseTitle.endsWith(TITLE_SUFFIX) ? baseTitle : `${baseTitle}${TITLE_SUFFIX}`
 
   db.prepare(UPSERT_TRACK).run(
     sourceTrack.folder_id,

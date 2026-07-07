@@ -98,3 +98,7 @@ out/
 */__pycache__/*
 # Added by code-review-graph
 .code-review-graph/
+
+# Build directories
+onnx/build/*
+onnx/dist/*
