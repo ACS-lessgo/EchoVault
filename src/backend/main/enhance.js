@@ -16,6 +16,9 @@ import log from "../../logger.js"
 const OUTPUT_FILENAME_SUFFIX = "_reconstructed"
 const TITLE_SUFFIX = " (Enhanced)"
 
+// Enhancement only makes sense for lossy sources — reject already-lossless formats.
+const LOSSLESS_EXTENSIONS = new Set([".flac", ".wav", ".aiff", ".aif", ".m4a"])
+
 /** Maps inference.py's ERROR <CODE> to a user-facing message. */
 const ERROR_MESSAGES = {
   MODEL_NOT_FOUND: "Enhancement model files are missing or corrupt.",
@@ -117,6 +120,10 @@ export function registerEnhanceHandlers(mainWindow, db) {
   ipcMain.handle("enhance:track", async (_event, trackId) => {
     const track = db.prepare(GET_TRACK_BY_ID).get(trackId)
     if (!track) return { success: false, error: "Track not found." }
+
+    if (LOSSLESS_EXTENSIONS.has(path.extname(track.file_path).toLowerCase())) {
+      return { success: false, error: "Can't enhance a lossless file" }
+    }
 
     const outputPath = enhancedOutputPath(track.file_path)
 
