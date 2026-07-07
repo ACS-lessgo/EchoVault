@@ -6,6 +6,7 @@ import { registerSearchHandlers } from "./search";
 import { registerWindowHandlers } from "./window";
 import { registerPlaylistHandlers } from "./playlists";
 import { registerEnhanceHandlers } from "./enhance";
+import { registerLastfmHandlers } from "./lastfm";
 
 export function registerAllHandlers(mainWindow, db) {
   registerArtistHandlers(db);
@@ -16,4 +17,5 @@ export function registerAllHandlers(mainWindow, db) {
   registerWindowHandlers(mainWindow);
   registerPlaylistHandlers(mainWindow, db);
   registerEnhanceHandlers(mainWindow, db);
+  registerLastfmHandlers();
 }
