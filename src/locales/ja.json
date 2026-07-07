@@ -156,6 +156,20 @@
         "title": "歌詞をオンラインで取得",
         "description": "ローカルで見つからない場合、同期歌詞をオンラインで自動検索します"
       },
+      "lastfm": {
+        "title": "Last.fm スクロビング",
+        "description": "Last.fm アカウントを連携して再生履歴を自動送信します",
+        "credentialsHint": "下記リンクから無料の API アプリケーションを登録してください(アプリケーション名は自由入力可、例:「EchoVault」— 他の項目は空欄で構いません):",
+        "apiKeyLabel": "API キー",
+        "apiSecretLabel": "API シークレット",
+        "saveAndConnect": "保存",
+        "connect": "連携する",
+        "authorizeHint": "開いたブラウザタブで EchoVault を承認してから続行してください",
+        "confirm": "承認しました、続行",
+        "error": "接続に失敗しました: {error}",
+        "connectedAs": "{username} として接続中",
+        "disconnect": "連携解除"
+      },
       "equalizer": {
         "title": "イコライザ",
         "description": "音域を調整して好みの音にします"

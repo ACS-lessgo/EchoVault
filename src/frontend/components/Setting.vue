@@ -185,6 +185,88 @@
                 </button>
               </div>
 
+              <div class="setting-group">
+                <div class="setting-label">
+                  <i class="fa-brands fa-lastfm"></i>
+                  <div>
+                    <h3>{{ t("settings.audio.lastfm.title") }}</h3>
+                    <p>{{ t("settings.audio.lastfm.description") }}</p>
+                  </div>
+                </div>
+
+                <template v-if="!lastfmStore.hasCredentials">
+                  <p class="section-description">
+                    {{ t("settings.audio.lastfm.credentialsHint") }}
+                    <a href="https://www.last.fm/api/account/create" target="_blank"
+                      >last.fm/api/account/create</a
+                    >
+                  </p>
+                  <input
+                    v-model="lastfmApiKey"
+                    type="text"
+                    class="lastfm-input"
+                    :placeholder="t('settings.audio.lastfm.apiKeyLabel')"
+                  />
+                  <input
+                    v-model="lastfmApiSecret"
+                    type="password"
+                    class="lastfm-input"
+                    :placeholder="t('settings.audio.lastfm.apiSecretLabel')"
+                  />
+                  <button
+                    class="theme-option"
+                    @click="lastfmStore.saveCredentials(lastfmApiKey, lastfmApiSecret)"
+                  >
+                    {{ t("settings.audio.lastfm.saveAndConnect") }}
+                  </button>
+                  <p v-if="lastfmStore.error" class="section-description">
+                    {{ t("settings.audio.lastfm.error", { error: lastfmStore.error }) }}
+                  </p>
+                </template>
+                <template v-else-if="!lastfmStore.connected">
+                  <button
+                    v-if="!lastfmStore.authPending"
+                    class="theme-option"
+                    @click="lastfmStore.connect()"
+                  >
+                    {{ t("settings.audio.lastfm.connect") }}
+                  </button>
+                  <template v-else>
+                    <p class="section-description">
+                      {{ t("settings.audio.lastfm.authorizeHint") }}
+                    </p>
+                    <button
+                      class="theme-option active"
+                      @click="lastfmStore.confirmAuth()"
+                    >
+                      {{ t("settings.audio.lastfm.confirm") }}
+                    </button>
+                  </template>
+                  <p v-if="lastfmStore.error" class="section-description">
+                    {{ t("settings.audio.lastfm.error", { error: lastfmStore.error }) }}
+                  </p>
+                </template>
+                <template v-else>
+                  <p class="section-description">
+                    {{ t("settings.audio.lastfm.connectedAs", { username: lastfmStore.username }) }}
+                  </p>
+                  <div class="theme-toggle">
+                    <button
+                      class="toggle-switch"
+                      :class="{ active: lastfmStore.scrobblingEnabled }"
+                      role="switch"
+                      :aria-checked="lastfmStore.scrobblingEnabled"
+                      @click="lastfmStore.toggleEnabled()"
+                    >
+                      <span class="toggle-knob"></span>
+                    </button>
+                    <button class="theme-option" @click="lastfmStore.disconnect()">
+                      {{ t("settings.audio.lastfm.disconnect") }}
+                    </button>
+                  </div>
+                </template>
+              </div>
+
               <div class="setting-group disabled">
                 <div class="setting-label">
                   <i class="fa-solid fa-sliders"></i>
@@ -298,6 +380,7 @@ import { ref, onMounted, computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { useThemeStore } from "../store/theme.js"
 import { useAccentStore } from "../store/accent.js"
+import { useLastfmStore } from "../store/lastfm.js"
 
 const props = defineProps({
   showSettingMenu: {
@@ -309,6 +392,9 @@ const props = defineProps({
 const emit = defineEmits(["close"])
 const themeStore = useThemeStore()
 const accentStore = useAccentStore()
+const lastfmStore = useLastfmStore()
+const lastfmApiKey = ref("")
+const lastfmApiSecret = ref("")
 const { locale, t } = useI18n()
 
 const activeTab = ref("appearance")
@@ -376,6 +462,8 @@ onMounted(() => {
     currentLocale.value = savedLang
     locale.value = savedLang
   }
+
+  lastfmStore.fetchStatus()
 })
 </script>
 
@@ -589,6 +677,24 @@ onMounted(() => {
 
 .theme-option i {
   font-size: 1.25rem;
+}
+
+.lastfm-input {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.lastfm-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 /* Toggle Switch */
