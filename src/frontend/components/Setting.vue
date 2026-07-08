@@ -426,7 +426,7 @@ const currentLocale = ref(localStorage.getItem("locale") || "en")
 
 // online lyrics lookup
 const fetchLyricsOnline = ref(
-  localStorage.getItem("fetchLyricsOnline") !== "false"
+  localStorage.getItem("fetchLyricsOnline") !== "false",
 )
 const toggleFetchLyricsOnline = () => {
   fetchLyricsOnline.value = !fetchLyricsOnline.value
@@ -457,7 +457,7 @@ const tabs = [
   },
 ]
 
-const version = "1.2.0-beta"
+const version = "2.0.0-beta"
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)
