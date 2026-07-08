@@ -19,8 +19,8 @@
     },
     "win32": {
       "file": "echovault-enhancer-win.exe",
-      "sha256": "",
-      "bytes": 0
+      "sha256": "fc8a90ded710e0dca68f80befe5bfe593db3041d3f11047f8c97277df42bc2eb",
+      "bytes": 89462702
     }
   }
 }
