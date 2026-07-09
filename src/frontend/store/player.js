@@ -64,13 +64,15 @@ const TARGET_RMS_DBFS = -18
 const NORMALIZATION_STRIDE = 100
 
 function computeNormalizationGainDb(buffer) {
-  const channelData = buffer.getChannelData(0)
   let sumSquares = 0
   let count = 0
-  for (let i = 0; i < channelData.length; i += NORMALIZATION_STRIDE) {
-    const s = channelData[i]
-    sumSquares += s * s
-    count++
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    const channelData = buffer.getChannelData(c)
+    for (let i = 0; i < channelData.length; i += NORMALIZATION_STRIDE) {
+      const s = channelData[i]
+      sumSquares += s * s
+      count++
+    }
   }
   if (count === 0) return 0
   const rms = Math.sqrt(sumSquares / count)
@@ -401,7 +403,10 @@ export const usePlayerStore = defineStore("player", {
 
     setVolume(level) {
       this.volume = Math.max(0, Math.min(level, 1))
-      gainNode.gain.setTargetAtTime(this.volume, audioCtx.currentTime, 0.01)
+      // Cubic taper approximates perceived loudness so the slider's range
+      // feels even, instead of most change being audible only near the top.
+      const perceptualGain = this.volume === 0 ? 0 : Math.pow(this.volume, 3)
+      gainNode.gain.setTargetAtTime(perceptualGain, audioCtx.currentTime, 0.01)
     },
 
     setEQBand(index, gainDb) {
@@ -641,6 +646,10 @@ export const usePlayerStore = defineStore("player", {
       if (!this.currentTrack?.file_path) return
       if (!currentAudioBuffer) return
 
+      // preserve pause state across the seek — starting a new source is
+      // unavoidable, but it shouldn't un-pause a paused track
+      const wasPlaying = this.isPlaying
+
       // seek time
       const t = Math.max(0, Math.min(targetTime, currentAudioBuffer.duration))
 
@@ -657,7 +666,6 @@ export const usePlayerStore = defineStore("player", {
         src.start(0, t)
 
         currentSource = src
-        this.isPlaying = true
         this.currentTime = t
         this.duration = currentAudioBuffer.duration
         this.progress = t / this.duration
@@ -669,6 +677,14 @@ export const usePlayerStore = defineStore("player", {
         src.onended = () => {
           const hasNext = this.playNext()
           if (!hasNext) this.isPlaying = false
+        }
+
+        if (wasPlaying) {
+          this.isPlaying = true
+          if (audioCtx.state === "suspended") await audioCtx.resume()
+        } else {
+          this.isPlaying = false
+          await audioCtx.suspend()
         }
       } catch (e) {
         console.error("Seek error:", e)
