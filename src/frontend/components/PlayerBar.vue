@@ -148,6 +148,7 @@
           v-model="volume"
           @input="onVolumeChange"
           class="volume-slider"
+          :style="{ '--range-progress': volume + '%' }"
           :title="`Volume: ${volume}%`"
         />
       </div>
@@ -156,7 +157,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from "vue"
+import { computed } from "vue"
 import { usePlayerStore } from "../store/player.js"
 import { useRouter } from "vue-router"
 import {
@@ -220,13 +221,6 @@ const { toggleLikedSong } = useTrackLike(player)
 const currentVolumeIcon = computed(() =>
   getVolumeIcon(volume.value, { Volume, VolumeMute })
 )
-
-watch(volume, (newVal) => {
-  const slider = document.querySelector(".volume-slider")
-  if (slider) {
-    slider.style.setProperty("--range-progress", `${newVal}%`)
-  }
-})
 
 const togglePlayListQueueView = () => {
   emit("toggle-queue")
