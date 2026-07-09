@@ -89,6 +89,7 @@
   },
 
   "labels": {
+    "equalizer": "Equalizer",
     "perTrack": "per track",
     "uniqueAlbums": "unique albums",
     "allTime": "all time",
@@ -170,11 +171,29 @@
       },
       "equalizer": {
         "title": "Equalizer",
-        "description": "Adjust audio frequencies to your preference"
+        "description": "Adjust audio frequencies to your preference",
+        "enable": "Enable equalizer",
+        "preset": "Preset",
+        "presets": {
+          "Flat": "Flat",
+          "Bass Booster": "Bass Booster",
+          "Bass Reducer": "Bass Reducer",
+          "Treble Booster": "Treble Booster",
+          "Treble Reducer": "Treble Reducer",
+          "Vocal Booster": "Vocal Booster",
+          "Rock": "Rock",
+          "Pop": "Pop",
+          "Jazz": "Jazz",
+          "Classical": "Classical",
+          "Electronic": "Electronic",
+          "Acoustic": "Acoustic",
+          "Custom": "Custom"
+        }
       },
       "normalization": {
         "title": "Normalization",
-        "description": "Normalize volume levels across tracks"
+        "description": "Normalize volume levels across tracks",
+        "enable": "Normalize volume"
       }
     },
     "shortcuts": {

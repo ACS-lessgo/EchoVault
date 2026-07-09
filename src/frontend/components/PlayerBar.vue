@@ -92,6 +92,13 @@
             alt="DesktopLyrics"
           />
         </button>
+        <button
+          @click="openEqualizer"
+          class="icon-btn"
+          :title="t('labels.equalizer')"
+        >
+          <img :src="Settings" class="playbar-icon-class" alt="Equalizer" />
+        </button>
         <button @click="toggleLikedSong" class="icon-btn" :title="`Like Song`">
           <img
             class="playbar-icon-class"
@@ -166,6 +173,7 @@ import {
   RepeatOne,
   Playlist,
   DesktopLyrics,
+  Settings,
 } from "../assets/icons/icons"
 
 import {
@@ -179,7 +187,11 @@ import {
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
-const emit = defineEmits(["toggle-queue", "toggle-immersive-mode"])
+const emit = defineEmits([
+  "toggle-queue",
+  "toggle-immersive-mode",
+  "open-equalizer",
+])
 
 const props = defineProps({
   isInImmersiveMode: {
@@ -223,6 +235,10 @@ const togglePlayListQueueView = () => {
 const toggleImmersiveMode = () => {
   console.log("Toggling immersive mode")
   emit("toggle-immersive-mode")
+}
+
+const openEqualizer = () => {
+  emit("open-equalizer")
 }
 
 const openArtistFromPlayer = () => {

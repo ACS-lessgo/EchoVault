@@ -286,7 +286,7 @@
                 </template>
               </div>
 
-              <div class="setting-group disabled">
+              <div class="setting-group">
                 <div class="setting-label">
                   <i class="fa-solid fa-sliders"></i>
                   <div>
@@ -294,12 +294,28 @@
                     <p>{{ t("settings.audio.equalizer.description") }}</p>
                   </div>
                 </div>
-                <div class="coming-soon-badge">
-                  {{ t("settings.comingSoon") }}
+                <div class="eq-enable-row">
+                  <span>{{ t("settings.audio.equalizer.enable") }}</span>
+                  <button
+                    class="toggle-switch"
+                    :class="{ active: player.eqEnabled }"
+                    role="switch"
+                    :aria-checked="player.eqEnabled"
+                    @click="player.setEQEnabled(!player.eqEnabled)"
+                  >
+                    <span class="toggle-knob"></span>
+                  </button>
                 </div>
+                <EqualizerPanel
+                  :bands="player.eqBands"
+                  :preset="player.eqPreset"
+                  :enabled="player.eqEnabled"
+                  @update-band="(i, v) => player.setEQBand(i, v)"
+                  @update-preset="(name) => player.applyEQPreset(name)"
+                />
               </div>
 
-              <div class="setting-group disabled">
+              <div class="setting-group">
                 <div class="setting-label">
                   <i class="fa-solid fa-volume-high"></i>
                   <div>
@@ -307,8 +323,21 @@
                     <p>{{ t("settings.audio.normalization.description") }}</p>
                   </div>
                 </div>
-                <div class="coming-soon-badge">
-                  {{ t("settings.comingSoon") }}
+                <div class="eq-enable-row">
+                  <span>{{ t("settings.audio.normalization.enable") }}</span>
+                  <button
+                    class="toggle-switch"
+                    :class="{ active: player.normalizationEnabled }"
+                    role="switch"
+                    :aria-checked="player.normalizationEnabled"
+                    @click="
+                      player.setNormalizationEnabled(
+                        !player.normalizationEnabled
+                      )
+                    "
+                  >
+                    <span class="toggle-knob"></span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -395,16 +424,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { useThemeStore } from "../store/theme.js"
 import { useAccentStore } from "../store/accent.js"
 import { useLastfmStore } from "../store/lastfm.js"
+import { usePlayerStore } from "../store/player.js"
+import EqualizerPanel from "./EqualizerPanel.vue"
 
 const props = defineProps({
   showSettingMenu: {
     type: Boolean,
     required: true,
+  },
+  initialTab: {
+    type: String,
+    default: "appearance",
   },
 })
 
@@ -412,11 +447,19 @@ const emit = defineEmits(["close"])
 const themeStore = useThemeStore()
 const accentStore = useAccentStore()
 const lastfmStore = useLastfmStore()
+const player = usePlayerStore()
 const lastfmApiKey = ref("")
 const lastfmApiSecret = ref("")
 const { locale, t } = useI18n()
 
 const activeTab = ref("appearance")
+
+watch(
+  () => props.showSettingMenu,
+  (isOpen) => {
+    if (isOpen) activeTab.value = props.initialTab ?? "appearance"
+  }
+)
 
 // use store for theme
 const isDarkMode = computed(() => themeStore.theme === "dark")
@@ -659,6 +702,14 @@ onMounted(() => {
   font-size: 0.9rem;
   color: var(--muted-text);
   margin: 0;
+}
+
+.eq-enable-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: var(--text-color);
 }
 
 /* Theme Toggle */

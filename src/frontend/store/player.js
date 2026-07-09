@@ -1,4 +1,5 @@
 import { defineStore } from "pinia"
+import { EQ_BANDS, EQ_PRESETS } from "../utils/eqPresets.js"
 
 let currentSource = null
 let currentAudioBuffer = null // Track the buffer
@@ -6,6 +7,78 @@ let _playStartTime = 0
 const audioCtx = new AudioContext({ sampleRate: 48000 })
 const gainNode = audioCtx.createGain() // master gain for volume
 gainNode.connect(audioCtx.destination)
+
+// Pre-gain stage for loudness normalization, applied before EQ so the tone
+// curve never skews the loudness estimate. Unity (1.0) when disabled.
+const normalizationGain = audioCtx.createGain()
+
+// Persistent 10-band graphic EQ. Created once and reused across tracks like
+// gainNode above (AudioNodes other than sources aren't single-use).
+const eqFilters = EQ_BANDS.map((freq) => {
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = "peaking"
+  filter.frequency.value = freq
+  filter.Q.value = 1.4
+  filter.gain.value = 0
+  return filter
+})
+
+// Chain: source -> normalizationGain -> eq[0] -> ... -> eq[9] -> gainNode -> destination
+eqFilters.reduce((prev, node) => {
+  prev.connect(node)
+  return node
+}, normalizationGain)
+eqFilters[eqFilters.length - 1].connect(gainNode)
+
+function readPersistedBands() {
+  try {
+    const raw = localStorage.getItem("eqBands")
+    if (raw === null) return null
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed) && parsed.length === EQ_BANDS.length) {
+      return parsed
+    }
+    return null
+  } catch (e) {
+    console.warn("Failed to parse persisted eqBands, using defaults:", e)
+    return null
+  }
+}
+
+const initialEqEnabled = localStorage.getItem("eqEnabled") !== "false" // default true
+const initialEqPreset = localStorage.getItem("eqPreset") || "Flat"
+const initialEqBands = readPersistedBands() || EQ_PRESETS.Flat.slice()
+const initialNormalizationEnabled =
+  localStorage.getItem("normalizationEnabled") === "true" // default false
+
+// Apply persisted gains to the real nodes before first playback.
+eqFilters.forEach((filter, i) => {
+  filter.gain.value = initialEqEnabled ? initialEqBands[i] : 0
+})
+
+// Approximate RMS-based loudness measurement (NOT true LUFS/EBU R128).
+// Strides through samples instead of reading every one, for performance on
+// long tracks. Upgrade path: replace with a proper ITU-R BS.1770 K-weighted
+// loudness meter if perceptual accuracy becomes a requirement.
+const TARGET_RMS_DBFS = -18
+const NORMALIZATION_STRIDE = 100
+
+function computeNormalizationGainDb(buffer) {
+  const channelData = buffer.getChannelData(0)
+  let sumSquares = 0
+  let count = 0
+  for (let i = 0; i < channelData.length; i += NORMALIZATION_STRIDE) {
+    const s = channelData[i]
+    sumSquares += s * s
+    count++
+  }
+  if (count === 0) return 0
+  const rms = Math.sqrt(sumSquares / count)
+  if (rms <= 0 || !isFinite(rms)) return 0 // silent/degenerate buffer: no boost
+  const measuredDb = 20 * Math.log10(rms)
+  const gainDb = TARGET_RMS_DBFS - measuredDb
+  return Math.max(-12, Math.min(12, gainDb))
+}
 
 export const usePlayerStore = defineStore("player", {
   state: () => ({
@@ -30,6 +103,10 @@ export const usePlayerStore = defineStore("player", {
     scrobbleSent: false, // whether the current play has already been scrobbled to Last.fm
     shuffleOrder: [], // shuffled indices
     originalOrder: [], // original order for restoring
+    eqEnabled: initialEqEnabled,
+    eqPreset: initialEqPreset, // preset name, or "Custom"
+    eqBands: initialEqBands, // 10 dB values, -12..12, aligned to EQ_BANDS
+    normalizationEnabled: initialNormalizationEnabled,
   }),
   getters: {
     hasNext: (state) => state.currentIndex < state.queue.length - 1,
@@ -148,6 +225,11 @@ export const usePlayerStore = defineStore("player", {
         // Store buffer reference for memory tracking
         currentAudioBuffer = audioBuffer
 
+        // Compute & apply loudness normalization for this track BEFORE
+        // starting playback, so there's no audible jump. Must run per-track
+        // — never reuse the previous track's gain value.
+        this._applyNormalizationForCurrentBuffer()
+
         // Stop previous track if playing
         if (currentSource) {
           window.api.info("Stopping previous track")
@@ -165,7 +247,7 @@ export const usePlayerStore = defineStore("player", {
         // Play new track
         const source = audioCtx.createBufferSource()
         source.buffer = audioBuffer
-        source.connect(gainNode)
+        source.connect(normalizationGain)
         source.start(0)
         _playStartTime = audioCtx.currentTime // reset reference point
         this.currentTime = 0
@@ -320,6 +402,56 @@ export const usePlayerStore = defineStore("player", {
     setVolume(level) {
       this.volume = Math.max(0, Math.min(level, 1))
       gainNode.gain.setTargetAtTime(this.volume, audioCtx.currentTime, 0.01)
+    },
+
+    setEQBand(index, gainDb) {
+      const clamped = Math.max(-12, Math.min(12, gainDb))
+      this.eqBands = this.eqBands.map((v, i) => (i === index ? clamped : v))
+      this.eqPreset = "Custom"
+      if (this.eqEnabled) {
+        eqFilters[index].gain.setTargetAtTime(clamped, audioCtx.currentTime, 0.01)
+      }
+      localStorage.setItem("eqBands", JSON.stringify(this.eqBands))
+      localStorage.setItem("eqPreset", "Custom")
+    },
+
+    applyEQPreset(name) {
+      const bands = EQ_PRESETS[name]
+      if (!bands) return
+      this.eqBands = bands.slice()
+      this.eqPreset = name
+      if (this.eqEnabled) {
+        eqFilters.forEach((filter, i) => {
+          filter.gain.setTargetAtTime(this.eqBands[i], audioCtx.currentTime, 0.01)
+        })
+      }
+      localStorage.setItem("eqBands", JSON.stringify(this.eqBands))
+      localStorage.setItem("eqPreset", name)
+    },
+
+    setEQEnabled(enabled) {
+      this.eqEnabled = enabled
+      eqFilters.forEach((filter, i) => {
+        const target = enabled ? this.eqBands[i] : 0
+        filter.gain.setTargetAtTime(target, audioCtx.currentTime, 0.01)
+      })
+      localStorage.setItem("eqEnabled", String(enabled))
+    },
+
+    setNormalizationEnabled(enabled) {
+      this.normalizationEnabled = enabled
+      localStorage.setItem("normalizationEnabled", String(enabled))
+      this._applyNormalizationForCurrentBuffer()
+    },
+
+    _applyNormalizationForCurrentBuffer() {
+      if (!this.normalizationEnabled || !currentAudioBuffer) {
+        normalizationGain.gain.setTargetAtTime(1.0, audioCtx.currentTime, 0.01)
+        return
+      }
+      const gainDb = computeNormalizationGainDb(currentAudioBuffer)
+      const linear = Math.pow(10, gainDb / 20)
+      normalizationGain.gain.setTargetAtTime(linear, audioCtx.currentTime, 0.05)
     },
 
     async getLyrics() {
@@ -521,7 +653,7 @@ export const usePlayerStore = defineStore("player", {
 
         const src = audioCtx.createBufferSource()
         src.buffer = currentAudioBuffer
-        src.connect(gainNode)
+        src.connect(normalizationGain)
         src.start(0, t)
 
         currentSource = src
