@@ -30,6 +30,10 @@
         </a>
         <a href="#cli">CLI Tool</a>
       </div>
+
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <i data-lucide="menu"></i>
+      </button>
     </nav>
 
     <section class="hero">
@@ -77,21 +81,28 @@
     <section class="features" id="features">
       <h2 class="section-title">Features</h2>
       <div class="features-grid">
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <i data-lucide="captions"></i>
-          </div>
-          <h3>Live synchronized lyrics</h3>
+        <div class="feature-card featured reveal">
+          <div class="feature-icon"><i data-lucide="sparkles"></i></div>
+          <h3>AI Audio Enhancement</h3>
           <p>
-            Experience immersive, timestamped LRC lyrics that stay perfectly in sync
-            with your music during playback.
+            Upscale lossy MP3s into lossless FLAC entirely on-device — no
+            cloud upload, non-destructive, with a live progress view.
           </p>
         </div>
-        
-        <div class="feature-card reveal">
+
+        <div class="feature-card featured reveal">
+          <div class="feature-icon"><i data-lucide="history"></i></div>
+          <h3>Last.fm sync</h3>
+          <p>
+            Scrobble every track straight to Last.fm using your own API
+            credentials — your listening history, your account.
+          </p>
+        </div>
+
+        <div class="feature-card featured reveal">
           <div class="feature-icon"><i data-lucide="monitor"></i></div>
           <h3>Cross-platform support</h3>
-          <p>Works seamlessly on Windows and Linux</p>
+          <p>Windows, macOS & Linux — one native app everywhere</p>
         </div>
 
         <div class="feature-card reveal">
@@ -113,11 +124,13 @@
         </div>
 
         <div class="feature-card reveal">
-          <div class="feature-icon"><i data-lucide="sparkles"></i></div>
-          <h3>AI Audio Enhancement</h3>
+          <div class="feature-icon">
+            <i data-lucide="captions"></i>
+          </div>
+          <h3>Live synchronized lyrics</h3>
           <p>
-            Upscale lossy MP3s into lossless FLAC entirely on-device — no
-            cloud upload, non-destructive, with a live progress view.
+            Experience immersive, timestamped LRC lyrics that stay perfectly in sync
+            with your music during playback.
           </p>
         </div>
 
@@ -153,15 +166,6 @@
             developer tools.
           </p>
         </div>
-
-        <div class="feature-card reveal">
-          <div class="feature-icon"><i data-lucide="history"></i></div>
-          <h3>Last.fm sync</h3>
-          <p>
-            Scrobble every track straight to Last.fm using your own API
-            credentials — your listening history, your account.
-          </p>
-        </div>
       </div>
     </section>
 
@@ -186,7 +190,16 @@
           <div class="dot green"></div>
         </div>
 
-        <div class="command">$ pip install EchoVault-CLI</div>
+        <div class="command-line">
+          <div class="command">$ pip install EchoVault-CLI</div>
+          <button
+            class="copy-btn"
+            data-copy="pip install EchoVault-CLI"
+            aria-label="Copy install command"
+          >
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
         <div class="output" style="margin-bottom: 20px">
           Successfully installed echovault-cli
         </div>

@@ -60,6 +60,22 @@ body {
   color: #fff;
 }
 
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #e4e4e7;
+  cursor: pointer;
+  padding: 0.4rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
 .hero {
   max-width: 1400px;
   margin: 0 auto;
@@ -296,6 +312,44 @@ body {
   font-size: 0.95rem;
 }
 
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.feature-card.featured {
+  position: relative;
+  z-index: 0;
+}
+
+.feature-card.featured::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: 22px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #667eea,
+    #764ba2,
+    #667eea
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rotate-border-angle 4s linear infinite;
+}
+
+@keyframes rotate-border-angle {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
 footer {
   text-align: center;
   padding: 1.5rem;
@@ -502,6 +556,61 @@ footer {
   .features-grid {
     grid-template-columns: 1fr;
   }
+
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .cli-section {
+    padding: 48px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    background: rgba(26, 26, 46, 0.97);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    width: 100%;
+    padding: 1rem 1.5rem;
+  }
+
+  .nav-links a:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .navbar {
+    position: relative;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+  }
+
+  .cta-buttons .btn {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .cli-section {
@@ -543,6 +652,43 @@ footer {
 .command {
   color: #38bdf8;
   margin-bottom: 10px;
+}
+.command-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.command-line .command {
+  margin-bottom: 0;
+}
+.copy-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.copy-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.copy-btn:hover {
+  color: #f8fafc;
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.15);
+}
+.copy-btn.copied {
+  color: #27c93f;
+  border-color: #27c93f;
 }
 .output {
   color: #94a3b8;
