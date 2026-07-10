@@ -68,6 +68,7 @@ contextBridge.exposeInMainWorld("api", {
   // Search
   searchTracks: (payload) => ipcRenderer.invoke("search:tracks", payload),
   searchArtists: (query) => ipcRenderer.invoke("search:artists", query),
+  searchAll: (query) => ipcRenderer.invoke("search:global", query),
 
   // window bar
   minimize: () => ipcRenderer.send("win:minimize"),

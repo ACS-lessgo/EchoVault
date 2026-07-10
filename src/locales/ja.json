@@ -58,6 +58,19 @@
     "playlists": "プレイリスト"
   },
 
+  "search": {
+    "placeholder": "検索...",
+    "resultsFor": "検索結果",
+    "songs": "曲",
+    "artists": "アーティスト",
+    "playlists": "プレイリスト",
+    "noResults": "見つかりませんでした",
+    "startTyping": "入力してライブラリを検索",
+    "seeAllSongs": "すべての曲を見る",
+    "seeAllArtists": "すべてのアーティストを見る",
+    "clear": "検索をクリア"
+  },
+
   "stats": {
     "title": "ライブラリ統計",
 

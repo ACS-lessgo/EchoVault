@@ -30,9 +30,18 @@
         <input
           v-model="localQuery"
           type="text"
-          placeholder="Search..."
+          :placeholder="t('search.placeholder')"
           class="search-input"
+          @keyup.esc="clearSearch"
         />
+        <button
+          v-if="localQuery"
+          class="clear-search-btn"
+          :title="t('search.clear')"
+          @click="clearSearch"
+        >
+          <img :src="X" :style="iconFilter" />
+        </button>
       </div>
 
       <div class="actions">
@@ -69,6 +78,7 @@
 <script setup>
 import { ref, watch, onMounted, computed, onBeforeUnmount } from "vue"
 import { useI18n } from "vue-i18n"
+import { useRouter, useRoute } from "vue-router"
 import { debounce } from "../../backend/utils/debounce.js"
 import { useSearchStore } from "../store/search.js"
 import { useThemeStore } from "../store/theme.js"
@@ -84,6 +94,8 @@ import {
 } from "../assets/icons/icons.js"
 
 const themeStore = useThemeStore()
+const router = useRouter()
+const route = useRoute()
 
 const isMac = window.api.platform === "darwin"
 
@@ -93,14 +105,23 @@ const searchStore = useSearchStore()
 const localQuery = ref(searchStore.query)
 
 // Localize
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const currentLocale = ref(localStorage.getItem("locale") || "en")
 
 // search debounce
 const updateSearch = debounce((val) => {
-  searchStore.setQuery(val.trim())
+  const trimmed = val.trim()
+  searchStore.setQuery(trimmed)
+  if (trimmed && route.path !== "/search") {
+    router.push("/search")
+  }
 }, 400)
 watch(localQuery, (val) => updateSearch(val))
+
+const clearSearch = () => {
+  localQuery.value = ""
+  searchStore.setQuery("")
+}
 
 // language helpers (unchanged)
 const setLanguage = (lang) => {
@@ -247,6 +268,26 @@ const toggleSettingMenuView = () => {
 
 .search-input::placeholder {
   color: var(--muted-text);
+}
+
+.clear-search-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.clear-search-btn:hover {
+  opacity: 1;
+}
+
+.clear-search-btn img {
+  width: 12px;
+  height: 12px;
 }
 
 /* Action buttons group - positioned on the right */
