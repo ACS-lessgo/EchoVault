@@ -481,7 +481,7 @@ const tabs = [
   },
 ]
 
-const version = "2.1.0-beta"
+const version = "2.2.0-beta"
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)
