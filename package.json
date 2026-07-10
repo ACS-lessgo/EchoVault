@@ -1,7 +1,7 @@
 {
   "name": "echovault",
   "productName": "EchoVault",
-  "version": "2.3.0-beta",
+  "version": "2.3.1-beta",
   "description": "A modern music player for lossless audio formats",
   "main": ".vite/build/main.js",
   "scripts": {
