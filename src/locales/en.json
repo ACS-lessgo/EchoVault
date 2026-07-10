@@ -55,7 +55,22 @@
     "allSongs": "All Songs",
     "artists": "Artists",
     "library": "Library Info",
-    "playlists": "Playlists"
+    "playlists": "Playlists",
+    "section": {
+      "app": "EchoVault",
+      "library": "Library",
+      "playlists": "Playlists"
+    }
+  },
+
+  "sort": {
+    "default": "Default",
+    "name": "Name",
+    "artist": "Artist",
+    "album": "Album",
+    "duration": "Duration",
+    "ascending": "Ascending",
+    "descending": "Descending"
   },
 
   "search": {
@@ -263,7 +278,9 @@
     "type": {
       "liked": "Liked Songs Playlist",
       "playlist": "Playlist"
-    }
+    },
+    "play": "Play",
+    "shuffle": "Shuffle"
   },
 
   "common": {

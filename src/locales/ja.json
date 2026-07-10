@@ -55,7 +55,22 @@
     "allSongs": "すべての曲",
     "artists": "アーティスト",
     "library": "ライブラリ情報",
-    "playlists": "プレイリスト"
+    "playlists": "プレイリスト",
+    "section": {
+      "app": "EchoVault",
+      "library": "ライブラリ",
+      "playlists": "プレイリスト"
+    }
+  },
+
+  "sort": {
+    "default": "デフォルト",
+    "name": "名前",
+    "artist": "アーティスト",
+    "album": "アルバム",
+    "duration": "再生時間",
+    "ascending": "昇順",
+    "descending": "降順"
   },
 
   "search": {
@@ -113,6 +128,8 @@
     "unknownArtist": "不明なアーティスト",
     "plays": "回再生",
     "noTrackSelected": "曲が選択されていません",
+    "tracks": "曲",
+    "noPlaylists": "プレイリストがありません",
     "noLyricsFound": "歌詞が見つかりません"
   },
 
@@ -256,6 +273,26 @@
       "checkForUpdates": "アップデートを確認",
       "checking": "確認中…"
     }
+  },
+
+  "playlist": {
+    "create": "プレイリストを作成",
+    "createNew": "新規プレイリスト",
+    "namePlaceholder": "プレイリスト名を入力...",
+    "tracks": "曲",
+    "confirmDelete": "このプレイリストを削除しますか?",
+    "type": {
+      "liked": "いいねした曲のプレイリスト",
+      "playlist": "プレイリスト"
+    },
+    "play": "再生",
+    "shuffle": "シャッフル"
+  },
+
+  "common": {
+    "cancel": "キャンセル",
+    "create": "作成",
+    "back": "戻る"
   },
 
   "enhance": {
