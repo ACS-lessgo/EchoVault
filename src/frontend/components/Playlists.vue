@@ -64,7 +64,7 @@
     <!-- Playlist Tracks View -->
     <div v-else class="playlist-view">
       <div class="playlist-view-header">
-        <button class="back-button" @click="selectedPlaylist = null">
+        <button class="back-button" @click="router.push('/playlists')">
           <i class="fa-solid fa-arrow-left"></i>
           <span>{{ t("common.back") }}</span>
         </button>
@@ -96,12 +96,34 @@
           <p class="playlist-meta">
             {{ currentTracks.length }} {{ t("playlist.tracks") }}
           </p>
+          <div class="hero-actions">
+            <button
+              class="play-btn"
+              @click="playFromStart"
+              :disabled="!currentTracks.length"
+            >
+              <Play :size="18" fill="currentColor" />
+              <span>{{ t("playlist.play") }}</span>
+            </button>
+            <button
+              class="shuffle-btn"
+              @click="shuffleAndPlay"
+              :disabled="!currentTracks.length"
+            >
+              <Shuffle :size="18" />
+              <span>{{ t("playlist.shuffle") }}</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="playlist-tracks">
+        <TrackSortControls
+          v-model:sortField="sortField"
+          v-model:sortDirection="sortDirection"
+        />
         <TrackList
-          :tracks="currentTracks"
+          :tracks="sortedTracks"
           :currentTrack="player.currentTrack"
           :formatDuration="formatDuration"
           :playlists="playlists"
@@ -150,16 +172,25 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { storeToRefs } from "pinia"
+import { Play, Shuffle } from "@lucide/vue"
 import { usePlayerStore } from "../store/player.js"
+import { usePlaylistsStore } from "../store/playlists.js"
 import TrackList from "./TrackList.vue"
+import TrackSortControls from "./TrackSortControls.vue"
+import { useTrackSort } from "../utils/useTrackSort.js"
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
 const player = usePlayerStore()
+const route = useRoute()
+const router = useRouter()
+const playlistsStore = usePlaylistsStore()
+const { playlists } = storeToRefs(playlistsStore)
 
 const likedTracks = ref([])
-const playlists = ref([])
-const selectedPlaylist = ref(null)
+const selectedPlaylist = computed(() => route.params.id ?? null)
 const playlistTracks = ref({})
 const showCreateDialog = ref(false)
 const newPlaylistName = ref("")
@@ -182,36 +213,14 @@ async function loadLikedTracks() {
   likedTracks.value = withCovers
 }
 
-// Load all playlists
-async function loadPlaylistCover(playlist) {
-  if (playlist.cover) {
-    const url = playlist.cover.startsWith("/")
-      ? `echovault://${playlist.cover}`
-      : `echovault:///${playlist.cover}`
-    return { ...playlist, coverUrl: url }
-  }
-  return { ...playlist, coverUrl: null }
-}
-
-async function loadPlaylists() {
-  try {
-    const result = await window.api.getPlaylists()
-    playlists.value = await Promise.all(result.map(loadPlaylistCover))
-  } catch (error) {
-    console.error("Error loading playlists:", error)
-  }
-}
-
 // Create new playlist
-
 async function createPlaylist() {
   if (!newPlaylistName.value.trim()) return
 
   try {
-    await window.api.createPlaylist(newPlaylistName.value.trim())
+    await playlistsStore.createPlaylist(newPlaylistName.value.trim())
     newPlaylistName.value = ""
     showCreateDialog.value = false
-    await loadPlaylists()
   } catch (error) {
     console.error("Error creating playlist:", error)
   }
@@ -244,21 +253,18 @@ async function loadPlaylistTracks(playlistId) {
 }
 
 // Select playlist
-async function selectPlaylist(playlistId) {
-  selectedPlaylist.value = playlistId
-  if (playlistId !== "liked") {
-    await loadPlaylistTracks(playlistId)
-  }
+function selectPlaylist(playlistId) {
+  router.push(playlistId ? `/playlists/${playlistId}` : "/playlists")
 }
 
 // Handle add to playlist
 async function handleAddToPlaylist({ track, playlistId }) {
   try {
     await window.api.addTrackToPlaylist(playlistId, track.id)
-    // Reload playlists to update track counts
-    await loadPlaylists()
+    // Reload playlists to update track counts (sidebar + grid)
+    await playlistsStore.loadPlaylists(true)
     // If currently viewing the playlist, reload its tracks
-    if (selectedPlaylist.value === playlistId) {
+    if (String(selectedPlaylist.value) === String(playlistId)) {
       delete playlistTracks.value[playlistId]
       await loadPlaylistTracks(playlistId)
     }
@@ -274,8 +280,8 @@ async function handleRemoveFromPlaylist({ track, playlistId }) {
     // Reload the playlist tracks
     delete playlistTracks.value[playlistId]
     await loadPlaylistTracks(playlistId)
-    // Reload playlists to update track counts
-    await loadPlaylists()
+    // Reload playlists to update track counts (sidebar + grid)
+    await playlistsStore.loadPlaylists(true)
   } catch (error) {
     console.error("Error removing track from playlist:", error)
   }
@@ -286,12 +292,12 @@ async function deletePlaylist(id) {
   if (!confirm(t("playlist.confirmDelete") || "Delete this playlist?")) return
 
   try {
-    await window.api.deletePlaylist(id)
-    await loadPlaylists()
+    const wasViewing = String(selectedPlaylist.value) === String(id)
+    await playlistsStore.deletePlaylist(id)
 
     // If currently viewing this playlist, go back
-    if (selectedPlaylist.value === id) {
-      selectedPlaylist.value = null
+    if (wasViewing) {
+      router.push("/playlists")
     }
   } catch (err) {
     console.error("Failed to delete playlist:", err)
@@ -306,15 +312,24 @@ const currentTracks = computed(() => {
   return playlistTracks.value[selectedPlaylist.value] || []
 })
 
+const { sortField, sortDirection, sortedTracks } = useTrackSort(
+  currentTracks,
+  "echovault-sort-playlist"
+)
+
 const currentPlaylistName = computed(() => {
   if (selectedPlaylist.value === "liked") return t("liked.title")
-  const playlist = playlists.value.find((p) => p.id === selectedPlaylist.value)
+  const playlist = playlists.value.find(
+    (p) => String(p.id) === String(selectedPlaylist.value)
+  )
   return playlist?.name || ""
 })
 
 const currentPlaylistCover = computed(() => {
   if (selectedPlaylist.value === "liked") return null
-  const playlist = playlists.value.find((p) => p.id === selectedPlaylist.value)
+  const playlist = playlists.value.find(
+    (p) => String(p.id) === String(selectedPlaylist.value)
+  )
   return playlist?.coverUrl || null
 })
 
@@ -327,7 +342,7 @@ function playTrack(track) {
 
   if (player.queueSource !== queueSource) {
     player.clearQueue()
-    player.queue = currentTracks.value.map((t) => ({ ...t }))
+    player.queue = sortedTracks.value.map((t) => ({ ...t }))
     player.queueSource = queueSource
   }
 
@@ -338,6 +353,17 @@ function playTrack(track) {
   } else {
     player.setTrack(track)
   }
+}
+
+function playFromStart() {
+  if (sortedTracks.value.length) playTrack(sortedTracks.value[0])
+}
+
+function shuffleAndPlay() {
+  if (!sortedTracks.value.length) return
+  if (!player.shuffleEnabled) player.toggleShuffle()
+  const randomIndex = Math.floor(Math.random() * sortedTracks.value.length)
+  playTrack(sortedTracks.value[randomIndex])
 }
 
 function formatDuration(seconds) {
@@ -365,9 +391,17 @@ watch(showCreateDialog, async (newVal) => {
 
 watch(() => player.likedUpdated, loadLikedTracks)
 
+watch(
+  () => route.params.id,
+  (id) => {
+    if (id && id !== "liked") loadPlaylistTracks(id)
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   loadLikedTracks()
-  loadPlaylists()
+  playlistsStore.loadPlaylists()
 })
 </script>
 
@@ -388,7 +422,7 @@ onMounted(() => {
 
 .playlist-card {
   background: var(--side-nav-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -581,9 +615,9 @@ i.fa-plus,
 .hero-cover {
   width: 200px;
   height: 200px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
   flex-shrink: 0;
 }
 
@@ -659,6 +693,54 @@ i.fa-plus,
   margin: 0;
 }
 
+.hero-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.hero-actions .play-btn,
+.hero-actions .shuffle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.hero-actions .play-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.hero-actions .play-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: scale(1.03);
+}
+
+.hero-actions .shuffle-btn {
+  background: var(--hover-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.hero-actions .shuffle-btn:hover:not(:disabled) {
+  background: var(--border-color);
+}
+
+.hero-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Playlist Tracks */
 .playlist-tracks {
   padding: 2rem;
@@ -681,7 +763,7 @@ i.fa-plus,
 
 .dialog {
   background: var(--side-nav-bg);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 2rem;
   width: 90%;
   max-width: 400px;
