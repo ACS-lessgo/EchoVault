@@ -3,7 +3,6 @@
     <table class="track-table">
       <thead>
         <tr>
-          <th class="num-col">#</th>
           <th class="title-col">Title</th>
           <th class="album-col">Album</th>
           <th class="duration-col">Duration</th>
@@ -12,15 +11,12 @@
 
       <tbody>
         <tr
-          v-for="(track, index) in tracks"
+          v-for="track in tracks"
           :key="track.id"
           class="track-row"
           :class="{ playing: currentTrack?.file_path === track.file_path }"
           @click="$emit('select', track)"
         >
-          <!-- Index -->
-          <td class="num-col">{{ index + 1 }}</td>
-
           <!-- Title + Cover -->
           <td class="title-col">
             <div class="track-info">
@@ -149,7 +145,9 @@ const menuPos = ref({ x: 0, y: 0 })
 // Only show playlists other than current
 const availablePlaylists = computed(() => {
   if (!props.currentPlaylistId) return props.playlists
-  return props.playlists.filter((p) => p.id !== props.currentPlaylistId)
+  return props.playlists.filter(
+    (p) => String(p.id) !== String(props.currentPlaylistId)
+  )
 })
 
 function toggleMenu(id, event) {
@@ -224,7 +222,8 @@ onUnmounted(() => {
 /* Table */
 .track-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 4px;
 }
 
 .track-table th {
@@ -236,15 +235,18 @@ onUnmounted(() => {
 }
 
 .track-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 16px;
+}
+
+.track-table tbody td:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.track-table tbody td:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 /* Columns */
-.num-col {
-  width: 50px;
-}
-
 .title-col {
   width: 45%;
 }
@@ -290,7 +292,7 @@ onUnmounted(() => {
   width: 48px;
   height: 48px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .track-title {
@@ -300,22 +302,26 @@ onUnmounted(() => {
 
 .track-artist {
   font-size: 13px;
-  color: var(--muted-text);
+  color: var(--accent);
 }
 
 /* === 3 DOTS BUTTON === */
 .more-btn {
   background: transparent;
   border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   padding: 4px;
   margin-left: 10px;
   opacity: 0.6;
-  transition: opacity 0.2s;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s;
 }
 
 .more-btn:hover {
   opacity: 1;
+  background-color: var(--hover-bg);
 }
 
 .more-btn svg {
@@ -329,10 +335,10 @@ onUnmounted(() => {
   position: fixed;
   min-width: 180px;
   background: var(--side-nav-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   padding: 6px 0;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 0.4);
+  box-shadow: var(--shadow-lg);
   z-index: 9999;
 }
 
@@ -375,9 +381,9 @@ onUnmounted(() => {
   min-width: 180px;
   background: var(--side-nav-bg);
   padding: 6px 0;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  box-shadow: 0 8px 20px rgb(0 0 0 / 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .has-sub:hover .sub-menu {
@@ -385,22 +391,25 @@ onUnmounted(() => {
 }
 
 /* Alternating row backgrounds */
-.track-table tbody tr:nth-child(odd) {
+.track-table tbody tr:nth-child(odd) td {
   background-color: var(--side-nav-bg);
 }
 
-.track-table tbody tr:nth-child(even) {
+.track-table tbody tr:nth-child(even) td {
   background-color: transparent;
 }
 
 /* Hover and active states */
-.track-table tbody tr.track-row:hover {
-  background: var(--hover-bg);
+.track-table tbody tr.track-row:hover td {
+  background-color: var(--hover-bg);
 }
 
-.track-row.playing {
-  background: var(--hover-bg);
-  transition: background 0.3s;
+.track-row.playing td {
+  background-color: var(--hover-bg);
+  transition: background-color 0.3s;
+}
+
+.track-row.playing td:first-child {
   box-shadow: inset 2px 0 0 var(--accent);
 }
 

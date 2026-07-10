@@ -244,7 +244,7 @@ const toggleSettingMenuView = () => {
   justify-content: flex-start;
   background-color: var(--search-bar-color);
   color: var(--text-color);
-  border-radius: 8px;
+  border-radius: var(--radius-xl);
   padding: 0.5rem 1rem;
   flex: 1;
   max-width: 500px;
