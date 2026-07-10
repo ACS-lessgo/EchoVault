@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <footer class="player-bar">
+  <footer class="player-bar" :style="playerBarStyle">
     <!-- LEFT: Song Info -->
     <div class="song-info">
       <img
@@ -168,9 +168,10 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
+import { computed, ref, watch } from "vue"
 import { usePlayerStore } from "../store/player.js"
 import { useRouter } from "vue-router"
+import { extractCoverColor } from "../utils/coverColor.js"
 import {
   Previous,
   Next,
@@ -266,6 +267,24 @@ const openArtistFromPlayer = () => {
 
   router.push(`/artists/${player.currentTrack.artist_id}`)
 }
+
+// Adaptive PlayerBar tint sampled from the current track's cover art.
+const coverTint = ref(null)
+watch(
+  () => player.currentTrack?.coverDataUrl,
+  async (url) => {
+    coverTint.value = await extractCoverColor(url)
+  },
+  { immediate: true }
+)
+
+const playerBarStyle = computed(() => {
+  const c = coverTint.value
+  return {
+    "--cover-tint": c ? `${c.r}, ${c.g}, ${c.b}` : "0, 0, 0",
+    "--cover-tint-opacity": c ? "0.25" : "0",
+  }
+})
 </script>
 
 <style scoped>
@@ -279,10 +298,16 @@ const openArtistFromPlayer = () => {
   align-items: center;
   gap: 1rem;
   padding: 0 1rem;
-  background-color: var(--footer-bg);
-  border-top: 2px solid var(--border-color);
+  background-image: radial-gradient(
+    120% 180% at 15% 50%,
+    rgba(var(--cover-tint), var(--cover-tint-opacity, 0)),
+    transparent 70%
+  );
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-color);
   color: var(--text-color);
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 

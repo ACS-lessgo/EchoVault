@@ -27,6 +27,7 @@
     />
     <MiniPlayer />
     <Toast />
+    <UpdateBanner />
   </div>
 </template>
 
@@ -40,6 +41,7 @@ import Toast from "./components/Toast.vue"
 import MiniPlayer from "./components/MiniPlayer.vue"
 import Setting from "./components/Setting.vue"
 import ImmersiveMode from "./components/ImmersiveMode.vue"
+import UpdateBanner from "./components/UpdateBanner.vue"
 
 const showQueue = ref(false)
 const showSettingMenu = ref(false)
@@ -96,10 +98,9 @@ body,
 .main-layout {
   display: flex;
   flex: 1;
-  height: calc(100vh - 70px - 80px); /* subtract topbar + playerbar height */
+  min-height: 0;
   background-color: var(--bg-color);
   overflow: hidden;
-  max-height: 100vh;
   transition: all 0.3s ease;
 }
 

@@ -58,6 +58,19 @@
     "playlists": "Playlists"
   },
 
+  "search": {
+    "placeholder": "Search...",
+    "resultsFor": "Results for",
+    "songs": "Songs",
+    "artists": "Artists",
+    "playlists": "Playlists",
+    "noResults": "No results found",
+    "startTyping": "Start typing to search your library",
+    "seeAllSongs": "See all songs",
+    "seeAllArtists": "See all artists",
+    "clear": "Clear search"
+  },
+
   "stats": {
     "title": "Library Statistics",
     "totalTracks": "Total Tracks",
@@ -280,5 +293,11 @@
     "like": "Like",
     "unlike": "Unlike",
     "trackCount": "{current} of {total}"
+  },
+
+  "update": {
+    "available": "EchoVault v{version} is available",
+    "download": "Download",
+    "dismiss": "Dismiss"
   }
 }

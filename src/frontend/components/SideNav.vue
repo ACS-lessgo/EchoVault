@@ -2,27 +2,27 @@
   <aside class="side-nav" :class="{ collapsed: collapsed }">
     <nav>
       <router-link to="/" class="nav-item">
-        <i class="fas fa-home nav-icon"></i>
+        <Home class="nav-icon" :size="20" />
         <span>{{ t('nav.home') }}</span>
       </router-link>
 
       <router-link to="/songs" class="nav-item">
-        <i class="fas fa-music nav-icon"></i>
+        <Music class="nav-icon" :size="20" />
         <span>{{ t('nav.allSongs') }}</span>
       </router-link>
 
       <router-link to="/artists" class="nav-item">
-        <i class="fas fa-user nav-icon"></i>
+        <User class="nav-icon" :size="20" />
         <span>{{ t('nav.artists') }}</span>
       </router-link>
 
       <router-link to="/library" class="nav-item">
-        <i class="fas fa-database nav-icon"></i>
+        <Library class="nav-icon" :size="20" />
         <span>{{ t('nav.library') }}</span>
       </router-link>
 
       <router-link to="/playlists" class="nav-item">
-        <i class="fas fa-list nav-icon"></i>
+        <ListMusic class="nav-icon" :size="20" />
         <span>{{ t('nav.playlists') }}</span>
       </router-link>
     </nav>
@@ -31,6 +31,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { Home, Music, User, Library, ListMusic } from '@lucide/vue'
 
 const { t } = useI18n()
 defineProps({
@@ -47,10 +48,12 @@ defineProps({
 /* Sidebar container */
 .side-nav {
   width: 220px;
-  background-color: var(--side-nav-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   color: var(--text-color);
-  border-right: 2px solid var(--border-color);
-  padding: 1rem;
+  border-right: 1px solid var(--border-color);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
@@ -107,29 +110,14 @@ nav {
   font-weight: 600;
 }
 
-/* FIX: Prevent icons from taking accent color */
-.nav-item:hover .nav-icon,
-.nav-icon {
-  color: var(--text-color) !important;
-  filter: inherit; /* keeps dark or light theme */
+.nav-item.router-link-active .nav-icon {
+  color: var(--accent);
 }
 
-/* Navigation icons */
+/* Navigation icons (Lucide SVGs inherit color via currentColor) */
 .nav-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--text-color) !important;
+  color: var(--text-color);
   flex-shrink: 0;
-}
-
-/* Dark theme: light icons */
-:root[data-theme="dark"] .nav-icon {
-  filter: invert(100%) brightness(200%);
-}
-
-/* Light theme: dark icons */
-:root[data-theme="light"] .nav-icon {
-  filter: invert(0%) brightness(0%);
 }
 
 /* Responsive: collapsed sidebar mode */

@@ -1,0 +1,58 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    publish:
+        strategy:
+            fail-fast: false
+            matrix:
+                # Pinned (not -latest): ubuntu-latest is now 24.04, which renamed
+                # libasound2 -> libasound2t64; windows-latest ships a VS version
+                # our node-gyp doesn't recognize, breaking better-sqlite3's build.
+                os: [ubuntu-22.04, windows-2022, macos-latest]
+
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - name: Checkout source
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+
+            - name: Install Linux system dependencies
+              if: matrix.os == 'ubuntu-22.04'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                    build-essential \
+                    python3 \
+                    pkg-config \
+                    git \
+                    libnss3 \
+                    libxss1 \
+                    libasound2 \
+                    libatk-bridge2.0-0 \
+                    libgtk-3-0 \
+                    libgbm1 \
+                    libatk1.0-0 \
+                    libxkbfile1 \
+                    libsecret-1-dev
+
+            - name: Install npm dependencies
+              run: npm ci
+
+            - name: Publish
+              run: npm run publish
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -58,6 +58,19 @@
     "playlists": "プレイリスト"
   },
 
+  "search": {
+    "placeholder": "検索...",
+    "resultsFor": "検索結果",
+    "songs": "曲",
+    "artists": "アーティスト",
+    "playlists": "プレイリスト",
+    "noResults": "見つかりませんでした",
+    "startTyping": "入力してライブラリを検索",
+    "seeAllSongs": "すべての曲を見る",
+    "seeAllArtists": "すべてのアーティストを見る",
+    "clear": "検索をクリア"
+  },
+
   "stats": {
     "title": "ライブラリ統計",
 
@@ -266,5 +279,11 @@
     "like": "いいね",
     "unlike": "いいね解除",
     "trackCount": "{total} 曲中 {current} 曲目"
+  },
+
+  "update": {
+    "available": "EchoVault v{version} が利用可能です",
+    "download": "ダウンロード",
+    "dismiss": "閉じる"
   }
 }

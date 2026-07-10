@@ -76,6 +76,14 @@ export const SEARCH_ARTISTS = `
   WHERE LOWER(name) LIKE ?
   ORDER BY LOWER(name)
 `
+export const SEARCH_PLAYLISTS = `
+  SELECT p.*, COUNT(pt.track_id) as track_count
+  FROM playlists p
+  LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id
+  WHERE LOWER(p.name) LIKE ?
+  GROUP BY p.id
+  ORDER BY p.created_at DESC
+`
 
 //  Artists
 export const GET_ARTISTS = `SELECT * FROM artists ORDER BY name`

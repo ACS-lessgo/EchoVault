@@ -8,6 +8,7 @@ import AllSongs from "../components/AllSongs.vue"
 import Artists from "../components/Artists.vue"
 import LibraryInfo from "../components/LibraryInfo.vue"
 import Playlists from "../components/Playlists.vue"
+import SearchResults from "../components/SearchResults.vue"
 
 const routes = [
   { path: "/", component: Home },
@@ -16,6 +17,7 @@ const routes = [
   { path: "/artists/:id", component: Artists },
   { path: "/library", component: LibraryInfo },
   { path: "/playlists", component: Playlists },
+  { path: "/search", component: SearchResults },
 ]
 
 export default createRouter({
