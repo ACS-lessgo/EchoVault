@@ -162,12 +162,13 @@ const toggleSettingMenuView = () => {
 
 /* Main container - flexible column layout */
 .top-bar {
-  background-color: var(--topbar-bg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   color: var(--text-color);
   display: flex;
   flex-direction: column;
-  border-bottom: 2px solid var(--border-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border-color);
   -webkit-app-region: drag; /* make whole topbar draggable */
 }
 

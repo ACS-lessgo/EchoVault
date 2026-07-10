@@ -96,10 +96,9 @@ body,
 .main-layout {
   display: flex;
   flex: 1;
-  height: calc(100vh - 70px - 80px); /* subtract topbar + playerbar height */
+  min-height: 0;
   background-color: var(--bg-color);
   overflow: hidden;
-  max-height: 100vh;
   transition: all 0.3s ease;
 }
 
