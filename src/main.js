@@ -6,6 +6,7 @@ import started from "electron-squirrel-startup"
 import log from "electron-log/main"
 import { initDB } from "./backend/db/index.js"
 import { registerAllHandlers } from "./backend/main/ipcHandlers.js"
+import { destroyTray } from "./backend/main/tray.js"
 
 // logger init
 log.initialize()
@@ -17,6 +18,7 @@ log.transports.file.maxSize = 5 * 1024 * 1024
 if (started) app.quit()
 
 let mainWindow
+let isQuitting = false
 
 // MUST be before app.whenReady()
 protocol.registerSchemesAsPrivileged([
@@ -68,6 +70,13 @@ function createWindow() {
     ...(isMac
       ? { titleBarStyle: "hidden", trafficLightPosition: { x: 12, y: 10 } }
       : { titleBarStyle: "hidden", frame: false }),
+  })
+
+  mainWindow.on("close", (event) => {
+    if (!isQuitting) {
+      event.preventDefault()
+      mainWindow.hide()
+    }
   })
 
   mainWindow.once("ready-to-show", () => {
@@ -231,6 +240,12 @@ app.on("window-all-closed", () => {
   }
 })
 
+app.on("activate", () => {
+  if (mainWindow) mainWindow.show()
+})
+
 app.on("before-quit", () => {
   log.info("main :: App quitting")
+  isQuitting = true
+  destroyTray()
 })

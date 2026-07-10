@@ -43,16 +43,28 @@ import Setting from "./components/Setting.vue"
 import ImmersiveMode from "./components/ImmersiveMode.vue"
 import UpdateBanner from "./components/UpdateBanner.vue"
 import { useUpdateStore } from "./store/update.js"
+import { usePlayerStore } from "./store/player.js"
 
 const updateStore = useUpdateStore()
+const playerStore = usePlayerStore()
 let unsubscribeUpdate = null
+let unsubscribeTrayControl = null
 
 onMounted(() => {
   unsubscribeUpdate = window.api.onUpdateAvailable((data) => updateStore.setResult(data))
+  unsubscribeTrayControl = window.api.onTrayControl((action) => {
+    if (action === "toggle-play") playerStore.togglePlay()
+    else if (action === "next") playerStore.playNext()
+    else if (action === "previous") playerStore.playPrevious()
+    else if (action === "toggle-shuffle") playerStore.toggleShuffle()
+    else if (action === "volume-up") playerStore.setVolume(playerStore.volume + 0.1)
+    else if (action === "volume-down") playerStore.setVolume(playerStore.volume - 0.1)
+  })
 })
 
 onUnmounted(() => {
   if (unsubscribeUpdate) unsubscribeUpdate()
+  if (unsubscribeTrayControl) unsubscribeTrayControl()
 })
 
 const showQueue = ref(false)

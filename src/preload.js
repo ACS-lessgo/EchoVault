@@ -109,6 +109,14 @@ contextBridge.exposeInMainWorld("api", {
   lastfmNowPlaying: (track) => ipcRenderer.invoke("lastfm:now-playing", track),
   lastfmScrobble: (track) => ipcRenderer.invoke("lastfm:scrobble", track),
 
+  // tray (now-playing)
+  updateTrayNowPlaying: (info) => ipcRenderer.send("tray:update", info),
+  onTrayControl: (cb) => {
+    const handler = (_e, action) => cb(action)
+    ipcRenderer.on("tray:control", handler)
+    return () => ipcRenderer.removeListener("tray:control", handler)
+  },
+
   // app updates
   onUpdateAvailable: (cb) => {
     const handler = (_e, data) => cb(data)

@@ -46,6 +46,16 @@ const normalizerAnalyser = audioCtx.createAnalyser()
 normalizerAnalyser.fftSize = 2048
 mediaSource.connect(normalizerAnalyser)
 
+function pushTrayUpdate(track, isPlaying, shuffleEnabled) {
+  window.api.updateTrayNowPlaying({
+    title: track?.title || "",
+    artist: track?.artist || "",
+    cover: track?.cover || "",
+    isPlaying,
+    shuffleEnabled,
+  })
+}
+
 function toStreamUrl(filePath) {
   // Fixed "local" host + encoded path in the URL's path component. This
   // scheme is registered "standard", so a bare "echovault-audio://<encoded>"
@@ -184,6 +194,7 @@ export const usePlayerStore = defineStore("player", {
       this.scrobbleSent = false
       this.getLyrics() // Fire-and-forget, don't block playback start
       this.isPlaying = true
+      pushTrayUpdate(clonedTrack, true, this.shuffleEnabled)
 
       // Add to queue
       if (addToQueue) {
@@ -384,6 +395,7 @@ export const usePlayerStore = defineStore("player", {
       if (this.isPlaying) {
         audioEl.pause()
         this.isPlaying = false
+        pushTrayUpdate(this.currentTrack, false, this.shuffleEnabled)
         return
       }
 
@@ -396,6 +408,7 @@ export const usePlayerStore = defineStore("player", {
         await this.playTrack(this.currentTrack.file_path)
       }
       this.isPlaying = true
+      pushTrayUpdate(this.currentTrack, true, this.shuffleEnabled)
     },
 
     setVolume(level) {
@@ -560,6 +573,8 @@ export const usePlayerStore = defineStore("player", {
         this.currentIndex =
           currentIndexInOriginal >= 0 ? currentIndexInOriginal : 0
       }
+
+      pushTrayUpdate(this.currentTrack, this.isPlaying, this.shuffleEnabled)
     },
 
     toggleRepeat() {
