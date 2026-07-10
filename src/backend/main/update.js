@@ -1,4 +1,4 @@
-import { ipcMain, shell } from "electron"
+import { app, ipcMain, shell } from "electron"
 import { checkForUpdates } from "./updateCheck.js"
 import log from "../../logger.js"
 
@@ -7,6 +7,9 @@ const CHECK_DELAY_MS = 5000
 const ALLOWED_HOSTS = new Set(["github.com"])
 
 export function registerUpdateHandlers(mainWindow) {
+  ipcMain.handle("update:check", () => checkForUpdates())
+  ipcMain.handle("app:get-version", () => app.getVersion())
+
   ipcMain.handle("update:open-external", (_event, url) => {
     try {
       const parsed = new URL(url)

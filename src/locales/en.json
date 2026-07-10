@@ -247,7 +247,10 @@
       "title": "About",
       "description": "Information about this music player",
       "version": "Version {version}",
-      "appDescription": "A modern, high-fidelity music player built with Electron"
+      "appDescription": "A modern, high-fidelity music player built with Electron",
+      "upToDate": "You're up to date",
+      "checkForUpdates": "Check for Updates",
+      "checking": "Checking…"
     }
   },
 

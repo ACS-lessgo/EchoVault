@@ -13,38 +13,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, computed } from "vue"
 import { useI18n } from "vue-i18n"
+import { useUpdateStore } from "../store/update.js"
 
 const { t } = useI18n()
+const updateStore = useUpdateStore()
 
 const DISMISSED_KEY = "echovault-dismissed-update"
 
-const visible = ref(false)
-const version = ref("")
-const url = ref("")
-let unsubscribe = null
-
-onMounted(() => {
-  unsubscribe = window.api.onUpdateAvailable((data) => {
-    if (localStorage.getItem(DISMISSED_KEY) === data.version) return
-    version.value = data.version
-    url.value = data.url
-    visible.value = true
-  })
-})
-
-onUnmounted(() => {
-  if (unsubscribe) unsubscribe()
-})
+const dismissedVersion = ref(localStorage.getItem(DISMISSED_KEY))
+const version = computed(() => updateStore.version)
+const visible = computed(
+  () => updateStore.available && version.value !== dismissedVersion.value
+)
 
 function download() {
-  window.api.openExternal(url.value)
+  window.api.openExternal(updateStore.url)
 }
 
 function dismiss() {
+  dismissedVersion.value = version.value
   localStorage.setItem(DISMISSED_KEY, version.value)
-  visible.value = false
 }
 </script>
 

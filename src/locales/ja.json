@@ -251,7 +251,10 @@
       "title": "情報",
       "description": "この音楽プレーヤーについて",
       "version": "バージョン {version}",
-      "appDescription": "Electron で構築された、モダンで高音質な音楽プレーヤー"
+      "appDescription": "Electron で構築された、モダンで高音質な音楽プレーヤー",
+      "upToDate": "最新の状態です",
+      "checkForUpdates": "アップデートを確認",
+      "checking": "確認中…"
     }
   },
 

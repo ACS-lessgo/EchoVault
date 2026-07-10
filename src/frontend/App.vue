@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { ref, computed, onMounted, onUnmounted } from "vue"
 import TopBar from "./components/TopBar.vue"
 import SideNav from "./components/SideNav.vue"
 import PlayerBar from "./components/PlayerBar.vue"
@@ -42,6 +42,18 @@ import MiniPlayer from "./components/MiniPlayer.vue"
 import Setting from "./components/Setting.vue"
 import ImmersiveMode from "./components/ImmersiveMode.vue"
 import UpdateBanner from "./components/UpdateBanner.vue"
+import { useUpdateStore } from "./store/update.js"
+
+const updateStore = useUpdateStore()
+let unsubscribeUpdate = null
+
+onMounted(() => {
+  unsubscribeUpdate = window.api.onUpdateAvailable((data) => updateStore.setResult(data))
+})
+
+onUnmounted(() => {
+  if (unsubscribeUpdate) unsubscribeUpdate()
+})
 
 const showQueue = ref(false)
 const showSettingMenu = ref(false)

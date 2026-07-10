@@ -116,4 +116,6 @@ contextBridge.exposeInMainWorld("api", {
     return () => ipcRenderer.removeListener("update:available", handler)
   },
   openExternal: (url) => ipcRenderer.invoke("update:open-external", url),
+  checkForUpdates: () => ipcRenderer.invoke("update:check"),
+  getAppVersion: () => ipcRenderer.invoke("app:get-version"),
 })

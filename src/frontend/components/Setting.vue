@@ -365,6 +365,26 @@
                 <p class="description">
                   {{ t("settings.about.appDescription") }}
                 </p>
+
+                <div class="update-status">
+                  <p v-if="updateStore.available" class="update-status-line">
+                    {{ t("update.available", { version: updateStore.version }) }}
+                    <a href="#" @click.prevent="window.api.openExternal(updateStore.url)">
+                      {{ t("update.download") }}
+                    </a>
+                  </p>
+                  <p v-else-if="updateStore.checked" class="update-status-line">
+                    {{ t("settings.about.upToDate") }}
+                  </p>
+                  <button
+                    class="check-updates-button"
+                    :disabled="checkingForUpdates"
+                    @click="checkForUpdatesNow"
+                  >
+                    {{ checkingForUpdates ? t("settings.about.checking") : t("settings.about.checkForUpdates") }}
+                  </button>
+                </div>
+
                 <div class="about-links">
                   <p class="attribution">
                     Echo dot icon by
@@ -389,6 +409,7 @@ import { useThemeStore } from "../store/theme.js"
 import { useAccentStore } from "../store/accent.js"
 import { useLastfmStore } from "../store/lastfm.js"
 import { usePlayerStore } from "../store/player.js"
+import { useUpdateStore } from "../store/update.js"
 import EqualizerPanel from "./EqualizerPanel.vue"
 
 const props = defineProps({
@@ -407,6 +428,7 @@ const themeStore = useThemeStore()
 const accentStore = useAccentStore()
 const lastfmStore = useLastfmStore()
 const player = usePlayerStore()
+const updateStore = useUpdateStore()
 const lastfmApiKey = ref("")
 const lastfmApiSecret = ref("")
 const { locale, t } = useI18n()
@@ -481,7 +503,17 @@ const tabs = [
   },
 ]
 
-const version = "2.2.3-beta"
+const version = ref("")
+const checkingForUpdates = ref(false)
+
+async function checkForUpdatesNow() {
+  checkingForUpdates.value = true
+  try {
+    await updateStore.checkNow()
+  } finally {
+    checkingForUpdates.value = false
+  }
+}
 
 const setTheme = (theme) => {
   themeStore.setTheme(theme)
@@ -507,6 +539,7 @@ onMounted(() => {
   }
 
   lastfmStore.fetchStatus()
+  window.api.getAppVersion().then((v) => (version.value = v))
 })
 </script>
 
@@ -919,6 +952,36 @@ onMounted(() => {
   color: var(--text-color);
   line-height: 1.6;
   margin: 0 0 2rem 0;
+}
+
+.update-status {
+  margin: 0 0 1.5rem 0;
+}
+
+.update-status-line {
+  font-size: 0.9rem;
+  color: var(--muted-text);
+  margin: 0 0 0.75rem 0;
+}
+
+.update-status-line a {
+  color: var(--accent);
+  margin-left: 0.5rem;
+}
+
+.check-updates-button {
+  border: 2px solid var(--border-color);
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.check-updates-button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .about-links {
