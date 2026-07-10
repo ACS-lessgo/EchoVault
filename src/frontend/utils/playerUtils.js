@@ -126,17 +126,15 @@ export function useQueueManagement(player) {
     return [...baseList.slice(currentIndex), ...baseList.slice(0, currentIndex)]
   })
 
-  const playSongFromQueue = async (track, index) => {
-    if (player.shuffleEnabled && player.shuffleOrder?.length) {
-      player.currentIndex = index // index in shuffled order
-    } else {
-      player.currentIndex = index
-    }
+  const playSongFromQueue = async (track) => {
+    // Identify by track, not the sidebar's rotated display index, since
+    // that index doesn't map 1:1 onto player.queue/shuffleOrder.
+    player.playFromQueue(track)
     await player.setTrack(track, false)
   }
 
-  const removeFromQueue = (index) => {
-    player.queue.splice(index, 1)
+  const removeFromQueue = (track) => {
+    player.removeFromQueue(track)
   }
 
   return {

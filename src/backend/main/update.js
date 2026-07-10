@@ -15,11 +15,13 @@ export function registerUpdateHandlers(mainWindow) {
       const parsed = new URL(url)
       if (!ALLOWED_HOSTS.has(parsed.hostname)) {
         log.warn(`update :: refused to open non-GitHub URL: ${url}`)
-        return
+        return { success: false, reason: "host-not-allowed" }
       }
       shell.openExternal(url)
+      return { success: true }
     } catch {
       log.warn(`update :: invalid URL: ${url}`)
+      return { success: false, reason: "invalid-url" }
     }
   })
 

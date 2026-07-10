@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, nextTick } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { storeToRefs } from "pinia"
@@ -166,27 +166,23 @@ async function loadLibraryStats() {
   stats.value.playlistsCount =
     playlists?.length || 0
 
-  let totalSize = 0
   let listeningTime = 0
 
   for (const track of tracks) {
-
     listeningTime +=
       (track.duration || 0) *
       (track.noOfPlays || 0)
-
-    try {
-      totalSize +=
-        await window.api.getFileSize(
-          track.file_path
-        )
-    } catch { }
   }
+
+  const sizes = await Promise.all(
+    tracks.map((track) =>
+      window.api.getFileSize(track.file_path).catch(() => 0)
+    )
+  )
+  const totalSize = sizes.reduce((a, b) => a + b, 0)
 
   stats.value.storageUsed = totalSize
   stats.value.totalListeningTime = listeningTime
-
-  updateAnimations()
 }
 
 function formatStorage(bytes) {
@@ -258,6 +254,8 @@ onMounted(async () => {
     loadLibraryStats(),
     playlistsStore.loadPlaylists(),
   ])
+  await nextTick()
+  updateAnimations()
 })
 </script>
 

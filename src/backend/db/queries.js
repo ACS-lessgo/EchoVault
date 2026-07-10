@@ -19,6 +19,7 @@ export const GET_FOLDER_ID_BY_PATH = `
 
 //  Tracks
 export const GET_TRACKS = `SELECT * FROM tracks ORDER BY LOWER(title)`
+export const GET_RECENT_TRACKS = `SELECT * FROM tracks ORDER BY id DESC LIMIT 15`
 export const GET_LIKED_TRACKS = `SELECT * FROM tracks WHERE isLiked=1 ORDER BY LOWER(title)`
 export const UPDATE_LIKE = `UPDATE tracks SET isLiked = ? WHERE id = ?`
 export const DELETE_TRACK_BY_PATH = `DELETE FROM tracks WHERE file_path=?`

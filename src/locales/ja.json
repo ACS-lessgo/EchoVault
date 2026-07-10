@@ -34,7 +34,19 @@
   },
 
   "library": {
-    "folderManagement": "フォルダを管理"
+    "folderManagement": "フォルダを管理",
+    "title": "ライブラリ",
+    "recentlyAdded": "最近追加した項目",
+    "emptyTitle": "ライブラリが空です",
+    "emptyText": "フォルダを追加してコレクションを作りましょう。",
+    "addFolderCta": "フォルダを追加",
+    "artists": "アーティスト",
+    "playlists": "プレイリスト",
+    "folders": "フォルダ"
+  },
+
+  "media": {
+    "title": "メディア管理"
   },
 
   "table": {
@@ -66,6 +78,7 @@
     "allSongs": "すべての曲",
     "artists": "アーティスト",
     "library": "ライブラリ",
+    "media": "メディア管理",
     "playlists": "プレイリスト",
     "section": {
       "app": "EchoVault",
@@ -97,35 +110,6 @@
     "clear": "検索をクリア"
   },
 
-  "stats": {
-    "title": "ライブラリ統計",
-
-    "totalTracks": "総トラック数",
-    "artists": "アーティスト数",
-    "likedSongs": "いいねした曲",
-    "storageUsed": "使用ストレージ",
-    "folders": "フォルダ数",
-    "totalDuration": "総再生時間",
-    "listeningTime": "リスニング時間",
-
-    "top": {
-      "title": "トップ統計",
-      "mostLikedArtist": "最もいいねされたアーティスト",
-      "likedCount": "いいね数 {count}",
-      "avgDurationTitle": "平均曲時間",
-      "collectionSize": "コレクションサイズ",
-      "totalPlays": "総再生回数",
-
-      "topTracksTitle": "最も再生されたトップ10曲",
-      "noPlaysTracks": "まだ再生履歴がありません。再生するとトップ曲が表示されます！",
-
-      "topArtistsTitle": "最も再生されたトップ10アーティスト",
-      "noPlaysArtists": "まだ再生履歴がありません。再生するとトップアーティストが表示されます！",
-
-      "trackCountInLibrary": "ライブラリ内に {count} 曲"
-    }
-  },
-
   "alt": {
     "trackCover": "{title} のカバー画像",
     "artistCover": "{name} のアーティスト画像"
@@ -133,8 +117,6 @@
 
   "labels": {
     "equalizer": "イコライザ",
-    "perTrack": "各トラック",
-    "uniqueAlbums": "ユニークアルバム数",
     "allTime": "累計",
     "unknownArtist": "不明なアーティスト",
     "plays": "回再生",

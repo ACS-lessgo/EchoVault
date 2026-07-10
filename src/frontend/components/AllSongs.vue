@@ -50,6 +50,7 @@ import { ref, onMounted, nextTick, watch } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import { useEnhanceStore } from "../store/enhance.js"
+import { usePlaylistsStore } from "../store/playlists.js"
 import { useI18n } from "vue-i18n"
 import TrackList from "./TrackList.vue"
 import TrackGrid from "./TrackGrid.vue"
@@ -69,11 +70,23 @@ const { sortField, sortDirection, sortedTracks } = useTrackSort(
 const search = useSearchStore()
 const player = usePlayerStore()
 const enhance = useEnhanceStore()
+const playlistsStore = usePlaylistsStore()
 
 // Reload the list when an enhancement finishes so the new FLAC appears.
 watch(
   () => enhance.completedCount,
   () => loadTracks()
+)
+
+// Patch the liked flag in place so the row's liked icon updates immediately.
+watch(
+  () => player.likedUpdated,
+  () => {
+    const current = player.currentTrack
+    if (!current?.id) return
+    const t = tracks.value.find((t) => t.id === current.id)
+    if (t) t.isLiked = current.isLiked
+  }
 )
 
 // watcher for search
@@ -103,6 +116,7 @@ async function loadPlaylists() {
 async function handleAddToPlaylist({ track, playlistId }) {
   await window.api.addTrackToPlaylist(playlistId, track.id)
   await loadPlaylists()
+  await playlistsStore.loadPlaylists(true)
 }
 
 async function loadTracks() {
@@ -115,7 +129,7 @@ async function loadTracks() {
 
   if (Object.keys(player.currentTrack).length === 0) {
     player.clearQueue()
-    player.queue = structuredClone(sortedTracks.value)
+    player.queue = sortedTracks.value.map((t) => ({ ...t }))
     player.currentIndex = 0
     player.currentTrack = { ...withCovers[0] } || {}
     player.queueSource = "all"

@@ -34,6 +34,11 @@
             <Library class="nav-icon" :size="20" />
             <span>{{ t('nav.library') }}</span>
           </router-link>
+
+          <router-link to="/media" class="nav-item">
+            <FolderCog class="nav-icon" :size="20" />
+            <span>{{ t('nav.media') }}</span>
+          </router-link>
         </nav>
       </div>
 
@@ -73,7 +78,7 @@
 import { onMounted, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { Home, Music, User, Library, ListMusic, ChevronDown } from '@lucide/vue'
+import { Home, Music, User, Library, ListMusic, ChevronDown, FolderCog } from '@lucide/vue'
 import { usePlaylistsStore } from '../store/playlists.js'
 
 const { t } = useI18n()

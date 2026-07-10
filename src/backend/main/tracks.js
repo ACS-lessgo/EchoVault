@@ -5,7 +5,12 @@ import { parseAudioFile } from "../utils/audioMeta.js"
 import { extractEmbeddedLyrics } from "../utils/embeddedLyrics.js"
 import { parseLrc, withEndTimes } from "../utils/lrcParser.js"
 import { fetchLyricsFromLrclib } from "../utils/lrclibClient.js"
-import { GET_TRACKS, GET_LIKED_TRACKS, UPDATE_LIKE } from "../db/queries.js"
+import {
+  GET_TRACKS,
+  GET_RECENT_TRACKS,
+  GET_LIKED_TRACKS,
+  UPDATE_LIKE,
+} from "../db/queries.js"
 import log from "../../logger.js"
 
 // Tracks file_path -> true for lookups that returned no online match this session
@@ -20,6 +25,7 @@ function formatLrcTime(seconds) {
 export function registerTrackHandlers(mainWindow, db) {
   // tracks
   ipcMain.handle("tracks:get-tracks", () => db.prepare(GET_TRACKS).all())
+  ipcMain.handle("tracks:get-recent", () => db.prepare(GET_RECENT_TRACKS).all())
 
   // liked
   ipcMain.handle("tracks:get-liked-tracks", () =>

@@ -26,7 +26,7 @@
           :class="{
             playing: player.currentTrack?.file_path === track.file_path,
           }"
-          @click="playSongFromQueue(track, index)"
+          @click="playSongFromQueue(track)"
         >
           <div class="queue-info">
             <span class="index">{{ index + 1 }}</span>
@@ -41,7 +41,7 @@
           <button
             class="remove-btn"
             title="Remove from queue"
-            @click.stop="removeFromQueue(index)"
+            @click.stop="removeFromQueue(track)"
           >
             ×
           </button>

@@ -63,6 +63,7 @@
 import { ref, computed, onMounted, watch, nextTick } from "vue"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
+import { usePlaylistsStore } from "../store/playlists.js"
 import TrackList from "./TrackList.vue"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
@@ -78,7 +79,19 @@ const playlists = ref([])
 
 const search = useSearchStore()
 const player = usePlayerStore()
+const playlistsStore = usePlaylistsStore()
 const route = useRoute()
+
+// Patch the liked flag in place so the row's liked icon updates immediately.
+watch(
+  () => player.likedUpdated,
+  () => {
+    const current = player.currentTrack
+    if (!current?.id) return
+    const t = artistTracks.value.find((t) => t.id === current.id)
+    if (t) t.isLiked = current.isLiked
+  }
+)
 
 watch(
   () => route.params.id,
@@ -220,6 +233,7 @@ async function loadPlaylists() {
 async function handleAddToPlaylist({ track, playlistId }) {
   await window.api.addTrackToPlaylist(playlistId, track.id)
   await loadPlaylists()
+  await playlistsStore.loadPlaylists(true)
 }
 </script>
 

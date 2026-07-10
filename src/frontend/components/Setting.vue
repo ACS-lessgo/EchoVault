@@ -369,7 +369,7 @@
                 <div class="update-status">
                   <p v-if="updateStore.available" class="update-status-line">
                     {{ t("update.available", { version: updateStore.version }) }}
-                    <a href="#" @click.prevent="window.api.openExternal(updateStore.url)">
+                    <a href="#" @click.prevent="openUpdateLink">
                       {{ t("update.download") }}
                     </a>
                   </p>
@@ -512,6 +512,13 @@ async function checkForUpdatesNow() {
     await updateStore.checkNow()
   } finally {
     checkingForUpdates.value = false
+  }
+}
+
+async function openUpdateLink() {
+  const result = await window.api.openExternal(updateStore.url)
+  if (!result?.success) {
+    window.api.showToast?.("Could not open the download link.", "error")
   }
 }
 

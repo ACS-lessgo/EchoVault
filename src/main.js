@@ -1,4 +1,4 @@
-import { app, BrowserWindow, protocol } from "electron"
+import { app, BrowserWindow, protocol, shell } from "electron"
 import path from "node:path"
 import fs from "node:fs"
 import { Readable } from "node:stream"
@@ -77,6 +77,20 @@ function createWindow() {
       event.preventDefault()
       mainWindow.hide()
     }
+  })
+
+  // Open target="_blank" / window.open navigations in the OS browser
+  // instead of spawning an in-app popup window.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const { protocol: urlProtocol } = new URL(url)
+      if (urlProtocol === "http:" || urlProtocol === "https:") {
+        shell.openExternal(url)
+      }
+    } catch {
+      log.warn(`main :: blocked window.open for invalid URL: ${url}`)
+    }
+    return { action: "deny" }
   })
 
   mainWindow.once("ready-to-show", () => {

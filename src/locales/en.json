@@ -34,7 +34,19 @@
   },
 
   "library": {
-    "folderManagement": "Manage Folders"
+    "folderManagement": "Manage Folders",
+    "title": "Library",
+    "recentlyAdded": "Recently Added",
+    "emptyTitle": "Your library is empty",
+    "emptyText": "Add a folder to start building your collection.",
+    "addFolderCta": "Add a Folder",
+    "artists": "artists",
+    "playlists": "playlists",
+    "folders": "folders"
+  },
+
+  "media": {
+    "title": "Media Management"
   },
 
   "table": {
@@ -66,6 +78,7 @@
     "allSongs": "All Songs",
     "artists": "Artists",
     "library": "Library",
+    "media": "Media Management",
     "playlists": "Playlists",
     "section": {
       "app": "EchoVault",
@@ -97,31 +110,6 @@
     "clear": "Clear search"
   },
 
-  "stats": {
-    "title": "Library Statistics",
-    "totalTracks": "Total Tracks",
-    "artists": "Artists",
-    "likedSongs": "Liked Songs",
-    "storageUsed": "Storage Used",
-    "folders": "Folders",
-    "totalDuration": "Total Duration",
-    "listeningTime": "Listening Time",
-    "top": {
-      "title": "Top Statistics",
-      "mostLikedArtist": "Most Liked Artist",
-      "likedCount": "{count} liked songs",
-      "avgDurationTitle": "Average Song Duration",
-      "collectionSize": "Collection Size",
-      "totalPlays": "Total Plays",
-      "topTracksTitle": "Top 10 Most Played Songs",
-      "noPlaysTracks": "No plays recorded yet. Start listening to see your top tracks!",
-      "topArtistsTitle": "Top 10 Most Played Artists",
-      "noPlaysArtists": "No plays recorded yet. Start listening to see your top artists!",
-      "trackCountInLibrary": "{count} tracks in library",
-      "playlists": "Playlists"
-    }
-  },
-
   "alt": {
     "trackCover": "Cover of {title}",
     "artistCover": "Artist image for {name}"
@@ -129,8 +117,6 @@
 
   "labels": {
     "equalizer": "Equalizer",
-    "perTrack": "per track",
-    "uniqueAlbums": "unique albums",
     "allTime": "all time",
     "unknownArtist": "Unknown Artist",
     "plays": "plays",

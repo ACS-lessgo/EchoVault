@@ -374,16 +374,46 @@ export const usePlayerStore = defineStore("player", {
       this.currentIndex = 0
     },
 
-    // Remove track from queue
-    removeFromQueue(index) {
-      if (index < 0 || index >= this.queue.length) return
+    // Set currentIndex to point at `track`, in whichever index space
+    // (shuffleOrder vs queue) playback currently uses.
+    playFromQueue(track) {
+      if (this.shuffleEnabled && this.shuffleOrder?.length) {
+        const posInOrder = this.shuffleOrder.findIndex(
+          (i) => this.queue[i]?.file_path === track.file_path
+        )
+        if (posInOrder !== -1) this.currentIndex = posInOrder
+      } else {
+        const idx = this.queue.findIndex((t) => t.file_path === track.file_path)
+        if (idx !== -1) this.currentIndex = idx
+      }
+    },
 
-      this.queue.splice(index, 1)
+    // Remove track from queue, identified by track rather than a
+    // display-order index (the queue sidebar shows a rotated view, so a
+    // raw positional index doesn't map 1:1 onto this.queue/shuffleOrder).
+    removeFromQueue(track) {
+      const queueIndex = this.queue.findIndex(
+        (t) => t.file_path === track.file_path
+      )
+      if (queueIndex === -1) return
 
-      // Adjust current index if needed
-      if (this.currentIndex >= this.queue.length) {
-        this.currentIndex = this.queue.length - 1
-      } else if (index < this.currentIndex) {
+      this.queue.splice(queueIndex, 1)
+
+      if (this.shuffleEnabled && this.shuffleOrder?.length) {
+        const removedOrderIndex = this.shuffleOrder.indexOf(queueIndex)
+        this.shuffleOrder = this.shuffleOrder
+          .filter((i) => i !== queueIndex)
+          .map((i) => (i > queueIndex ? i - 1 : i))
+
+        if (removedOrderIndex !== -1 && removedOrderIndex < this.currentIndex) {
+          this.currentIndex--
+        }
+        if (this.currentIndex >= this.shuffleOrder.length) {
+          this.currentIndex = Math.max(this.shuffleOrder.length - 1, 0)
+        }
+      } else if (this.currentIndex >= this.queue.length) {
+        this.currentIndex = Math.max(this.queue.length - 1, 0)
+      } else if (queueIndex < this.currentIndex) {
         this.currentIndex--
       }
     },
