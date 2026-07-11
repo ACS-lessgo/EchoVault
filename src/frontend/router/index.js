@@ -17,6 +17,7 @@ const routes = [
   { path: "/artists", component: Artists },
   { path: "/artists/:id", component: Artists },
   { path: "/library", component: Library },
+  { path: "/library/album/:name", component: Library },
   { path: "/media", component: MediaManagement },
   { path: "/playlists", component: Playlists },
   { path: "/playlists/:id", component: Playlists },

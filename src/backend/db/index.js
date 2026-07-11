@@ -56,6 +56,7 @@ export function initDB() {
         cover TEXT,
         isLiked INTEGER DEFAULT 0,
         noOfPlays INTEGER DEFAULT 0,
+        last_played_at TEXT,
         FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
         FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
       );
@@ -63,6 +64,14 @@ export function initDB() {
   }
 
   db.exec(schema)
+
+  // Existing installs predate the last_played_at column — CREATE TABLE IF NOT EXISTS
+  // won't add it, so migrate it in directly. Fails harmlessly if already present.
+  try {
+    db.exec("ALTER TABLE tracks ADD COLUMN last_played_at TEXT")
+  } catch (err) {
+    if (!/duplicate column/i.test(err.message)) throw err
+  }
 
   const indexStatements = [
     `CREATE INDEX IF NOT EXISTS idx_tracks_title_lower ON tracks(LOWER(title));`,

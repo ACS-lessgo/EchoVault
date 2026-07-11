@@ -11,6 +11,7 @@ import {
   GET_TOP_PLAYED_TRACKS,
   GET_TOP_PLAYED_ARTISTS,
   GET_TOTAL_PLAYS,
+  GET_RECENTLY_PLAYED,
 } from "../db/queries.js"
 
 export function registerLibraryHandlers(mainWindow, db) {
@@ -89,6 +90,31 @@ export function registerLibraryHandlers(mainWindow, db) {
       return withCovers
     } catch (error) {
       console.error("Error getting top played tracks:", error)
+      return []
+    }
+  })
+
+  // Get most recently played tracks (for Library "Recently Played" panel)
+  ipcMain.handle("get-recently-played", async () => {
+    try {
+      const stmt = db.prepare(GET_RECENTLY_PLAYED)
+      const tracks = stmt.all()
+
+      const withCovers = await Promise.all(
+        tracks.map(async (track) => {
+          if (track.cover) {
+            const url = track.cover.startsWith("/")
+              ? `echovault://${track.cover}`
+              : `echovault:///${track.cover}`
+            return { ...track, coverDataUrl: url }
+          }
+          return { ...track, coverDataUrl: null }
+        })
+      )
+
+      return withCovers
+    } catch (error) {
+      console.error("Error getting recently played tracks:", error)
       return []
     }
   })

@@ -1,27 +1,52 @@
 <template>
   <div class="music-container">
     <div class="header">
-      <h2>{{ $t('tracks.all') }}</h2>
-      <div class="view-toggle">
-        <button
-          :class="['toggle-btn', { active: viewMode === 'list' }]"
-          @click="viewMode = 'list'"
-        >
-          <i class="fas fa-bars"></i>
-        </button>
-        <button
-          :class="['toggle-btn', { active: viewMode === 'grid' }]"
-          @click="viewMode = 'grid'"
-        >
-          <i class="fas fa-th-large"></i>
-        </button>
+      <div class="header-title">
+        <h2>{{ $t('tracks.all') }}</h2>
+        <span v-if="tracks.length" class="header-meta">
+          {{ t('tracks.count', tracks.length) }} · {{ formatTotalDuration(totalDurationSeconds) }}
+        </span>
+      </div>
+
+      <div class="header-controls">
+        <TrackSortControls
+          v-model:sortField="sortField"
+          v-model:sortDirection="sortDirection"
+        />
+        <div class="view-toggle">
+          <button
+            :class="['toggle-btn', { active: viewMode === 'list' }]"
+            @click="viewMode = 'list'"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <button
+            :class="['toggle-btn', { active: viewMode === 'grid' }]"
+            @click="viewMode = 'grid'"
+          >
+            <i class="fas fa-th-large"></i>
+          </button>
+        </div>
       </div>
     </div>
 
-    <TrackSortControls
-      v-model:sortField="sortField"
-      v-model:sortDirection="sortDirection"
-    />
+    <div class="pill-row">
+      <button class="pill active">
+        {{ t('tracks.all') }} <span class="pill-count">{{ tracks.length }}</span>
+      </button>
+      <button class="pill" @click="router.push('/playlists/liked')">
+        <Star :size="14" /> {{ t('tracks.favorites') }}
+        <span class="pill-count">{{ likedCount }}</span>
+      </button>
+      <button class="pill" @click="router.push('/artists')">
+        <User :size="14" /> {{ t('nav.artists') }}
+        <span class="pill-count">{{ artistCount }}</span>
+      </button>
+      <button class="pill" @click="router.push('/playlists')">
+        <ListMusic :size="14" /> {{ t('nav.playlists') }}
+        <span class="pill-count">{{ playlistCount }}</span>
+      </button>
+    </div>
 
     <!-- List View -->
     <TrackList
@@ -46,12 +71,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from "vue"
+import { ref, computed, onMounted, nextTick, watch } from "vue"
+import { useRouter } from "vue-router"
 import { useSearchStore } from "../store/search.js"
 import { usePlayerStore } from "../store/player.js"
 import { useEnhanceStore } from "../store/enhance.js"
 import { usePlaylistsStore } from "../store/playlists.js"
 import { useI18n } from "vue-i18n"
+import { Star, User, ListMusic } from "@lucide/vue"
 import TrackList from "./TrackList.vue"
 import TrackGrid from "./TrackGrid.vue"
 import TrackSortControls from "./TrackSortControls.vue"
@@ -59,8 +86,10 @@ import { useTrackSort } from "../utils/useTrackSort.js"
 import { formatTime } from "../utils/playerUtils.js"
 
 const { t } = useI18n()
+const router = useRouter()
 const tracks = ref([])
 const playlists = ref([])
+const artistCount = ref(0)
 const viewMode = ref("list")
 const { sortField, sortDirection, sortedTracks } = useTrackSort(
   tracks,
@@ -71,6 +100,25 @@ const search = useSearchStore()
 const player = usePlayerStore()
 const enhance = useEnhanceStore()
 const playlistsStore = usePlaylistsStore()
+
+const likedCount = computed(() => tracks.value.filter((t) => t.isLiked).length)
+const playlistCount = computed(() => playlists.value?.length || 0)
+const totalDurationSeconds = computed(() =>
+  tracks.value.reduce((sum, t) => sum + (t.duration || 0), 0)
+)
+
+function formatTotalDuration(seconds) {
+  const totalMinutes = Math.round(seconds / 60)
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  if (hours === 0) return `${minutes}m`
+  return `${hours}h ${minutes}m`
+}
+
+async function loadArtistCount() {
+  const artists = await window.api.getArtists()
+  artistCount.value = artists.length
+}
 
 // Reload the list when an enhancement finishes so the new FLAC appears.
 watch(
@@ -142,6 +190,7 @@ async function loadTracks() {
 onMounted(async () => {
   await loadTracks()
   await loadPlaylists()
+  await loadArtistCount()
 })
 
 // add cover to tracks
@@ -192,14 +241,81 @@ function playCurrentTrack(track) {
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
 .header h2 {
   margin: 0;
   font-size: 32px;
   font-weight: 700;
+}
+
+.header-meta {
+  color: var(--muted-text);
+  font-size: 14px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-controls :deep(.sort-controls) {
+  margin-bottom: 0;
+}
+
+/* Pill row (All Songs / Favorites / Artists / Playlists shortcuts) */
+.pill-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--side-nav-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+
+.pill.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  cursor: default;
+}
+
+.pill-count {
+  color: var(--muted-text);
+  font-weight: 500;
+}
+
+.pill.active .pill-count {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* View toggle buttons container */

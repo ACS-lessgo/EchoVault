@@ -7,7 +7,8 @@
     "all": "すべてのトラック",
     "listView": "リスト表示",
     "gridView": "グリッド表示",
-    "count": "{count} 曲"
+    "count": "{count} 曲",
+    "favorites": "お気に入り"
   },
 
   "viewToggle": {
@@ -42,7 +43,13 @@
     "addFolderCta": "フォルダを追加",
     "artists": "アーティスト",
     "playlists": "プレイリスト",
-    "folders": "フォルダ"
+    "folders": "フォルダ",
+    "albums": "アルバム",
+    "recentlyPlayed": "最近再生した項目",
+    "newPlaylist": "新しいプレイリスト",
+    "sortRecent": "最近",
+    "sortAZ": "A-Z",
+    "sortArtist": "アーティスト"
   },
 
   "media": {

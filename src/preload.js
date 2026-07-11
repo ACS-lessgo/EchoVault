@@ -59,6 +59,7 @@ contextBridge.exposeInMainWorld("api", {
   incrementPlayCount: (trackId) =>
     ipcRenderer.invoke("increment-play-count", trackId),
   getTopPlayedTracks: () => ipcRenderer.invoke("get-top-played-tracks"),
+  getRecentlyPlayed: () => ipcRenderer.invoke("get-recently-played"),
   getTopPlayedArtists: () => ipcRenderer.invoke("get-top-played-artists"),
   getTotalPlays: () => ipcRenderer.invoke("get-total-plays"),
   getArtistByName: (name) => ipcRenderer.invoke("get-artist-by-name", name),

@@ -30,7 +30,11 @@
           <ChevronDown class="chevron" :class="{ closed: !sections.library }" :size="14" />
         </button>
         <nav v-show="sections.library">
-          <router-link to="/library" class="nav-item">
+          <router-link
+            to="/library"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path.startsWith('/library') }"
+          >
             <Library class="nav-icon" :size="20" />
             <span>{{ t('nav.library') }}</span>
           </router-link>
@@ -78,10 +82,12 @@
 import { onMounted, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { Home, Music, User, Library, ListMusic, ChevronDown, FolderCog } from '@lucide/vue'
 import { usePlaylistsStore } from '../store/playlists.js'
 
 const { t } = useI18n()
+const route = useRoute()
 defineProps({
   collapsed: {
     type: Boolean,

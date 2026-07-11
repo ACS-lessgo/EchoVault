@@ -108,7 +108,14 @@ export const DELETE_ARTIST_WITHOUT_TRACKS = `
 `
 // Play Count
 export const INCREMENT_PLAY_COUNT = `
-  UPDATE tracks SET noOfPlays = noOfPlays + 1 WHERE id = ?
+  UPDATE tracks SET noOfPlays = noOfPlays + 1, last_played_at = datetime('now') WHERE id = ?
+`
+
+export const GET_RECENTLY_PLAYED = `
+  SELECT * FROM tracks
+  WHERE last_played_at IS NOT NULL
+  ORDER BY last_played_at DESC
+  LIMIT 6
 `
 
 export const GET_TOP_PLAYED_TRACKS = `
