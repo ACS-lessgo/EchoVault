@@ -25,6 +25,10 @@
     },
     "mostPlayed": "Most Played",
     "yourPlaylists": "Your Playlists",
+    "nowPlaying": "Now Playing",
+    "dropAlbumArt": "Drop album art",
+    "browseFiles": "or browse files",
+    "autoPlaylist": "Auto playlist",
     "import": {
       "heading": "Import Your Music",
       "addFolder": "Add Folder"

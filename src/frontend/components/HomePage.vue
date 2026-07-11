@@ -1,92 +1,143 @@
 <template>
-  <!-- Redesigned Home.vue -->
   <div class="home-page">
-    <!-- NOTE: Reuse your existing <script setup> from the current Home.vue -->
-    <header class="home-header">
-      <div>
-        <p class="eyebrow">{{ greeting }}</p>
-        <h1>{{ t("app.name") }}</h1>
-        <div class="library-meta">
-          <span>{{ animatedTracks }} Songs</span>
+    <section class="now-playing-hero">
+      <div class="hero-info">
+        <div class="now-playing-label">
+          <span class="label-text">{{ t("home.nowPlaying") }}</span>
+          <span class="eq-bars" :class="{ paused: !player.isPlaying }">
+            <span></span><span></span><span></span><span></span><span></span>
+          </span>
+        </div>
 
-          <span>•</span>
+        <div class="track-title-box">
+          <h1>{{ player.currentTrack?.title || t("labels.noTrackSelected") }}</h1>
+        </div>
+        <p class="track-artist">
+          {{ player.currentTrack?.artist || t("labels.unknownArtist") }}
+        </p>
 
-          <span>{{ animatedArtists }} Artists</span>
+        <div class="hero-controls">
+          <button class="icon-btn" :disabled="!player.hasPrevious" @click="playPreviousTrack">
+            <SkipBack :size="20" fill="currentColor" />
+          </button>
+          <button class="play-btn" @click="togglePlay">
+            <Pause v-if="player.isPlaying" :size="22" fill="currentColor" />
+            <Play v-else :size="22" fill="currentColor" />
+          </button>
+          <button class="icon-btn" :disabled="!player.hasNext" @click="playNextTrack">
+            <SkipForward :size="20" fill="currentColor" />
+          </button>
+          <button class="icon-btn" :class="{ active: player.currentTrack?.isLiked }" @click="toggleLikedSong">
+            <Heart :size="18" :fill="player.currentTrack?.isLiked ? 'currentColor' : 'none'" />
+          </button>
+          <button class="icon-btn" :class="{ active: player.shuffleEnabled }" @click="player.toggleShuffle">
+            <Shuffle :size="18" />
+          </button>
+        </div>
 
-          <span>•</span>
+        <div class="hero-progress">
+          <span class="time">{{ formatTime(player.currentTime) }}</span>
+          <div class="progress-track" @click="seek($event)" @mousemove="showHoverTime($event)"
+            @mouseleave="hideHoverTime">
+            <div class="progress-fill" :style="{ width: `${player.progress * 100}%` }"></div>
+          </div>
+          <span class="time">{{ formatTime(player.duration) }}</span>
+        </div>
 
-          <span>{{ stats.totalAlbums }} Albums</span>
-
-          <span>•</span>
-
-          <span>{{ animatedPlaylists }} Playlists</span>
-
-          <span>•</span>
-
-          <span>{{ formatStorage(stats.storageUsed) }}</span>
-
-          <span>•</span>
-
-          <span>{{ formatListeningTime(stats.totalListeningTime) }}</span>
+        <div v-if="stats.totalTracks > 0" class="hero-stats">
+          <span>{{ animatedTracks }} {{ t("labels.tracks") }}</span>
+          <span>·</span>
+          <span>{{ animatedArtists }} {{ t("nav.artists") }}</span>
+          <span>·</span>
+          <span>{{ stats.totalAlbums }} {{ t("library.albums") }}</span>
         </div>
       </div>
-    </header>
+
+      <div class="hero-art" :style="artGlowStyle">
+        <img v-if="player.currentTrack?.coverDataUrl" :src="player.currentTrack.coverDataUrl" alt="Album art" />
+        <div v-else class="art-empty">
+          <ImageIcon :size="28" />
+          <p>{{ t("home.dropAlbumArt") }}</p>
+          <p class="browse">{{ t("home.browseFiles") }}</p>
+        </div>
+      </div>
+    </section>
+
     <section v-if="folders.length === 0" class="empty-state">
       <i class="fas fa-music empty-icon"></i>
       <h2>Your library is empty</h2>
       <p>Import a folder to start building your music collection.</p>
     </section>
     <template v-else>
-      <section>
-        <div class="section-title">
-          <h2>Your Playlists</h2>
-        </div>
-        <div class="playlist-grid">
-          <div class="playlist-card liked" @click="router.push('/playlists/liked')">
-            <div class="cover liked-cover"><i class="fas fa-heart"></i></div>
-            <div>
+      <div class="home-body">
+        <section v-if="topTracks.length" class="most-played-section">
+          <div class="section-title">
+            <h2>{{ t("home.mostPlayed") }}</h2>
+          </div>
+          <div class="track-list">
+            <div v-for="(track, index) in topTracks" :key="track.id" class="track-row" @click="playTrack(track)">
+              <span class="index">{{ String(index + 1).padStart(2, "0") }}</span>
+              <div class="track-info">
+                <div class="title">{{ track.title }}</div>
+                <div class="artist">{{ track.artist }}</div>
+              </div>
+              <div class="plays">{{ track.noOfPlays || 0 }}</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="playlists-section">
+          <div class="section-title">
+            <h2>{{ t("home.yourPlaylists") }}</h2>
+          </div>
+          <div class="playlist-grid-compact">
+            <div class="playlist-card liked" @click="router.push('/playlists/liked')">
+              <div class="card-icon liked-icon">
+                <Heart :size="16" fill="currentColor" />
+              </div>
               <h3>{{ t("liked.title") }}</h3>
+              <p>{{ t("home.autoPlaylist") }}</p>
             </div>
-          </div>
-          <div v-for="playlist in quickPlaylists" :key="playlist.id" class="playlist-card"
-            @click="router.push(`/playlists/${playlist.id}`)">
-            <img v-if="playlist.coverUrl" :src="playlist.coverUrl" class="cover" />
-            <div v-else class="cover default-cover"><i class="fas fa-music"></i></div>
-            <div>
+            <div v-for="playlist in quickPlaylists" :key="playlist.id" class="playlist-card"
+              @click="router.push(`/playlists/${playlist.id}`)">
+              <img v-if="playlist.coverUrl" :src="playlist.coverUrl" class="card-icon" />
+              <div v-else class="card-icon default-icon">
+                <ListMusic :size="16" />
+              </div>
               <h3>{{ playlist.name }}</h3>
-              <p>{{ playlist.track_count || 0 }} tracks</p>
+              <p>{{ playlist.track_count || 0 }} {{ t("labels.tracks") }}</p>
             </div>
           </div>
-        </div>
-      </section>
-      <section v-if="topTracks.length">
-        <div class="section-title">
-          <h2>Most Played</h2>
-        </div>
-        <div class="track-list">
-          <div v-for="(track, index) in topTracks" :key="track.id" class="track-row" @click="playTrack(track)">
-            <span>{{ index + 1 }}</span>
-            <img v-if="track.coverDataUrl" :src="track.coverDataUrl" class="track-cover" />
-            <div v-else class="track-cover default-cover"><i class="fas fa-music"></i></div>
-            <div class="track-info">
-              <div class="title">{{ track.title }}</div>
-              <div class="artist">{{ track.artist }}</div>
-            </div>
-            <div class="plays">{{ track.noOfPlays || 0 }}</div>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue"
+import { ref, computed, onMounted, nextTick, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { storeToRefs } from "pinia"
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Heart,
+  Shuffle,
+  ListMusic,
+  Image as ImageIcon,
+} from "@lucide/vue"
 import { usePlayerStore } from "../store/player.js"
 import { usePlaylistsStore } from "../store/playlists.js"
+import { extractCoverColor } from "../utils/coverColor.js"
+import {
+  formatTime,
+  useProgressBar,
+  usePlaybackControls,
+  useTrackLike,
+} from "../utils/playerUtils.js"
 
 const { t } = useI18n()
 const router = useRouter()
@@ -94,29 +145,20 @@ const player = usePlayerStore()
 const playlistsStore = usePlaylistsStore()
 const { playlists } = storeToRefs(playlistsStore)
 
+const { seek, showHoverTime, hideHoverTime } = useProgressBar(player)
+const { togglePlay, playPreviousTrack, playNextTrack } = usePlaybackControls(player)
+const { toggleLikedSong } = useTrackLike(player)
+
 const folders = ref([])
 const topTracks = ref([])
 const stats = ref({
   totalTracks: 0,
   totalArtists: 0,
   totalAlbums: 0,
-  storageUsed: 0,
-  playlistsCount: 0,
-  totalListeningTime: 0,
 })
 
 const animatedTracks = ref(0)
 const animatedArtists = ref(0)
-const animatedPlaylists = ref(0)
-
-function formatListeningTime(seconds) {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-
-  if (hours > 0) return `${hours}h ${minutes}m`
-
-  return `${minutes}m`
-}
 
 function updateAnimations() {
   const duration = 1200
@@ -124,20 +166,10 @@ function updateAnimations() {
 
   function animate(now) {
     const progress = Math.min((now - start) / duration, 1)
-
     const ease = 1 - Math.pow(1 - progress, 4)
 
-    animatedTracks.value = Math.floor(
-      stats.value.totalTracks * ease
-    )
-
-    animatedArtists.value = Math.floor(
-      stats.value.totalArtists * ease
-    )
-
-    animatedPlaylists.value = Math.floor(
-      stats.value.playlistsCount * ease
-    )
+    animatedTracks.value = Math.floor(stats.value.totalTracks * ease)
+    animatedArtists.value = Math.floor(stats.value.totalArtists * ease)
 
     if (progress < 1) requestAnimationFrame(animate)
   }
@@ -147,69 +179,12 @@ function updateAnimations() {
 
 async function loadLibraryStats() {
   const tracks = await window.api.getTracks()
-
   stats.value.totalTracks = tracks.length
-
-  stats.value.totalAlbums =
-    new Set(
-      tracks
-        .map(t => t.album)
-        .filter(Boolean)
-    ).size
+  stats.value.totalAlbums = new Set(tracks.map((t) => t.album).filter(Boolean)).size
 
   const artists = await window.api.getArtists()
-
   stats.value.totalArtists = artists.length
-
-  const playlists = await window.api.getPlaylists()
-
-  stats.value.playlistsCount =
-    playlists?.length || 0
-
-  let listeningTime = 0
-
-  for (const track of tracks) {
-    listeningTime +=
-      (track.duration || 0) *
-      (track.noOfPlays || 0)
-  }
-
-  const sizes = await Promise.all(
-    tracks.map((track) =>
-      window.api.getFileSize(track.file_path).catch(() => 0)
-    )
-  )
-  const totalSize = sizes.reduce((a, b) => a + b, 0)
-
-  stats.value.storageUsed = totalSize
-  stats.value.totalListeningTime = listeningTime
 }
-
-function formatStorage(bytes) {
-  if (bytes === 0) return "0 B"
-
-  const k = 1024
-  const sizes = ["B", "KB", "MB", "GB", "TB"]
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  return (
-    Math.round((bytes / Math.pow(k, i)) * 100) / 100 +
-    " " +
-    sizes[i]
-  )
-}
-
-const greeting = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 12) return t("home.greeting.morning")
-  if (hour < 18) return t("home.greeting.afternoon")
-  return t("home.greeting.evening")
-})
-
-const hasTracks = computed(() => {
-  return folders.value.some((folder) => (folder.trackCount || 0) > 0)
-})
 
 const quickPlaylists = computed(() => playlists.value.slice(0, 8))
 
@@ -227,10 +202,6 @@ async function loadTopTracks() {
   }
 }
 
-async function addFolder() {
-  folders.value = await window.api.addFolder()
-}
-
 function playTrack(track) {
   if (player.queueSource !== "home-top-played") {
     player.clearQueue()
@@ -246,6 +217,22 @@ function playTrack(track) {
     player.setTrack(track)
   }
 }
+
+// Tint the album-art panel's glow from the current cover, same technique
+// PlayerBar.vue already uses for its background tint.
+const coverTint = ref(null)
+watch(
+  () => player.currentTrack?.coverDataUrl,
+  async (url) => {
+    coverTint.value = await extractCoverColor(url)
+  },
+  { immediate: true }
+)
+
+const artGlowStyle = computed(() => {
+  const c = coverTint.value
+  return { "--tint": c ? `${c.r}, ${c.g}, ${c.b}` : "124, 58, 237" }
+})
 
 onMounted(async () => {
   await Promise.all([
@@ -265,168 +252,370 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 36px;
-  background: linear-gradient(180deg, #171717, #111111);
-  min-height: 100%
+  background: var(--content-bg);
+  min-height: 100%;
 }
 
-.home-header {
+/* ── Now Playing hero ── */
+.now-playing-hero {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 32px;
+  align-items: start;
+}
+
+.hero-info {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
 }
 
-.library-meta {
+.now-playing-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.eq-bars span {
+  width: 3px;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: eq-bounce 1s ease-in-out infinite;
+}
+
+.eq-bars span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.eq-bars span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.eq-bars span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.eq-bars span:nth-child(4) {
+  animation-delay: 0.1s;
+}
+
+.eq-bars span:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.eq-bars.paused span {
+  animation-play-state: paused;
+  height: 3px !important;
+}
+
+@keyframes eq-bounce {
+
+  0%,
+  100% {
+    height: 3px;
+  }
+
+  50% {
+    height: 12px;
+  }
+}
+
+.track-title-box {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 14px;
+}
+
+.track-title-box h1 {
+  margin: 0;
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text-color);
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.track-artist {
+  margin: 0;
+  color: var(--muted-text);
+  font-size: 16px;
+}
+
+.hero-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.icon-btn.active {
+  color: var(--accent);
+}
+
+.play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.play-btn:hover {
+  background: var(--accent-hover);
+}
+
+.hero-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 480px;
+}
+
+.hero-progress .time {
+  font-size: 12px;
+  color: var(--muted-text);
+  flex-shrink: 0;
+}
+
+.progress-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-color);
+  cursor: pointer;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+
+.hero-stats {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-
-  gap: 10px;
-
-  margin-top: 12px;
-
+  gap: 8px;
   color: var(--muted-text);
-
-  font-size: 15px;
-
-  font-weight: 500;
+  font-size: 14px;
+  margin-top: 4px;
 }
 
-.library-meta span:nth-child(even) {
-  opacity: .35;
-}
-
-.eyebrow {
-  color: var(--muted-text)
-}
-
-.home-header h1 {
-  font-size: 40px;
-  margin: .25rem 0 1rem
-}
-
-.stats {
+/* ── Album art panel ── */
+.hero-art {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(var(--tint), 0.35), transparent 70%),
+    var(--side-nav-bg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
   display: flex;
-  gap: 14px
+  align-items: center;
+  justify-content: center;
 }
 
-.stat {
-  background: var(--side-nav-bg);
-  padding: 14px 18px;
-  border-radius: 16px
+.hero-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.stat span {
-  display: block;
-  font-size: 22px;
-  font-weight: 700
+.art-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-text);
+  text-align: center;
 }
 
-.stat small {
-  color: var(--muted-text)
+.art-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.art-empty .browse {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* ── Body: Most Played + Playlists ── */
+.home-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
 }
 
 .section-title {
-  margin-bottom: 16px
+  margin-bottom: 16px;
 }
 
-.playlist-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px
-}
-
-.playlist-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--side-nav-bg);
-  padding: 14px;
-  border-radius: 18px;
-  transition: .2s;
-  cursor: pointer
-}
-
-.playlist-card:hover {
-  background: var(--hover-bg);
-  transform: translateY(-3px)
-}
-
-.cover {
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
-  object-fit: cover;
-  background: var(--topbar-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center
-}
-
-.liked-cover {
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  color: #fff
+.section-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color);
 }
 
 .track-list {
   display: flex;
   flex-direction: column;
-  gap: 6px
+  gap: 4px;
 }
 
 .track-row {
   display: grid;
-  grid-template-columns: 36px 48px 1fr auto;
-  gap: 16px;
+  grid-template-columns: 32px 1fr auto;
+  gap: 14px;
   align-items: center;
   padding: 10px 14px;
   border-radius: 14px;
-  transition: .2s;
-  cursor: pointer
+  transition: 0.2s;
+  cursor: pointer;
 }
 
 .track-row:hover {
-  background: var(--hover-bg)
+  background: var(--hover-bg);
 }
 
-.track-cover {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  object-fit: cover
+.track-row .index {
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .title {
-  font-weight: 600
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .artist {
   font-size: 13px;
-  color: var(--muted-text)
+  color: var(--muted-text);
 }
 
 .plays {
   color: var(--accent);
-  font-weight: 600
+  font-weight: 600;
 }
 
+.playlist-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.playlist-card {
+  background: var(--side-nav-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.playlist-card:hover {
+  background: var(--hover-bg);
+  transform: translateY(-2px);
+}
+
+.playlist-card h3 {
+  margin: 8px 0 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.playlist-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted-text);
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--topbar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-text);
+}
+
+.liked-icon {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: #fff;
+}
+
+/* ── Empty state ── */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 80px;
-  gap: 16px
+  gap: 16px;
 }
 
 .empty-icon {
   font-size: 72px;
-  opacity: .4
+  opacity: 0.4;
 }
 
-.accent-btn {
-  padding: 12px 18px;
-  border: none;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #fff
+@media (max-width: 900px) {
+
+  .now-playing-hero,
+  .home-body {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

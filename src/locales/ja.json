@@ -25,6 +25,10 @@
     },
     "mostPlayed": "よく再生される曲",
     "yourPlaylists": "あなたのプレイリスト",
+    "nowPlaying": "再生中",
+    "dropAlbumArt": "アルバムアートをドロップ",
+    "browseFiles": "またはファイルを参照",
+    "autoPlaylist": "自動プレイリスト",
     "import": {
       "heading": "音楽をインポート",
       "addFolder": "フォルダを追加"
