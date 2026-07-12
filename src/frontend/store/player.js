@@ -163,6 +163,7 @@ export const usePlayerStore = defineStore("player", {
     queue: [], // Track queue
     currentIndex: 0, // curr track index in queue
     volume: 0.5, // 0 - 1 , default 0.5
+    previousVolume: 0.5, // remembered for mute/unmute
     likedUpdated: 0,
     repeatMode: "off", // 'off', 'all', 'one'
     shuffleEnabled: false,
@@ -447,6 +448,15 @@ export const usePlayerStore = defineStore("player", {
       // feels even, instead of most change being audible only near the top.
       const perceptualGain = this.volume === 0 ? 0 : Math.pow(this.volume, 3)
       gainNode.gain.setTargetAtTime(perceptualGain, audioCtx.currentTime, 0.01)
+    },
+
+    toggleMute() {
+      if (this.volume > 0) {
+        this.previousVolume = this.volume
+        this.setVolume(0)
+      } else {
+        this.setVolume(this.previousVolume || 0.5)
+      }
     },
 
     setEQBand(index, gainDb) {

@@ -25,12 +25,7 @@ export function useVolumeControl(player) {
   }
 
   const toggleMute = () => {
-    if (volume.value === 0) {
-      volume.value = player.volume * 100 || 50
-    } else {
-      volume.value = 0
-    }
-    player.setVolume(volume.value / 100)
+    player.toggleMute()
   }
 
   return {
