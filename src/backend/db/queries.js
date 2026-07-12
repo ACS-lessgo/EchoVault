@@ -1,9 +1,15 @@
 //  Folders
 export const GET_FOLDERS_WITH_TRACK_COUNT = `
-  SELECT f.*, COUNT(t.id) AS trackCount
+  SELECT f.*, COUNT(t.id) AS trackCount, COALESCE(SUM(t.file_size), 0) AS totalSize
   FROM folders f
   LEFT JOIN tracks t ON f.id = t.folder_id
   GROUP BY f.id
+`
+export const UPDATE_FOLDER_LAST_SCANNED = `
+  UPDATE folders SET last_scanned_at = datetime('now') WHERE id = ?
+`
+export const GET_LAST_SCANNED_AT = `
+  SELECT MAX(last_scanned_at) AS lastScannedAt FROM folders
 `
 export const DELETE_FOLDER = `DELETE FROM folders WHERE path=?`
 export const CLEAN_ORPHAN_TRACKS = `
@@ -33,9 +39,9 @@ export const GET_TRACK_BY_ID = `SELECT * FROM tracks WHERE id=?`
 export const GET_TRACK_BY_PATH = `SELECT * FROM tracks WHERE file_path=?`
 export const UPSERT_TRACK = `
   INSERT INTO tracks (
-    folder_id, artist_id, file_path, title, album, artist, duration, cover
+    folder_id, artist_id, file_path, title, album, artist, duration, cover, file_size
   )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   ON CONFLICT(file_path) DO UPDATE SET
     folder_id=excluded.folder_id,
     artist_id=excluded.artist_id,
@@ -43,7 +49,8 @@ export const UPSERT_TRACK = `
     album=excluded.album,
     artist=excluded.artist,
     duration=excluded.duration,
-    cover=excluded.cover
+    cover=excluded.cover,
+    file_size=excluded.file_size
 `
 // queries
 

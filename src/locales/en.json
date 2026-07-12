@@ -58,11 +58,21 @@
   },
 
   "media": {
-    "title": "Media Management"
+    "title": "Media Management",
+    "eyebrow": "Library Settings",
+    "subtitle": "Folders you add here are watched for music. New files are picked up automatically on every scan.",
+    "lastScanned": "Last scanned {time}",
+    "gridView": "Grid view",
+    "listView": "List view",
+    "tracksHeader": "Tracks",
+    "sizeHeader": "Size",
+    "scanning": "Scanning...",
+    "rescanComplete": "Library rescanned successfully!"
   },
 
   "table": {
     "folderPath": "Folder Path",
+    "folderHeader": "Folder",
     "actions": "Actions",
     "trackCountLabel": "{count} track | {count} tracks",
     "removeFolder": "Remove folder"

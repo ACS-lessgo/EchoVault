@@ -1,5 +1,6 @@
 import chokidar from "chokidar"
 import path from "node:path"
+import fs from "node:fs"
 import { extractMetadata } from "./scanner.js"
 import {
   GET_FOLDER_PATHS,
@@ -54,6 +55,13 @@ export function watchFolders(db) {
           updateArtistCover.run(meta.cover, artistId)
         }
 
+        let fileSize = null
+        try {
+          fileSize = fs.statSync(filePath).size
+        } catch (statErr) {
+          log.warn("watchFolders :: stat failed:", filePath, "::", statErr.message)
+        }
+
         // check for existing track
         db.prepare(UPSERT_TRACK).run(
           folderId,
@@ -63,7 +71,8 @@ export function watchFolders(db) {
           meta.album || "",
           artistName,
           meta.duration || 0,
-          meta.cover || null
+          meta.cover || null,
+          fileSize
         )
       } catch (err) {
         log.warn("watchFolders :: Metadata extraction failed:", filePath, "::", err.message)

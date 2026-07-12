@@ -12,6 +12,7 @@ import {
   GET_TOP_PLAYED_ARTISTS,
   GET_TOTAL_PLAYS,
   GET_RECENTLY_PLAYED,
+  GET_LAST_SCANNED_AT,
 } from "../db/queries.js"
 
 export function registerLibraryHandlers(mainWindow, db) {
@@ -50,6 +51,11 @@ export function registerLibraryHandlers(mainWindow, db) {
     for (const { path } of folders) await scanFolder(db, path)
     watchFolders(db)
     return db.prepare(GET_FOLDERS_WITH_TRACK_COUNT).all()
+  })
+
+  // last scanned (global, across all folders)
+  ipcMain.handle("library:get-last-scanned", () => {
+    return db.prepare(GET_LAST_SCANNED_AT).get()?.lastScannedAt || null
   })
 
   // Increment play count when a track is played

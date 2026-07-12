@@ -35,7 +35,8 @@ export function initDB() {
     schema = `
       CREATE TABLE IF NOT EXISTS folders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        path TEXT UNIQUE
+        path TEXT UNIQUE,
+        last_scanned_at TEXT
       );
 
       CREATE TABLE IF NOT EXISTS artists (
@@ -57,6 +58,7 @@ export function initDB() {
         isLiked INTEGER DEFAULT 0,
         noOfPlays INTEGER DEFAULT 0,
         last_played_at TEXT,
+        file_size INTEGER,
         FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
         FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
       );
@@ -69,6 +71,18 @@ export function initDB() {
   // won't add it, so migrate it in directly. Fails harmlessly if already present.
   try {
     db.exec("ALTER TABLE tracks ADD COLUMN last_played_at TEXT")
+  } catch (err) {
+    if (!/duplicate column/i.test(err.message)) throw err
+  }
+
+  try {
+    db.exec("ALTER TABLE tracks ADD COLUMN file_size INTEGER")
+  } catch (err) {
+    if (!/duplicate column/i.test(err.message)) throw err
+  }
+
+  try {
+    db.exec("ALTER TABLE folders ADD COLUMN last_scanned_at TEXT")
   } catch (err) {
     if (!/duplicate column/i.test(err.message)) throw err
   }

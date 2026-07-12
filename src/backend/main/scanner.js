@@ -12,6 +12,7 @@ import {
   UPDATE_ARTIST_COVER,
   CHECK_TRACK_EXISTS,
   UPSERT_TRACK,
+  UPDATE_FOLDER_LAST_SCANNED,
 } from "../db/queries.js"
 import log from "../../logger.js"
 
@@ -143,6 +144,18 @@ async function readTracksFromFoldersAndSetInDB(db, folderPath) {
       }
 
       // Insert or update track
+      let fileSize = null
+      try {
+        fileSize = fs.statSync(filePath).size
+      } catch (statErr) {
+        log.warn(
+          "readTracksFromFoldersAndSetInDB :: stat failed for:",
+          filePath,
+          "::",
+          statErr.message
+        )
+      }
+
       upsertTrack.run(
         folderId,
         artistId,
@@ -151,7 +164,8 @@ async function readTracksFromFoldersAndSetInDB(db, folderPath) {
         album || "",
         artistName,
         duration,
-        coverData
+        coverData,
+        fileSize
       )
     } catch (err) {
       log.warn(
@@ -165,6 +179,9 @@ async function readTracksFromFoldersAndSetInDB(db, folderPath) {
   log.info(
     "readTracksFromFoldersAndSetInDB :: get meta data for each music file :: End"
   )
+
+  db.prepare(UPDATE_FOLDER_LAST_SCANNED).run(folderId)
+
   log.info(`readTracksFromFoldersAndSetInDB :: Folder scanned: ${folderPath}`)
 }
 

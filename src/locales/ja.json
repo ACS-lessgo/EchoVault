@@ -58,11 +58,21 @@
   },
 
   "media": {
-    "title": "メディア管理"
+    "title": "メディア管理",
+    "eyebrow": "ライブラリ設定",
+    "subtitle": "ここに追加したフォルダは音楽が自動的に監視されます。新しいファイルはスキャンのたびに自動的に検出されます。",
+    "lastScanned": "最終スキャン: {time}",
+    "gridView": "グリッド表示",
+    "listView": "リスト表示",
+    "tracksHeader": "曲数",
+    "sizeHeader": "サイズ",
+    "scanning": "スキャン中...",
+    "rescanComplete": "ライブラリの再スキャンが完了しました！"
   },
 
   "table": {
     "folderPath": "フォルダパス",
+    "folderHeader": "フォルダ",
     "actions": "操作",
     "trackCountLabel": "{count} 曲",
     "removeFolder": "フォルダを削除"

@@ -4,7 +4,8 @@
 
 CREATE TABLE IF NOT EXISTS folders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  path TEXT UNIQUE
+  path TEXT UNIQUE,
+  last_scanned_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tracks (
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS tracks (
   isLiked INTEGER DEFAULT 0,
   noOfPlays INTEGER DEFAULT 0,
   last_played_at TEXT,
+  file_size INTEGER,
   FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
   FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL
 );

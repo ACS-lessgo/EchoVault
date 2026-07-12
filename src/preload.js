@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld("api", {
   getFolders: () => ipcRenderer.invoke("library:get-folders"),
   removeFolder: (path) => ipcRenderer.invoke("library:remove-folder", path),
   rescanLibrary: () => ipcRenderer.invoke("library:rescan-library"),
+  getLastScannedAt: () => ipcRenderer.invoke("library:get-last-scanned"),
 
   // tracks
   getTracks: () => ipcRenderer.invoke("tracks:get-tracks"),
