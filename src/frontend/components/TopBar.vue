@@ -28,6 +28,7 @@
           :style="iconFilter"
         />
         <input
+          id="global-search-input"
           v-model="localQuery"
           type="text"
           :placeholder="t('search.placeholder')"
@@ -45,6 +46,12 @@
       </div>
 
       <div class="actions">
+        <!-- Profile Badge -->
+        <div class="profile-badge" :title="profileStore.username || t('settings.tabs.profile')">
+          <i class="fa-solid fa-circle-user profile-icon"></i>
+          <span v-if="profileStore.username" class="profile-name">{{ profileStore.username }}</span>
+        </div>
+
         <!-- Theme Button -->
         <button title="Theme" @click="toggleTheme" class="icon-btn">
           <img
@@ -82,6 +89,7 @@ import { useRouter, useRoute } from "vue-router"
 import { debounce } from "../../backend/utils/debounce.js"
 import { useSearchStore } from "../store/search.js"
 import { useThemeStore } from "../store/theme.js"
+import { useProfileStore } from "../store/profile.js"
 
 import {
   Dark,
@@ -94,6 +102,7 @@ import {
 } from "../assets/icons/icons.js"
 
 const themeStore = useThemeStore()
+const profileStore = useProfileStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -296,6 +305,28 @@ const toggleSettingMenuView = () => {
   align-items: center;
   gap: 0.5rem;
   margin-left: 1rem;
+}
+
+.profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-color);
+  -webkit-app-region: no-drag;
+}
+
+.profile-icon {
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Icon buttons */
