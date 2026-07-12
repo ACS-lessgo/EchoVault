@@ -8,10 +8,21 @@ import { initDB } from "./backend/db/index.js"
 import { registerAllHandlers } from "./backend/main/ipcHandlers.js"
 import { destroyTray } from "./backend/main/tray.js"
 
+// Packaged builds (esp. AppImage) often run with no attached stdout consumer;
+// writing to a closed pipe throws an uncaught EPIPE that crashes the main
+// process. Swallow it here instead of letting it kill the app.
+for (const stream of [process.stdout, process.stderr]) {
+  stream.on("error", (err) => {
+    if (err.code !== "EPIPE") throw err
+  })
+}
+
 // logger init
 log.initialize()
 log.transports.file.level = "info"
-log.transports.console.level = "debug"
+// No console consumer in packaged builds - avoid EPIPE crashes from writing
+// to a stdout pipe nothing is reading. File transport still captures logs.
+log.transports.console.level = app.isPackaged ? false : "debug"
 log.transports.file.format = "[{y}-{m}-{d} {h}:{i}:{s}] [{level}] {text}"
 log.transports.file.maxSize = 5 * 1024 * 1024
 
