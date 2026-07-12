@@ -48,7 +48,8 @@
       <div class="actions">
         <!-- Profile Badge -->
         <div class="profile-badge" :title="profileStore.username || t('settings.tabs.profile')">
-          <i class="fa-solid fa-circle-user profile-icon"></i>
+          <img v-if="profileStore.avatarUrl" :src="profileStore.avatarUrl" alt="Avatar" class="profile-avatar-img" />
+          <i v-else class="fa-solid fa-circle-user profile-icon"></i>
           <span v-if="profileStore.username" class="profile-name">{{ profileStore.username }}</span>
         </div>
 
@@ -318,6 +319,13 @@ const toggleSettingMenuView = () => {
 .profile-icon {
   font-size: 1.4rem;
   color: var(--accent);
+}
+
+.profile-avatar-img {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .profile-name {
