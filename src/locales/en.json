@@ -145,6 +145,8 @@
     "noTrackSelected": "No track selected",
     "tracks": "tracks",
     "noPlaylists": "No playlists",
+    "lyrics": "Lyrics",
+    "showLyrics": "Show Lyrics",
     "noLyricsFound": "No lyrics found",
     "justNow": "Just now"
   },

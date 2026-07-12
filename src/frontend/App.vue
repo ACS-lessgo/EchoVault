@@ -12,6 +12,7 @@
         />
         <router-view v-if="showMainViews" />
       </main>
+      <LyricsPanel />
       <QueueSidebar :showQueue="showQueue" @close="closeQueue" />
     </div>
 
@@ -38,6 +39,7 @@ import TopBar from "./components/TopBar.vue"
 import SideNav from "./components/SideNav.vue"
 import PlayerBar from "./components/PlayerBar.vue"
 import QueueSidebar from "./components/QueueSidebar.vue"
+import LyricsPanel from "./components/LyricsPanel.vue"
 import Toast from "./components/Toast.vue"
 import MiniPlayer from "./components/MiniPlayer.vue"
 import Setting from "./components/Setting.vue"

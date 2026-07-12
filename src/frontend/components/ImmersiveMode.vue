@@ -186,7 +186,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted } from "vue"
+import { computed } from "vue"
 import { usePlayerStore } from "../store/player.js"
 import {
   Previous,
@@ -208,6 +208,7 @@ import {
   useProgressBar,
   usePlaybackControls,
   useTrackLike,
+  useLyricsSync,
   getVolumeIcon,
 } from "../utils/playerUtils.js"
 import { useI18n } from "vue-i18n"
@@ -224,63 +225,7 @@ defineProps({
 const player = usePlayerStore()
 const isPlaying = computed(() => player.isPlaying)
 
-const hasLyrics = computed(() => !!player.lyrics?.text)
-const plainLyricLines = computed(() =>
-  (player.lyrics?.text || "").split("\n").filter((line) => line.trim())
-)
-
-// Active line is driven by the actual playback clock (player.getLiveTime(),
-// backed by the Web Audio context — there is no <audio> element in this app)
-// via requestAnimationFrame, not setInterval. The index is only written when
-// it actually changes, so Vue doesn't re-render on every frame.
-const activeIndex = ref(-1)
-let rafHandle = null
-
-function tickLyricSync() {
-  const timestamps = player.lyrics?.timestamps
-  if (timestamps?.length) {
-    const t = player.getLiveTime()
-    const idx = timestamps.findIndex(
-      (line) => t >= line.startTime && t < line.endTime
-    )
-    if (idx !== activeIndex.value) activeIndex.value = idx
-  }
-  rafHandle = requestAnimationFrame(tickLyricSync)
-}
-
-onMounted(() => {
-  rafHandle = requestAnimationFrame(tickLyricSync)
-})
-
-onUnmounted(() => {
-  if (rafHandle) cancelAnimationFrame(rafHandle)
-})
-
-watch(
-  () => player.lyrics,
-  () => {
-    activeIndex.value = -1
-  }
-)
-
-// Render only ±3 lines around the active one (never the whole list) so a
-// long lyric file doesn't mean hundreds of DOM nodes.
-const WINDOW_RADIUS = 3
-const visibleWindow = computed(() => {
-  const timestamps = player.lyrics?.timestamps
-  const active = activeIndex.value
-  const slots = []
-  for (let offset = -WINDOW_RADIUS; offset <= WINDOW_RADIUS; offset++) {
-    const realIdx = active + offset
-    const line = timestamps?.[realIdx]
-    slots.push({
-      key: line ? `line-${realIdx}` : `pad-${offset}`,
-      line,
-      distance: Math.abs(offset),
-    })
-  }
-  return slots
-})
+const { hasLyrics, plainLyricLines, visibleWindow } = useLyricsSync(player)
 
 const { volume, onVolumeChange, toggleMute } = useVolumeControl(player)
 const {

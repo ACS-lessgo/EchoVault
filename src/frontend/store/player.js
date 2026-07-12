@@ -156,6 +156,7 @@ export const usePlayerStore = defineStore("player", {
     currentTrack: {},
     isPlaying: false,
     lyrics: null,
+    showLyricsPanel: false,
     cacheStats: {
       hits: 0,
       misses: 0,
@@ -535,6 +536,10 @@ export const usePlayerStore = defineStore("player", {
         console.error("Failed to set output device:", err)
         window.api.showToast?.("Couldn't switch to that output device.", "error")
       }
+    },
+
+    toggleLyricsPanel() {
+      this.showLyricsPanel = !this.showLyricsPanel
     },
 
     async getLyrics() {

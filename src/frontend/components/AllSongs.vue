@@ -13,6 +13,14 @@
           v-model:sortField="sortField"
           v-model:sortDirection="sortDirection"
         />
+        <button
+          class="toggle-btn"
+          :class="{ active: player.showLyricsPanel }"
+          :title="t('labels.showLyrics')"
+          @click="player.toggleLyricsPanel()"
+        >
+          <img :src="DesktopLyrics" class="lyrics-toggle-icon" alt="" />
+        </button>
         <div class="view-toggle">
           <button
             :class="['toggle-btn', { active: viewMode === 'list' }]"
@@ -79,6 +87,7 @@ import { useEnhanceStore } from "../store/enhance.js"
 import { usePlaylistsStore } from "../store/playlists.js"
 import { useI18n } from "vue-i18n"
 import { Star, User, ListMusic } from "@lucide/vue"
+import { DesktopLyrics } from "../assets/icons/icons.js"
 import TrackList from "./TrackList.vue"
 import TrackGrid from "./TrackGrid.vue"
 import TrackSortControls from "./TrackSortControls.vue"
@@ -244,7 +253,12 @@ function playCurrentTrack(track) {
   align-items: flex-end;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 20px;
+  margin: -1rem -1rem 20px -1rem;
+  padding: 1rem 1rem 1.25rem 1rem;
+  position: sticky;
+  top: -1rem;
+  z-index: 5;
+  background: var(--content-bg);
 }
 
 .header-title {
@@ -349,5 +363,25 @@ function playCurrentTrack(track) {
 .toggle-btn.active {
   background: var(--accent);
   color: white;
+}
+
+.lyrics-toggle-icon {
+  width: 16px;
+  height: 16px;
+  filter: invert(0%) brightness(0%);
+  opacity: 0.7;
+}
+
+:root[data-theme="dark"] .lyrics-toggle-icon {
+  filter: invert(100%) brightness(200%);
+}
+
+.toggle-btn:hover .lyrics-toggle-icon {
+  opacity: 1;
+}
+
+.toggle-btn.active .lyrics-toggle-icon {
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 </style>

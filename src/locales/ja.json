@@ -145,6 +145,8 @@
     "noTrackSelected": "曲が選択されていません",
     "tracks": "曲",
     "noPlaylists": "プレイリストがありません",
+    "lyrics": "歌詞",
+    "showLyrics": "歌詞を表示",
     "noLyricsFound": "歌詞が見つかりません",
     "justNow": "たった今"
   },
