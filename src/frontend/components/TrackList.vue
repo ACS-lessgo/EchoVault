@@ -49,39 +49,24 @@
               </span>
 
               <button class="more-btn" @click.stop="toggleMenu(track.id, $event)">
-                <i class="fa-solid fa-ellipsis"></i>
+                <Ellipsis :size="18" />
               </button>
             </div>
 
             <!-- DROPDOWN MENU -->
             <div v-if="openMenuId === track.id" class="dropdown-menu"
               :style="{ top: menuPos.y + 'px', left: menuPos.x + 'px' }">
-              <!-- Remove from playlist -->
-              <div v-if="currentPlaylistId" class="dropdown-item danger" @click.stop="removeFromPlaylist(track)">
-                Remove from this playlist
-              </div>
+              <div v-for="item in buildMenuItems(track)" :key="item.key" class="dropdown-item"
+                :class="{ danger: item.danger, disabled: item.disabled, 'has-sub': item.submenu }"
+                @click.stop="!item.disabled && !item.submenu && item.onClick?.()">
+                <component :is="item.icon" :size="16" v-bind="item.iconProps" />
+                <span class="dropdown-label">{{ item.label }}</span>
+                <ChevronRight v-if="item.submenu" class="chevron" :size="14" />
 
-              <!-- Enhance to FLAC (AI) -->
-              <div class="dropdown-item" :class="{ disabled: enhanceStore.isEnhancing(track.id) }"
-                @click.stop="enhanceTrack(track)">
-                {{ $t("enhance.enhanceToFlac") }}
-              </div>
-
-              <!-- Add to playlist -->
-              <div class="dropdown-item has-sub">
-                Add to playlist
-                <svg class="chevron" viewBox="0 0 24 24">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-
-                <div class="sub-menu">
-                  <div v-for="p in availablePlaylists" :key="p.id" class="dropdown-item"
-                    @click.stop="addTrackToPlaylist(track, p.id)">
-                    {{ p.name }}
-                  </div>
-
-                  <div v-if="availablePlaylists.length === 0" class="dropdown-item disabled">
-                    No playlists found
+                <div v-if="item.submenu" class="sub-menu">
+                  <div v-for="sub in item.submenu" :key="sub.key" class="dropdown-item"
+                    :class="{ disabled: sub.disabled }" @click.stop="!sub.disabled && sub.onClick?.()">
+                    <span class="dropdown-label">{{ sub.label }}</span>
                   </div>
                 </div>
               </div>
@@ -97,9 +82,14 @@
 import { ref, computed, onMounted, onUnmounted } from "vue"
 import { useI18n } from "vue-i18n"
 import { useEnhanceStore } from "../store/enhance.js"
+import { usePlayerStore } from "../store/player.js"
+import { useTrackLike } from "../utils/playerUtils.js"
+import { Ellipsis, Heart, Sparkles, ListPlus, ChevronRight, Trash2 } from "@lucide/vue"
 
 const { t } = useI18n()
 const enhanceStore = useEnhanceStore()
+const player = usePlayerStore()
+const { toggleLikedSong } = useTrackLike(player)
 
 const props = defineProps({
   tracks: Array,
@@ -181,6 +171,55 @@ function removeFromPlaylist(track) {
     "success"
   )
   closeMenu()
+}
+
+// Declarative menu-item list: adding a future operation means pushing one
+// object here, not writing a new template block.
+function buildMenuItems(track) {
+  const items = [
+    {
+      key: "like",
+      label: track.isLiked ? t("miniPlayer.unlike") : t("miniPlayer.like"),
+      icon: Heart,
+      iconProps: { fill: track.isLiked ? "currentColor" : "none" },
+      onClick: () => {
+        toggleLikedSong(track)
+        closeMenu()
+      },
+    },
+    {
+      key: "enhance",
+      label: t("enhance.enhanceToFlac"),
+      icon: Sparkles,
+      disabled: enhanceStore.isEnhancing(track.id),
+      onClick: () => enhanceTrack(track),
+    },
+    {
+      key: "add-to-playlist",
+      label: "Add to playlist",
+      icon: ListPlus,
+      submenu:
+        availablePlaylists.value.length > 0
+          ? availablePlaylists.value.map((p) => ({
+              key: p.id,
+              label: p.name,
+              onClick: () => addTrackToPlaylist(track, p.id),
+            }))
+          : [{ key: "none", label: "No playlists found", disabled: true }],
+    },
+  ]
+
+  if (props.currentPlaylistId) {
+    items.push({
+      key: "remove-from-playlist",
+      label: "Remove from this playlist",
+      icon: Trash2,
+      danger: true,
+      onClick: () => removeFromPlaylist(track),
+    })
+  }
+
+  return items
 }
 
 onMounted(() => {
@@ -378,12 +417,13 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
+  color: var(--muted-text);
 
   margin-left: 2px;
 
   cursor: pointer;
 
-  opacity: .55;
+  opacity: .75;
 
   flex-shrink: 0;
 
@@ -392,32 +432,30 @@ onUnmounted(() => {
 
 .more-btn:hover {
   opacity: 1;
+  color: var(--accent);
   background-color: var(--hover-bg);
-}
-
-.more-btn svg {
-  width: 18px;
-  height: 18px;
 }
 
 /* === DROPDOWN MENU === */
 
 .dropdown-menu {
   position: fixed;
-  min-width: 180px;
+  min-width: 200px;
   background: var(--side-nav-bg);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  padding: 6px 0;
+  padding: 6px;
   box-shadow: var(--shadow-lg);
   z-index: 9999;
 }
 
 .dropdown-item {
-  padding: 10px 14px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
 }
 
@@ -434,14 +472,20 @@ onUnmounted(() => {
   cursor: not-allowed;
 }
 
+.dropdown-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
 /* Submenu */
 .has-sub {
   position: relative;
 }
 
 .chevron {
-  width: 14px;
+  margin-left: auto;
   opacity: 0.6;
+  flex-shrink: 0;
 }
 
 .sub-menu {
@@ -451,10 +495,14 @@ onUnmounted(() => {
   top: 0;
   min-width: 180px;
   background: var(--side-nav-bg);
-  padding: 6px 0;
+  padding: 6px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
+}
+
+.sub-menu .dropdown-item {
+  gap: 0;
 }
 
 .has-sub:hover .sub-menu {

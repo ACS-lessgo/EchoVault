@@ -204,11 +204,10 @@ export function useLyricsSync(player, windowRadius = 3) {
 
 // Like song
 export function useTrackLike(player) {
-  const toggleLikedSong = async () => {
-    // notify listeners
-    player.notifyLikedChange()
-
-    const track = player.currentTrack
+  // Defaults to the currently-playing track, but accepts any track object
+  // (e.g. a row in a track list) so liking doesn't require playback first.
+  const toggleLikedSong = async (targetTrack) => {
+    const track = targetTrack ?? player.currentTrack
     if (!track?.id) return
 
     const newStatus = !track.isLiked
@@ -216,8 +215,20 @@ export function useTrackLike(player) {
     // change the like status for UI
     track.isLiked = newStatus
 
+    // keep the now-playing heart in sync if it's a separate object for the same track
+    if (
+      player.currentTrack &&
+      player.currentTrack !== track &&
+      player.currentTrack.id === track.id
+    ) {
+      player.currentTrack.isLiked = newStatus
+    }
+
     // send same to db
     await window.api.toggleLike(track.id, newStatus)
+
+    // notify listeners so other open views resync isLiked
+    player.notifyLikedChange()
 
     // based on status, show toast
 
