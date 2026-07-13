@@ -1,29 +1,32 @@
 import { ipcMain, BrowserWindow } from "electron"
 import fs from "fs"
 
-export function registerPlayerHandlers(mainWindow, db) {
-  ipcMain.handle("player:play", (event, trackPath) => {
-    try {
-      const data = fs.readFileSync(trackPath)
-      // return buffer
-      return data.buffer.slice(
-        data.byteOffset,
-        data.byteOffset + data.byteLength
-      )
-    } catch (err) {
-      console.error("Failed to read audio file:", err)
-      throw err
-    }
-  })
+export function playTrack(trackPath) {
+  try {
+    const data = fs.readFileSync(trackPath)
+    // return buffer
+    return data.buffer.slice(
+      data.byteOffset,
+      data.byteOffset + data.byteLength
+    )
+  } catch (err) {
+    console.error("Failed to read audio file:", err)
+    throw err
+  }
+}
 
-  ipcMain.handle("player:getFileSize", (event, trackPath) => {
-    try {
-      return fs.statSync(trackPath).size
-    } catch (err) {
-      console.error("Failed to get file size:", err)
-      throw err
-    }
-  })
+export function getFileSize(trackPath) {
+  try {
+    return fs.statSync(trackPath).size
+  } catch (err) {
+    console.error("Failed to get file size:", err)
+    throw err
+  }
+}
+
+export function registerPlayerHandlers(mainWindow, db) {
+  ipcMain.handle("player:play", (event, trackPath) => playTrack(trackPath))
+  ipcMain.handle("player:getFileSize", (event, trackPath) => getFileSize(trackPath))
 
   let isProgrammaticResize = false
   let isInMiniMode = false
