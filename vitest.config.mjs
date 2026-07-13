@@ -8,6 +8,7 @@ export default defineConfig({
           name: "backend",
           environment: "node",
           include: ["src/backend/**/*.test.js", "src/main.test.js"],
+          setupFiles: ["./src/backend/test-setup.js"],
         },
       },
       {

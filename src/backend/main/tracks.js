@@ -23,26 +23,40 @@ function formatLrcTime(seconds) {
   return `${mm}:${ss}`
 }
 
+export function getTracks(db) {
+  return db.prepare(GET_TRACKS).all()
+}
+
+export function getRecentTracks(db) {
+  return db.prepare(GET_RECENT_TRACKS).all()
+}
+
+export function getLikedTracks(db) {
+  return db.prepare(GET_LIKED_TRACKS).all()
+}
+
+export function getEnhancedTracks(db) {
+  return db.prepare(GET_ENHANCED_TRACKS).all()
+}
+
+export function updateLike(db, trackId, isLiked) {
+  const result = db.prepare(UPDATE_LIKE).run(isLiked ? 1 : 0, trackId)
+  return result.changes > 0
+}
+
 export function registerTrackHandlers(mainWindow, db) {
   // tracks
-  ipcMain.handle("tracks:get-tracks", () => db.prepare(GET_TRACKS).all())
-  ipcMain.handle("tracks:get-recent", () => db.prepare(GET_RECENT_TRACKS).all())
+  ipcMain.handle("tracks:get-tracks", () => getTracks(db))
+  ipcMain.handle("tracks:get-recent", () => getRecentTracks(db))
 
   // liked
-  ipcMain.handle("tracks:get-liked-tracks", () =>
-    db.prepare(GET_LIKED_TRACKS).all()
-  )
+  ipcMain.handle("tracks:get-liked-tracks", () => getLikedTracks(db))
 
   // enhanced
-  ipcMain.handle("tracks:get-enhanced-tracks", () =>
-    db.prepare(GET_ENHANCED_TRACKS).all()
-  )
+  ipcMain.handle("tracks:get-enhanced-tracks", () => getEnhancedTracks(db))
 
   // like a track
-  ipcMain.handle("tracks:updateLike", (event, trackId, isLiked) => {
-    const result = db.prepare(UPDATE_LIKE).run(isLiked ? 1 : 0, trackId)
-    return result.changes > 0
-  })
+  ipcMain.handle("tracks:updateLike", (event, trackId, isLiked) => updateLike(db, trackId, isLiked))
 
   // lyrics
   ipcMain.handle("tracks:get-lyrics", async (event, filePath, options = {}) => {

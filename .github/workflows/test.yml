@@ -15,4 +15,8 @@ jobs:
         with:
           node-version: "20.20.2"
       - run: npm ci
+      # electron-forge rebuilds native modules (better-sqlite3) against Electron's
+      # Node ABI on install (see CLAUDE.md) — tests run under plain Node, so it
+      # needs rebuilding back before vitest can load it.
+      - run: npm rebuild better-sqlite3
       - run: npm run test:coverage
