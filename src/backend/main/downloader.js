@@ -49,7 +49,7 @@ export function getEnhancerPaths() {
   }
 }
 
-function sha256File(filePath) {
+export function sha256File(filePath) {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash("sha256")
     const stream = fs.createReadStream(filePath)
@@ -187,7 +187,7 @@ export async function ensureEnhancerAssets(onProgress = () => {}) {
   return paths
 }
 
-function pctOf(done, total) {
+export function pctOf(done, total) {
   if (!total) return null // indeterminate when manifest omits byte sizes
   return Math.min(100, Math.round((done / total) * 100))
 }
@@ -197,7 +197,7 @@ function sleep(ms) {
 }
 
 /** Transient = network/stream errors, or HTTP 404 (fresh upload)/408/429/5xx. */
-function isTransient(err) {
+export function isTransient(err) {
   const msg = String(err?.message || "")
   const httpMatch = msg.match(/HTTP (\d{3})/)
   if (httpMatch) {
@@ -207,7 +207,7 @@ function isTransient(err) {
   return true // no HTTP status => socket/DNS/timeout error
 }
 
-async function withRetry(fn, { attempts = 3, baseMs = 1000, label = "" } = {}) {
+export async function withRetry(fn, { attempts = 3, baseMs = 1000, label = "" } = {}) {
   let lastErr
   for (let i = 0; i < attempts; i++) {
     try {

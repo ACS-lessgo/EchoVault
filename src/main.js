@@ -7,6 +7,7 @@ import log from "electron-log/main"
 import { initDB } from "./backend/db/index.js"
 import { registerAllHandlers } from "./backend/main/ipcHandlers.js"
 import { destroyTray } from "./backend/main/tray.js"
+import { parseRange } from "./backend/utils/httpRange.js"
 
 // Packaged builds (esp. AppImage) often run with no attached stdout consumer;
 // writing to a closed pipe throws an uncaught EPIPE that crashes the main
@@ -221,7 +222,16 @@ app.whenReady().then(() => {
     }
 
     const rangeHeader = request.headers.get("range")
-    if (!rangeHeader) {
+    const range = parseRange(rangeHeader, fileSize)
+
+    if (range.status === 416) {
+      return new Response(null, {
+        status: 416,
+        headers: { ...headers, "Content-Range": `bytes */${fileSize}` },
+      })
+    }
+
+    if (range.status === 200) {
       const stream = Readable.toWeb(fs.createReadStream(filePath))
       return new Response(stream, {
         status: 200,
@@ -229,26 +239,13 @@ app.whenReady().then(() => {
       })
     }
 
-    const match = rangeHeader.match(/bytes=(\d*)-(\d*)/)
-    let start = match?.[1] ? parseInt(match[1], 10) : 0
-    let end = match?.[2] ? parseInt(match[2], 10) : fileSize - 1
-    if (isNaN(start) || start < 0) start = 0
-    if (isNaN(end) || end >= fileSize) end = fileSize - 1
-
-    if (start > end) {
-      return new Response(null, {
-        status: 416,
-        headers: { ...headers, "Content-Range": `bytes */${fileSize}` },
-      })
-    }
-
-    const stream = Readable.toWeb(fs.createReadStream(filePath, { start, end }))
+    const stream = Readable.toWeb(fs.createReadStream(filePath, { start: range.start, end: range.end }))
     return new Response(stream, {
       status: 206,
       headers: {
         ...headers,
-        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-        "Content-Length": String(end - start + 1),
+        "Content-Range": `bytes ${range.start}-${range.end}/${fileSize}`,
+        "Content-Length": String(range.end - range.start + 1),
       },
     })
   })

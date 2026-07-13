@@ -28,7 +28,7 @@ const ERROR_MESSAGES = {
   GENERIC: "Enhancement failed unexpectedly.",
 }
 
-function enhancedOutputPath(srcPath) {
+export function enhancedOutputPath(srcPath) {
   const dir = path.dirname(srcPath)
   const base = path.basename(srcPath, path.extname(srcPath))
   return path.join(dir, `${base}${OUTPUT_FILENAME_SUFFIX}.flac`)
