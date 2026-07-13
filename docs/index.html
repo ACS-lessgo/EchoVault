@@ -6,6 +6,12 @@
     <title>EchoVault - Modern Music Player</title>
     <link rel="stylesheet" href="./index.css" />
     <link rel="icon" type="image/png" href="./assests/app-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <!-- Lucide Icon Library -->
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
@@ -59,18 +65,35 @@
       </div>
 
       <div class="hero-image">
-        <div class="app-icon">
-          <div class="wave">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
+        <div class="player-mockup" aria-hidden="true">
+          <div class="mockup-cover">
+            <i data-lucide="music"></i>
+          </div>
+          <div class="mockup-info">
+            <p class="mockup-title">Midnight City</p>
+            <p class="mockup-artist">M83</p>
+          </div>
+
+          <div class="mockup-controls">
+            <button class="mockup-icon-btn" tabindex="-1">
+              <i data-lucide="shuffle"></i>
+            </button>
+            <button class="mockup-icon-btn" tabindex="-1">
+              <i data-lucide="skip-back"></i>
+            </button>
+            <button class="mockup-icon-btn mockup-play" tabindex="-1">
+              <i data-lucide="play"></i>
+            </button>
+            <button class="mockup-icon-btn" tabindex="-1">
+              <i data-lucide="skip-forward"></i>
+            </button>
+            <button class="mockup-icon-btn" tabindex="-1">
+              <i data-lucide="repeat"></i>
+            </button>
+          </div>
+
+          <div class="mockup-progress">
+            <div class="mockup-progress-fill"></div>
           </div>
         </div>
       </div>
@@ -177,7 +200,7 @@
         <h2 class="section-title" style="margin-bottom: 10px">
           EchoVault Command Line
         </h2>
-        <p style="color: #94a3b8">
+        <p style="color: var(--muted-text)">
           A powerful Text User Interface (TUI) to manage your music library via
           terminal. Built with Python and published on PyPI.
         </p>
@@ -210,7 +233,7 @@
           <img
             src="./assests/screenshots/cli1.png"
             alt="EchoVault TUI Interface"
-            style="width: 100%; border-radius: 4px; border: 1px solid #334155"
+            style="width: 100%; border-radius: 4px; border: 1px solid var(--border-color)"
           />
         </div>
       </div>
@@ -246,50 +269,7 @@
             <div class="dot yellow"></div>
             <div class="dot green"></div>
           </div>
-          <img src="./assests/screenshots/all-songs.png" alt="All songs" />
-          <figcaption>All Songs — browse your entire collection</figcaption>
-        </figure>
-
-        <figure class="screenshot-card reveal">
-          <div class="terminal-header">
-            <div class="dot red"></div>
-            <div class="dot yellow"></div>
-            <div class="dot green"></div>
-          </div>
-          <img
-            src="./assests/screenshots/colors-n-themes.png"
-            alt="Color theme"
-          />
-          <figcaption>Themes — light & dark with custom accents</figcaption>
-        </figure>
-
-        <figure class="screenshot-card reveal">
-          <div class="terminal-header">
-            <div class="dot red"></div>
-            <div class="dot yellow"></div>
-            <div class="dot green"></div>
-          </div>
-          <img src="./assests/screenshots/queue.png" alt="Queue View" />
-          <figcaption>Queue — see and reorder what's coming up</figcaption>
-        </figure>
-
-        <figure class="screenshot-card reveal">
-          <div class="terminal-header">
-            <div class="dot red"></div>
-            <div class="dot yellow"></div>
-            <div class="dot green"></div>
-          </div>
-          <img src="./assests/screenshots/artists.png" alt="Artists" />
-          <figcaption>Artists — organized by who you love</figcaption>
-        </figure>
-
-        <figure class="screenshot-card reveal">
-          <div class="terminal-header">
-            <div class="dot red"></div>
-            <div class="dot yellow"></div>
-            <div class="dot green"></div>
-          </div>
-          <img src="./assests/screenshots/library-view.png" alt="Library" />
+          <img src="./assests/screenshots/library.png" alt="Library" />
           <figcaption>Library — every format, one place</figcaption>
         </figure>
 
@@ -299,14 +279,44 @@
             <div class="dot yellow"></div>
             <div class="dot green"></div>
           </div>
-          <img src="./assests/screenshots/playlists.png" alt="playlist" />
-          <figcaption>Playlists — build and manage your mixes</figcaption>
+          <img src="./assests/screenshots/now-playing.png" alt="Now Playing" />
+          <figcaption>Now Playing — full-screen immersive mode</figcaption>
+        </figure>
+
+        <figure class="screenshot-card reveal">
+          <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+          </div>
+          <img src="./assests/screenshots/lyrics.png" alt="Synced lyrics" />
+          <figcaption>Lyrics — synced line-by-line as you listen</figcaption>
+        </figure>
+
+        <figure class="screenshot-card reveal">
+          <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+          </div>
+          <img src="./assests/screenshots/queue.png" alt="Queue View" />
+          <figcaption>Queue — see what's coming up next</figcaption>
+        </figure>
+
+        <figure class="screenshot-card reveal">
+          <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+          </div>
+          <img src="./assests/screenshots/mini-player.png" alt="Mini Player" />
+          <figcaption>Mini Player — compact overlay for on-the-side listening</figcaption>
         </figure>
       </div>
     </section>
 
     <footer>
-      <p>&copy; 2025 EchoVault. Built for music lovers.</p>
+      <p>&copy; 2026 EchoVault. Built for music lovers.</p>
     </footer>
   </body>
 
