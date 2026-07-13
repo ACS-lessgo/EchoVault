@@ -102,3 +102,9 @@ out/
 # Build directories
 onnx/build/*
 onnx/dist/*
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
