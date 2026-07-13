@@ -1,7 +1,16 @@
-# EchoVault
+# EchoVault 
+
+[![License](https://img.shields.io/github/license/EchoVaultHQ/EchoVault)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/EchoVaultHQ/EchoVault)](https://github.com/EchoVaultHQ/EchoVault/releases)
+[![Downloads](https://img.shields.io/github/downloads/EchoVaultHQ/EchoVault/total)](https://github.com/EchoVaultHQ/EchoVault/releases)
+[![Stars](https://img.shields.io/github/stars/EchoVaultHQ/EchoVault)](https://github.com/EchoVaultHQ/EchoVault)
 
 A modern, high-fidelity music player built with **Electron**, **Vite**, and **Vue**.  
 EchoVault is designed to provide a clean, responsive interface and rich playback features for local lossless audio collections.
+
+## Related Projects
+
+- **EchoVault CLI** — Official command-line interface for EchoVault.
 
 ---
 
@@ -20,18 +29,37 @@ EchoVault is designed to provide a clean, responsive interface and rich playback
 
 ## Overview
 
-EchoVault is a cross-platform desktop application focused on providing smooth, high-quality local music playback.
-The project is currently in **Alpha** phase, meaning core features are functional but may be incomplete or unstable.
+EchoVault is the flagship desktop application of the EchoVault ecosystem.
+The project is maintained under the EchoVaultHQ GitHub organization alongside official tools such as EchoVault CLI.
 
 ---
 
 ## Features
 
-- High-fidelity playback for FLAC, WAV, ALAC, and MP3 formats
-- Local library management with caching for instant load times
-- Mini Player mode for a compact, floating playback interface
-- Responsive and adaptive UI for all desktop platforms
-- Cross-platform builds (Windows, Linux)
+### Playback
+
+- FLAC
+- WAV
+- ALAC
+- MP3
+
+### Library
+
+- Automatic library scanning
+- Metadata indexing
+- Instant startup through local caching
+
+### Interface
+
+- Mini Player
+- Light & Dark themes
+- Multiple color schemes
+- Responsive desktop UI
+
+### Platform Support
+
+- Windows
+- Linux
 
 ---
 
@@ -199,11 +227,9 @@ EchoVault/
 └── README.md
 ```
 
-Release Notes
+## License
 
-- See detailed notes for each version in RELEASE_NOTES.md.
-
-- Current stable version: v1.0.0-alpha
+This project is licensed under the MIT License.
 
 ## Fork this repository
 
