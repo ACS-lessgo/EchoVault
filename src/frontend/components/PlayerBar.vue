@@ -125,7 +125,7 @@
             <SlidersHorizontal :size="17" />
           </button>
           <button
-            @click="toggleLikedSong"
+            @click="toggleLikedSong()"
             class="icon-btn like-btn"
             :class="{ 'is-liked': player.currentTrack?.isLiked }"
             :title="`Like Song`"

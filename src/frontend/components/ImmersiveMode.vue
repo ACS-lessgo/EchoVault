@@ -40,7 +40,7 @@
         {{ player.currentTrack?.artist || t("labels.unknownArtist") }}
       </h2>
 
-      <button @click="toggleLikedSong" class="icon-btn like-btn" title="Like Song">
+      <button @click="toggleLikedSong()" class="icon-btn like-btn" title="Like Song">
         <img class="playbar-icon-class" :src="player.currentTrack?.isLiked ? HeartSolid : Heart" alt="Heart icon"
           :class="{ 'is-liked': player.currentTrack?.isLiked }" />
       </button>

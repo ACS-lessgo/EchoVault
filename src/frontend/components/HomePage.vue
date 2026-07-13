@@ -28,7 +28,7 @@
           <button class="icon-btn" :disabled="!player.hasNext" @click="playNextTrack">
             <SkipForward :size="20" fill="currentColor" />
           </button>
-          <button class="icon-btn" :class="{ active: player.currentTrack?.isLiked }" @click="toggleLikedSong">
+          <button class="icon-btn" :class="{ active: player.currentTrack?.isLiked }" @click="toggleLikedSong()">
             <Heart :size="18" :fill="player.currentTrack?.isLiked ? 'currentColor' : 'none'" />
           </button>
           <button class="icon-btn" :class="{ active: player.shuffleEnabled }" @click="player.toggleShuffle">
